@@ -1,0 +1,14 @@
+# ThreeValleys (2-3) seed 2 char Some(8) objective Uef, fast forward held: 3522 frames = 35.22 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (7, 585) angle 3.7958047 click 103 | 26 pegs, 10 orange, score 80680, end tick 1011, styles [3], catches 0, free 1
+2: pixel (401, 588) angle 4.7249069 click 1259 | 14 pegs, 4 orange, score 14000, end tick 1766, styles [], catches 0, free 0
+3: pixel (656, 155) angle 5.9967651 click 1982 | 21 pegs, 5 orange, score 41370, end tick 2323, styles [], catches 0, free 1
+4: pixel (665, 88) angle 6.2473736 click 2555 | 17 pegs, 3 orange, score 80750, end tick 2941, styles [], catches 0, free 2
+5: pixel (120, 134) angle 3.3062935 click 3149 | 8 pegs, 2 orange, score 45800, end tick 3379, styles [0], catches 0, free 0
+6: pixel (691, 518) angle 5.4657512 click 3539 | 6 pegs, 0 orange, score 33000, end tick 3773, styles [], catches 0, free 1
+7: pixel (150, 226) angle 3.6476569 click 3925 | 4 pegs, 0 orange, score 1600, end tick 4072, styles [], catches 0, free 0
+8: pixel (94, 242) angle 3.5236447 click 4216 | 4 pegs, 0 orange, score 21200, end tick 4445, styles [], catches 0, free 0
+9: pixel (119, 116) angle 3.2455888 click 4589 | 3 pegs, 0 orange, score 15600, end tick 4734, styles [], catches 0, free 0
+10: pixel (703, 294) angle 5.7857804 click 4870 | 2 pegs, 0 orange, score 10200, end tick 4992, styles [], catches 0, free 0
+11: pixel (495, 113) angle 5.5827422 click 5120 | 1 pegs, 1 orange, score 141000, end tick 5216, styles [], catches 0, free 0 WIN
+# total 485200 after 11 shots, balls left 4

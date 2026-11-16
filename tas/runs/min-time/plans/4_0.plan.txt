@@ -1,0 +1,8 @@
+# ThreeHills (5-1) seed 7 char Some(6) objective Speed, fast forward held: 1594 frames = 15.94 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (601, 533) angle 5.2375593 click 103 | 23 pegs, 11 orange, score 80590, end tick 704, styles [3], catches 1, free 1
+2: pixel (452, 35) angle 6.1925588 click 952 | 11 pegs, 8 orange, score 72770, end tick 1219, styles [3], catches 0, free 0
+3: pixel (695, 595) angle 5.4077072 click 1387 | 5 pegs, 3 orange, score 8250, end tick 1599, styles [], catches 1, free 0
+4: pixel (149, 155) angle 3.4503167 click 1759 | 2 pegs, 2 orange, score 4000, end tick 1965, styles [], catches 1, free 0
+5: pixel (566, 458) angle 5.1937408 click 2109 | 8 pegs, 1 orange, score 239600, end tick 2287, styles [], catches 0, free 0 WIN
+# total 405210 after 5 shots, balls left 9

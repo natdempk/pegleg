@@ -1,0 +1,7 @@
+# YinYang (10-4) seed 3 char Some(6) objective Shots, fast forward held: 2886 frames = 28.86 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (3, 483) angle 3.6833642 click 103 | 20 pegs, 11 orange, score 101400, end tick 745, styles [0, 3], catches 0, free 1
+2: pixel (387, 594) angle 4.6798086 click 969 | 20 pegs, 8 orange, score 97000, end tick 1625, styles [3], catches 0, free 1
+3: pixel (42, 524) angle 3.8118470 click 1849 | 14 pegs, 4 orange, score 113400, end tick 2511, styles [], catches 1, free 2
+4: pixel (598, 93) angle 6.0660043 click 2735 | 18 pegs, 2 orange, score 721000, end tick 3523, styles [0], catches 0, free 0 WIN
+# total 1032800 after 4 shots, balls left 11

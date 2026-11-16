@@ -1,0 +1,7 @@
+char 1
+level 10 3
+shotx 40c89889 111
+shotx 409e0e16 1471
+shotx 40724304 2696
+waitms 3000
+quit

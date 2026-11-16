@@ -1,0 +1,7 @@
+# TotemPole (3-1) seed 8 char Some(6) objective Speed, fast forward held: 1619 frames = 16.19 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (648, 478) angle 5.4003077 click 103 | 22 pegs, 13 orange, score 113060, end tick 762, styles [10, 3], catches 0, free 1
+2: pixel (109, 209) angle 3.4883840 click 986 | 11 pegs, 6 orange, score 19250, end tick 1416, styles [], catches 0, free 0
+3: pixel (172, 372) angle 3.9752421 click 1584 | 8 pegs, 4 orange, score 21600, end tick 1807, styles [], catches 0, free 0
+4: pixel (83, 157) angle 3.2922735 click 1959 | 6 pegs, 2 orange, score 94400, end tick 2144, styles [], catches 0, free 0 WIN
+# total 248310 after 4 shots, balls left 7

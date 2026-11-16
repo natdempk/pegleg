@@ -1,0 +1,8 @@
+# InfiniteJest (5-4) seed 1 char Some(8) objective Speed, fast forward held: 1592 frames = 15.92 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (483, 347) angle 5.0242167 click 111 | 9 pegs, 5 orange, score 4860, end tick 503, styles [], catches 0, free 0
+2: pixel (466, 342) angle 4.9584155 click 663 | 26 pegs, 9 orange, score 140300, end tick 1078, styles [2, 3], catches 1, free 1
+3: pixel (282, 48) angle 3.2966771 click 1326 | 26 pegs, 8 orange, score 210720, end tick 1671, styles [3, 7], catches 1, free 3
+4: pixel (202, 85) angle 3.3311810 click 1911 | 2 pegs, 2 orange, score 4000, end tick 2075, styles [], catches 1, free 0
+5: pixel (770, 282) angle 5.9787297 click 2211 | 2 pegs, 1 orange, score 134000, end tick 2348, styles [], catches 0, free 0 WIN
+# total 493880 after 5 shots, balls left 12

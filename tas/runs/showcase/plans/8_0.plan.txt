@@ -1,0 +1,6 @@
+# Paperclips (9-1) seed 3 char Some(5) objective Shots, fast forward held: 5505 frames = 55.05 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (701, 217) angle 5.9429498 click 119 | 50 pegs, 14 orange, score 162500, end tick 2330, styles [3], catches 0, free 2
+2: pixel (589, 244) angle 5.5524969 click 2810 | 34 pegs, 10 orange, score 292600, end tick 4707, styles [3, 12], catches 1, free 3
+3: pixel (576, 243) angle 5.5014949 click 5131 | 16 pegs, 1 orange, score 580000, end tick 6345, styles [], catches 0, free 0 WIN
+# total 1035100 after 3 shots, balls left 13

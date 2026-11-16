@@ -1,0 +1,13 @@
+# Crisscross (11-2) seed 2 char Some(3) objective Uef, fast forward held: 3288 frames = 32.88 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (445, 32) angle 6.2427964 click 111 | 24 pegs, 7 orange, score 82640, end tick 291, styles [2], catches 1, free 1
+2: pixel (603, 418) angle 5.3345814 click 531 | 38 pegs, 6 orange, score 77060, end tick 1191, styles [12], catches 1, free 1
+3: pixel (425, 154) angle 4.9254732 click 1503 | 17 pegs, 4 orange, score 22950, end tick 2131, styles [], catches 0, free 0
+4: pixel (418, 303) angle 4.7946348 click 2331 | 21 pegs, 3 orange, score 38220, end tick 2747, styles [], catches 0, free 1
+5: pixel (23, 113) angle 3.0259752 click 2971 | 11 pegs, 3 orange, score 27500, end tick 3145, styles [], catches 0, free 1
+6: pixel (105, 359) angle 3.7658720 click 3337 | 2 pegs, 1 orange, score 2200, end tick 3587, styles [], catches 0, free 0
+7: pixel (265, 128) angle 3.7353964 click 3715 | 8 pegs, 0 orange, score 6400, end tick 3905, styles [], catches 0, free 0
+8: pixel (125, 453) angle 3.9451690 click 4073 | 9 pegs, 0 orange, score 77200, end tick 4408, styles [12], catches 1, free 1
+9: pixel (76, 377) angle 3.7211721 click 4568 | 2 pegs, 0 orange, score 400, end tick 4688, styles [], catches 0, free 0
+10: pixel (238, 208) angle 3.8984110 click 4816 | 2 pegs, 1 orange, score 202000, end tick 4961, styles [], catches 0, free 0 WIN
+# total 536570 after 10 shots, balls left 8

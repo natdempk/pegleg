@@ -1,0 +1,15 @@
+# DoubleHelix (10-5) seed 3 char Some(8) objective Uef, fast forward held: 3750 frames = 37.50 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (658, 282) angle 5.6843424 click 103 | 17 pegs, 6 orange, score 12070, end tick 846, styles [], catches 0, free 0
+2: pixel (251, 57) angle 3.2893753 click 1062 | 45 pegs, 9 orange, score 185450, end tick 1831, styles [3], catches 0, free 3
+3: pixel (42, 99) angle 3.0234601 click 2271 | 27 pegs, 5 orange, score 113670, end tick 2674, styles [], catches 0, free 2
+4: pixel (768, 334) angle 5.8834915 click 2930 | 11 pegs, 3 orange, score 26400, end tick 3405, styles [], catches 0, free 1
+5: pixel (632, 377) angle 5.4652061 click 3581 | 7 pegs, 1 orange, score 11200, end tick 3787, styles [], catches 0, free 0
+6: pixel (652, 597) angle 5.3099308 click 3955 | 7 pegs, 0 orange, score 4900, end tick 4122, styles [], catches 0, free 0
+7: pixel (71, 563) angle 3.9173210 click 4282 | 3 pegs, 0 orange, score 900, end tick 4420, styles [], catches 0, free 0
+8: pixel (222, 146) angle 3.6408668 click 4556 | 3 pegs, 0 orange, score 15600, end tick 4692, styles [], catches 0, free 0
+9: pixel (546, 130) angle 5.7321444 click 4828 | 2 pegs, 0 orange, score 400, end tick 4957, styles [], catches 0, free 0
+10: pixel (247, 175) angle 3.8432336 click 5085 | 1 pegs, 0 orange, score 100, end tick 5194, styles [], catches 0, free 0
+11: pixel (648, 72) angle 6.2708197 click 5322 | 2 pegs, 0 orange, score 10200, end tick 5499, styles [], catches 0, free 0
+12: pixel (131, 496) angle 4.0018225 click 5627 | 1 pegs, 1 orange, score 141000, end tick 5724, styles [], catches 0, free 0 WIN
+# total 521890 after 12 shots, balls left 4

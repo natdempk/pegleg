@@ -1,0 +1,8 @@
+char 3
+level 3 2
+shotx 40a16399 103
+shotx 408a0a97 968
+shotx 409879b8 1623
+shotx 408fc063 2046
+waitms 3000
+quit

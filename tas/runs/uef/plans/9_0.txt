@@ -1,0 +1,14 @@
+char 3
+level 9 0
+shotx 40aee417 127
+shotx 40530f8b 769
+shotx 40b756a6 1482
+shotx 406a48e8 2131
+shotx 40837a7c 2729
+shotx 40bfeadc 3080
+shotx 40813fc2 3627
+shotx 40585f7e 3874
+shotx 40c59dd9 4175
+shotx 40adfc95 4487
+waitms 3000
+quit

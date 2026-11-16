@@ -1,0 +1,9 @@
+# Cards (8-5) seed 2 char Some(8) objective Speed, fast forward held: 1583 frames = 15.83 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (74, 328) angle 3.6415970 click 103 | 6 pegs, 3 orange, score 1980, end tick 350, styles [], catches 0, free 0
+2: pixel (524, 517) angle 5.0435658 click 494 | 36 pegs, 11 orange, score 118400, end tick 798, styles [3], catches 0, free 1
+3: pixel (572, 254) angle 5.4651194 click 1190 | 10 pegs, 4 orange, score 12700, end tick 1291, styles [], catches 0, free 0
+4: pixel (605, 186) angle 5.7520914 click 1459 | 6 pegs, 3 orange, score 8700, end tick 1714, styles [], catches 1, free 0
+5: pixel (144, 40) angle 3.0199358 click 1882 | 2 pegs, 2 orange, score 28000, end tick 2060, styles [0], catches 0, free 0
+6: pixel (227, 383) angle 4.1451583 click 2188 | 4 pegs, 2 orange, score 78800, end tick 2535, styles [], catches 0, free 0 WIN
+# total 248580 after 6 shots, balls left 6

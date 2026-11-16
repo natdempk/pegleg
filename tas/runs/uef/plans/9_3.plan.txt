@@ -1,0 +1,18 @@
+# YinYang (10-4) seed 2 char Some(6) objective Uef, fast forward held: 5352 frames = 53.52 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (117, 246) angle 3.6021202 click 103 | 19 pegs, 5 orange, score 12160, end tick 856, styles [], catches 0, free 0
+2: pixel (556, 402) angle 5.2134652 click 1088 | 29 pegs, 10 orange, score 117280, end tick 2138, styles [3], catches 1, free 1
+3: pixel (711, 440) angle 5.5947409 click 2434 | 11 pegs, 5 orange, score 20680, end tick 2862, styles [], catches 0, free 0
+4: pixel (132, 472) angle 3.9779997 click 3038 | 8 pegs, 3 orange, score 57600, end tick 3399, styles [], catches 0, free 1
+5: pixel (468, 60) angle 5.8759899 click 3575 | 7 pegs, 1 orange, score 11200, end tick 3826, styles [], catches 0, free 0
+6: pixel (121, 464) angle 3.9433370 click 3986 | 13 pegs, 0 orange, score 80600, end tick 4368, styles [], catches 1, free 2
+7: pixel (143, 109) angle 3.2802260 click 4600 | 13 pegs, 0 orange, score 80600, end tick 5118, styles [], catches 1, free 2
+8: pixel (418, 116) angle 4.9107838 click 5350 | 5 pegs, 0 orange, score 27000, end tick 5477, styles [], catches 0, free 1
+9: pixel (561, 457) angle 5.1805696 click 5621 | 4 pegs, 0 orange, score 1600, end tick 5785, styles [], catches 1, free 0
+10: pixel (771, 463) angle 5.7102594 click 5961 | 6 pegs, 0 orange, score 3600, end tick 6200, styles [], catches 0, free 0
+11: pixel (98, 469) angle 3.8873990 click 6352 | 3 pegs, 0 orange, score 900, end tick 6465, styles [], catches 0, free 0
+12: pixel (550, 47) angle 6.2135262 click 6601 | 3 pegs, 0 orange, score 900, end tick 6724, styles [], catches 0, free 0
+13: pixel (50, 397) angle 3.6860278 click 6860 | 4 pegs, 0 orange, score 1600, end tick 7068, styles [], catches 0, free 0
+14: pixel (117, 153) angle 3.3579035 click 7228 | 4 pegs, 0 orange, score 21200, end tick 7464, styles [], catches 0, free 0
+15: pixel (278, 44) angle 3.2472932 click 7608 | 3 pegs, 1 orange, score 253300, end tick 7788, styles [4, 11], catches 0, free 0 WIN
+# total 690220 after 15 shots, balls left 6

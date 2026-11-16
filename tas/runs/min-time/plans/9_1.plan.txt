@@ -1,0 +1,7 @@
+# Vortex (10-2) seed 4 char Some(3) objective Speed, fast forward held: 1768 frames = 17.68 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (626, 147) angle 5.9375114 click 103 | 9 pegs, 7 orange, score 6480, end tick 563, styles [], catches 0, free 0
+2: pixel (199, 406) angle 4.0854559 click 755 | 15 pegs, 8 orange, score 21000, end tick 1103, styles [], catches 0, free 0
+3: pixel (715, 149) angle 6.1602778 click 1303 | 32 pegs, 6 orange, score 101760, end tick 1682, styles [], catches 0, free 2
+4: pixel (510, 314) angle 5.1464796 click 2090 | 19 pegs, 4 orange, score 298650, end tick 2517, styles [], catches 0, free 1 WIN
+# total 427890 after 4 shots, balls left 9

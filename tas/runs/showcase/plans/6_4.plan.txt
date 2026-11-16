@@ -1,0 +1,6 @@
+# Sunny (7-5) seed 2 char Some(5) objective Shots, fast forward held: 3817 frames = 38.17 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (622, 143) angle 5.9410896 click 111 | 20 pegs, 11 orange, score 100800, end tick 1081, styles [3, 12], catches 1, free 1
+2: pixel (355, 56) angle 3.6618361 click 1345 | 21 pegs, 9 orange, score 109430, end tick 2600, styles [3], catches 1, free 1
+3: pixel (539, 41) angle 6.2419186 click 2856 | 24 pegs, 5 orange, score 586400, end tick 4314, styles [3], catches 0, free 3 WIN
+# total 796630 after 3 shots, balls left 14

@@ -1,0 +1,9 @@
+char 6
+level 2 1
+shotx 40b67bdb 103
+shotx 40748870 711
+shotx 409558b0 1413
+shotx 40a2ee0c 1663
+shotx 408d5708 2018
+waitms 3000
+quit

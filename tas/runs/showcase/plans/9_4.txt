@@ -1,0 +1,7 @@
+char 7
+level 9 4
+shotx 404e60ee 119
+shotx 40adab04 1431
+shotx 40ae1fea 2633
+waitms 3000
+quit

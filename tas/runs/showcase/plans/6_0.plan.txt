@@ -1,0 +1,6 @@
+# Windmills (7-1) seed 4 char Some(1) objective Shots, fast forward held: 3895 frames = 38.95 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (88, 436) angle 3.8338490 click 103 | 26 pegs, 10 orange, score 180420, end tick 1097, styles [3, 8], catches 2, free 1
+2: pixel (292, 229) angle 4.1720195 click 1385 | 36 pegs, 12 orange, score 317760, end tick 2710, styles [3, 8], catches 2, free 3
+3: pixel (132, 108) angle 3.2544076 click 3142 | 22 pegs, 3 orange, score 445600, end tick 4560, styles [], catches 0, free 3 WIN
+# total 943780 after 3 shots, balls left 18

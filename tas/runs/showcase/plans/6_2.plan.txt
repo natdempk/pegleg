@@ -1,0 +1,6 @@
+# Tubing (7-3) seed 3 char Some(7) objective Shots, fast forward held: 4238 frames = 42.38 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (136, 394) angle 3.8999658 click 103 | 41 pegs, 17 orange, score 172590, end tick 1986, styles [3], catches 1, free 2
+2: pixel (240, 550) angle 4.3090277 click 2474 | 13 pegs, 5 orange, score 218050, end tick 3131, styles [0], catches 0, free 3
+3: pixel (562, 420) angle 5.2173653 click 3563 | 17 pegs, 3 orange, score 1041600, end tick 4211, styles [], catches 0, free 1 WIN
+# total 1432240 after 3 shots, balls left 14

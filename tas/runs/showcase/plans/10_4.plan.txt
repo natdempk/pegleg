@@ -1,0 +1,5 @@
+# DNA (11-5) seed 3 char Some(7) objective Shots, fast forward held: 4084 frames = 40.84 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (380, 515) angle 4.6585512 click 119 | 15 pegs, 6 orange, score 10350, end tick 880, styles [], catches 1, free 0
+2: pixel (70, 457) angle 3.8053334 click 1128 | 93 pegs, 19 orange, score 2524530, end tick 3903, styles [3], catches 0, free 3 WIN
+# total 2534880 after 2 shots, balls left 12

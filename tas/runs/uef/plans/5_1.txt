@@ -1,0 +1,18 @@
+char 1
+level 5 1
+shotx 408725a2 103
+shotx 40ac4c7e 1683
+shotx 4080c1c0 2652
+shotx 40c154bf 3421
+shotx 40b41bc4 3915
+shotx 409178df 4207
+shotx 406f0d52 4538
+shotx 408b5e78 4855
+shotx 40b0f1d0 5074
+shotx 40afe9db 5408
+shotx 40783105 5635
+shotx 4062fc63 5866
+shotx 40c86970 6098
+shotx 4049de09 6360
+waitms 3000
+quit

@@ -1,0 +1,7 @@
+# Whirlpool (11-1) seed 2 char Some(5) objective Shots, fast forward held: 5388 frames = 53.88 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (661, 547) angle 5.3737469 click 103 | 48 pegs, 8 orange, score 107600, end tick 3211, styles [2], catches 0, free 1
+2: pixel (788, 391) angle 5.8437443 click 3667 | 28 pegs, 10 orange, score 194440, end tick 4428, styles [2, 3, 12], catches 1, free 1
+3: pixel (482, 94) angle 5.6332288 click 4732 | 10 pegs, 4 orange, score 22000, end tick 5421, styles [], catches 0, free 0
+4: pixel (568, 206) angle 5.5631905 click 5597 | 7 pegs, 3 orange, score 148800, end tick 6256, styles [11], catches 0, free 0 WIN
+# total 472840 after 4 shots, balls left 9

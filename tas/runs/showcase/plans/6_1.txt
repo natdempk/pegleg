@@ -1,0 +1,7 @@
+char 5
+level 6 1
+shotx 40c74e26 119
+shotx 3dfa10e0 1369
+shotx 40ba3782 3209
+waitms 3000
+quit

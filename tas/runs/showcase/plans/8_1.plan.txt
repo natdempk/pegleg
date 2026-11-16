@@ -1,0 +1,6 @@
+# Gateway (9-2) seed 1 char Some(1) objective Shots, fast forward held: 3296 frames = 32.96 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (782, 284) angle 6.0055876 click 103 | 45 pegs, 14 orange, score 221250, end tick 1560, styles [10, 3], catches 0, free 3
+2: pixel (715, 181) angle 6.0744534 click 2024 | 18 pegs, 5 orange, score 57400, end tick 2964, styles [12], catches 1, free 1
+3: pixel (37, 220) angle 3.3362341 click 3212 | 18 pegs, 6 orange, score 453400, end tick 3954, styles [3], catches 0, free 3 WIN
+# total 732050 after 3 shots, balls left 15

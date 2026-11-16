@@ -1,0 +1,7 @@
+char 5
+level 7 1
+shotx 4053e3a7 127
+shotx 40b64455 2018
+shotx 40a7e302 3998
+waitms 3000
+quit

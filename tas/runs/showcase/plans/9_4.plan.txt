@@ -1,0 +1,6 @@
+# DoubleHelix (10-5) seed 1 char Some(7) objective Shots, fast forward held: 3239 frames = 32.39 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (261, 44) angle 3.2246661 click 119 | 15 pegs, 8 orange, score 13050, end tick 1183, styles [], catches 1, free 0
+2: pixel (557, 247) angle 5.4271259 click 1431 | 28 pegs, 9 orange, score 255600, end tick 2113, styles [10, 3], catches 0, free 3
+3: pixel (661, 468) angle 5.4413958 click 2633 | 36 pegs, 8 orange, score 2217640, end tick 3111, styles [0, 3, 11], catches 0, free 3 WIN
+# total 2486290 after 3 shots, balls left 14

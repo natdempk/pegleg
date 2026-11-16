@@ -1,0 +1,16 @@
+# Ram (2-2) seed 4 char Some(1) objective Uef, fast forward held: 3296 frames = 32.96 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (206, 344) angle 4.0409460 click 103 | 41 pegs, 11 orange, score 135280, end tick 1034, styles [3], catches 0, free 2
+2: pixel (204, 209) angle 3.7756014 click 1458 | 13 pegs, 4 orange, score 13000, end tick 1831, styles [], catches 0, free 0
+3: pixel (727, 171) angle 6.1279197 click 2015 | 12 pegs, 4 orange, score 17520, end tick 2345, styles [], catches 0, free 0
+4: pixel (135, 161) angle 3.4344122 click 2529 | 5 pegs, 3 orange, score 20250, end tick 2730, styles [], catches 0, free 0
+5: pixel (785, 464) angle 5.7355375 click 2874 | 10 pegs, 2 orange, score 77000, end tick 3158, styles [], catches 0, free 2
+6: pixel (61, 535) angle 3.8668716 click 3326 | 3 pegs, 0 orange, score 900, end tick 3456, styles [], catches 0, free 0
+7: pixel (526, 363) angle 5.1537294 click 3592 | 4 pegs, 0 orange, score 1600, end tick 3719, styles [], catches 0, free 0
+8: pixel (209, 286) angle 3.9563825 click 3863 | 3 pegs, 0 orange, score 900, end tick 3983, styles [], catches 0, free 0
+9: pixel (33, 313) angle 3.5132964 click 4119 | 4 pegs, 0 orange, score 21200, end tick 4295, styles [], catches 1, free 0
+10: pixel (386, 153) angle 4.6067977 click 4471 | 1 pegs, 0 orange, score 100, end tick 4557, styles [], catches 0, free 0
+11: pixel (436, 458) angle 4.8264284 click 4685 | 2 pegs, 0 orange, score 10200, end tick 4783, styles [], catches 0, free 0
+12: pixel (725, 129) angle 6.2388349 click 4911 | 1 pegs, 0 orange, score 5000, end tick 5039, styles [], catches 0, free 0
+13: pixel (316, 40) angle 3.2465723 click 5167 | 1 pegs, 1 orange, score 121000, end tick 5291, styles [], catches 0, free 0 WIN
+# total 423950 after 13 shots, balls left 2

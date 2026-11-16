@@ -1,0 +1,10 @@
+char 8
+level 7 4
+shotx 40690fed 103
+shotx 40a164e4 494
+shotx 40aee242 1190
+shotx 40b81122 1459
+shotx 404146a1 1882
+shotx 4084a523 2188
+waitms 3000
+quit

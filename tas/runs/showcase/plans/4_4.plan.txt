@@ -1,0 +1,6 @@
+# SideAction (5-5) seed 4 char Some(5) objective Shots, fast forward held: 4996 frames = 49.96 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (411, 345) angle 4.7618036 click 103 | 25 pegs, 10 orange, score 91000, end tick 1830, styles [3], catches 0, free 1
+2: pixel (29, 368) angle 3.5880711 click 2094 | 31 pegs, 10 orange, score 153230, end tick 3979, styles [3], catches 0, free 2
+3: pixel (505, 594) angle 4.9752049 click 4355 | 22 pegs, 5 orange, score 550300, end tick 5591, styles [3, 11], catches 0, free 3 WIN
+# total 794530 after 3 shots, balls left 13

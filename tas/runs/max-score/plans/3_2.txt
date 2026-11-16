@@ -1,0 +1,19 @@
+char 7
+level 3 2
+shotx 40b06d03 103
+shotx 40795879 491
+shotx 40a15688 924
+shotx 40bc5a17 1349
+shotx 40b60392 2016
+shotx 405617fa 2510
+shotx 40c2ea7b 3103
+shotx 4057a6bd 3515
+shotx 40c3bb9b 4033
+shotx 409a142b 4325
+shotx 4051ef39 4763
+shotx 40bb69d6 5087
+shotx 40b9d448 5652
+shotx 40c4917a 6183
+shotx 40a37977 6596
+waitms 3000
+quit

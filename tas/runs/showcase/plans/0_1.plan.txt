@@ -1,0 +1,5 @@
+# Level2 (1-2) seed 2 char Some(7) objective Shots, fast forward held: 4450 frames = 44.50 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (223, 482) angle 4.2248201 click 103 | 33 pegs, 14 orange, score 152980, end tick 1887, styles [0, 3, 6], catches 1, free 1
+2: pixel (50, 238) angle 3.4048531 click 2351 | 39 pegs, 11 orange, score 656270, end tick 4085, styles [3], catches 0, free 3 WIN
+# total 809250 after 2 shots, balls left 13

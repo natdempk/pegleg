@@ -1,0 +1,7 @@
+char 7
+level 5 1
+shotx 40c57351 103
+shotx 40c7393f 1545
+shotx 40612e10 4399
+waitms 3000
+quit

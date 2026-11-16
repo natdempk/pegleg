@@ -1,0 +1,13 @@
+char 8
+level 10 4
+shotx 40a8447a 111
+shotx 40953540 738
+shotx 409383cb 2927
+shotx 40b46d87 3879
+shotx 405988f3 4269
+shotx 4071043a 4586
+shotx 40bc7e22 4880
+shotx 40c55c6b 5143
+shotx 404fab4b 5434
+waitms 3000
+quit

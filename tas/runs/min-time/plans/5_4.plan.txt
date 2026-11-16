@@ -1,0 +1,7 @@
+# Vermin (6-5) seed 4 char Some(8) objective Speed, fast forward held: 1801 frames = 18.01 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (777, 171) angle 6.2507391 click 103 | 20 pegs, 8 orange, score 18400, end tick 779, styles [], catches 0, free 0
+2: pixel (36, 103) angle 3.0235357 click 1027 | 31 pegs, 10 orange, score 130910, end tick 1429, styles [3], catches 0, free 2
+3: pixel (8, 427) angle 3.6280773 click 1829 | 19 pegs, 5 orange, score 115550, end tick 2139, styles [3], catches 0, free 1
+4: pixel (528, 573) angle 5.0375566 click 2355 | 4 pegs, 2 orange, score 148800, end tick 2606, styles [], catches 0, free 0 WIN
+# total 413660 after 4 shots, balls left 9

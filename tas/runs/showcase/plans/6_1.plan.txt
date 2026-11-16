@@ -1,0 +1,6 @@
+# Tulips (7-2) seed 4 char Some(5) objective Shots, fast forward held: 4056 frames = 40.56 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (620, 69) angle 6.2282896 click 119 | 14 pegs, 9 orange, score 13300, end tick 1129, styles [], catches 1, free 0
+2: pixel (791, 125) angle 0.1221025 click 1369 | 29 pegs, 10 orange, score 157070, end tick 2897, styles [3, 12], catches 1, free 2
+3: pixel (541, 107) angle 5.8192759 click 3209 | 22 pegs, 6 orange, score 468700, end tick 4588, styles [3], catches 0, free 2 WIN
+# total 639070 after 3 shots, balls left 13

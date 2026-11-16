@@ -1,0 +1,27 @@
+char 7
+level 3 4
+shotx 4093ae29 103
+shotx 40c5c799 736
+shotx 409860b2 1242
+shotx 40a56a08 1777
+shotx 408a90a2 2017
+shotx 40c1b921 2297
+shotx 40a197f0 2702
+shotx 40a0c662 3086
+shotx 407d4231 3450
+shotx 40882bac 4091
+shotx 40882bac 4542
+shotx 40882bac 4993
+shotx 40b265ab 5460
+shotx 40b30532 5838
+shotx 4086995b 6287
+shotx 40c3bb9b 6756
+shotx 40642b21 7134
+shotx 40c7b02e 7747
+shotx 4086995b 8365
+shotx 405f94f5 8718
+shotx 4086995b 9109
+shotx 40b22b96 9423
+shotx 40c4917a 9807
+waitms 3000
+quit

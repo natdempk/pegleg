@@ -1,0 +1,17 @@
+# ThreeHills (5-1) seed 1 char Some(3) objective Uef, fast forward held: 3380 frames = 33.80 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (514, 393) angle 5.0939522 click 103 | 23 pegs, 8 orange, score 21850, end tick 646, styles [], catches 0, free 0
+2: pixel (347, 133) angle 4.2388697 click 886 | 22 pegs, 7 orange, score 57780, end tick 1285, styles [10], catches 0, free 1
+3: pixel (788, 362) angle 5.8879709 click 1517 | 16 pegs, 5 orange, score 32480, end tick 2086, styles [], catches 0, free 1
+4: pixel (765, 196) angle 6.1554570 click 2310 | 7 pegs, 3 orange, score 16800, end tick 2569, styles [], catches 0, free 0
+5: pixel (15, 292) angle 3.4247324 click 2729 | 10 pegs, 1 orange, score 19000, end tick 2972, styles [], catches 0, free 0
+6: pixel (97, 168) angle 3.3541887 click 3148 | 6 pegs, 0 orange, score 33000, end tick 3332, styles [], catches 0, free 1
+7: pixel (666, 360) angle 5.5792627 click 3484 | 3 pegs, 0 orange, score 900, end tick 3594, styles [], catches 0, free 0
+8: pixel (642, 173) angle 5.9060040 click 3754 | 4 pegs, 0 orange, score 1600, end tick 3889, styles [], catches 0, free 0
+9: pixel (353, 437) angle 4.5723310 click 4033 | 3 pegs, 0 orange, score 900, end tick 4156, styles [], catches 0, free 0
+10: pixel (204, 126) angle 3.5079801 click 4292 | 3 pegs, 0 orange, score 15600, end tick 4432, styles [], catches 0, free 0
+11: pixel (22, 223) angle 3.3063800 click 4568 | 2 pegs, 0 orange, score 10200, end tick 4683, styles [], catches 0, free 0
+12: pixel (190, 57) angle 3.1753724 click 4811 | 1 pegs, 0 orange, score 5100, end tick 4933, styles [9], catches 1, free 0
+13: pixel (49, 149) angle 3.1863341 click 5109 | 1 pegs, 0 orange, score 5000, end tick 5239, styles [], catches 0, free 0
+14: pixel (649, 288) angle 5.6483383 click 5367 | 1 pegs, 1 orange, score 101000, end tick 5487, styles [], catches 0, free 0 WIN
+# total 321210 after 14 shots, balls left 0

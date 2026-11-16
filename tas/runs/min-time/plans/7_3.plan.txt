@@ -1,0 +1,7 @@
+# Dice (8-4) seed 6 char Some(8) objective Speed, fast forward held: 1334 frames = 13.34 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (656, 119) angle 6.1166511 click 103 | 14 pegs, 6 orange, score 9520, end tick 493, styles [], catches 0, free 0
+2: pixel (305, 137) angle 3.9770021 click 701 | 34 pegs, 9 orange, score 144180, end tick 1009, styles [3], catches 0, free 2
+3: pixel (295, 529) angle 4.4348874 click 1401 | 22 pegs, 6 orange, score 116820, end tick 1697, styles [], catches 0, free 2
+4: pixel (290, 57) angle 3.3901060 click 1921 | 5 pegs, 4 orange, score 168000, end tick 2104, styles [], catches 0, free 0 WIN
+# total 438520 after 4 shots, balls left 10

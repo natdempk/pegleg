@@ -1,0 +1,12 @@
+# SunFlower (4-5) seed 1 char Some(8) objective Uef, fast forward held: 3134 frames = 31.34 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (632, 597) angle 5.2702732 click 119 | 22 pegs, 8 orange, score 20680, end tick 1146, styles [], catches 0, free 0
+2: pixel (624, 119) angle 6.0350628 click 1378 | 43 pegs, 10 orange, score 174270, end tick 1961, styles [3], catches 0, free 2
+3: pixel (88, 319) angle 3.6650801 click 2409 | 17 pegs, 4 orange, score 44710, end tick 2770, styles [], catches 0, free 1
+4: pixel (641, 407) angle 5.4492149 click 2978 | 8 pegs, 2 orange, score 60000, end tick 3078, styles [], catches 0, free 1
+5: pixel (590, 186) angle 5.6951408 click 3254 | 7 pegs, 0 orange, score 39200, end tick 3411, styles [], catches 0, free 1
+6: pixel (621, 322) angle 5.5132070 click 3587 | 5 pegs, 0 orange, score 2500, end tick 3764, styles [], catches 0, free 0
+7: pixel (50, 424) angle 3.7238166 click 3924 | 7 pegs, 0 orange, score 39200, end tick 4178, styles [], catches 0, free 1
+8: pixel (73, 576) angle 3.9286413 click 4354 | 3 pegs, 0 orange, score 900, end tick 4483, styles [], catches 0, free 0
+9: pixel (732, 291) angle 5.8666716 click 4619 | 2 pegs, 1 orange, score 192000, end tick 4765, styles [], catches 0, free 0 WIN
+# total 573460 after 9 shots, balls left 7

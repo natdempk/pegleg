@@ -1,0 +1,8 @@
+# SpinCycle (10-1) seed 3 char Some(6) objective Speed, fast forward held: 1206 frames = 12.06 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (714, 559) angle 5.4816070 click 103 | 13 pegs, 9 orange, score 12220, end tick 405, styles [], catches 0, free 0
+2: pixel (9, 424) angle 3.6277504 click 581 | 15 pegs, 9 orange, score 82250, end tick 941, styles [3], catches 0, free 1
+3: pixel (595, 489) angle 5.2540088 click 1133 | 4 pegs, 3 orange, score 11200, end tick 1249, styles [], catches 0, free 0
+4: pixel (27, 534) angle 3.7896419 click 1385 | 5 pegs, 3 orange, score 38000, end tick 1568, styles [], catches 0, free 1
+5: pixel (260, 159) angle 3.8371933 click 1720 | 2 pegs, 1 orange, score 174000, end tick 1843, styles [], catches 0, free 0 WIN
+# total 317670 after 5 shots, balls left 7

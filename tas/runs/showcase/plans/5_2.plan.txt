@@ -1,0 +1,6 @@
+# Blockers (6-3) seed 2 char Some(5) objective Shots, fast forward held: 4725 frames = 47.25 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (696, 275) angle 5.8105636 click 103 | 41 pegs, 13 orange, score 155360, end tick 2503, styles [10, 3], catches 0, free 2
+2: pixel (141, 466) angle 3.9971573 click 2927 | 19 pegs, 9 orange, score 141960, end tick 3925, styles [3], catches 0, free 2
+3: pixel (4, 235) angle 3.2867205 click 4141 | 14 pegs, 3 orange, score 416800, end tick 5320, styles [], catches 0, free 0 WIN
+# total 714120 after 3 shots, balls left 11

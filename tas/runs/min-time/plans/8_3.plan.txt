@@ -1,0 +1,8 @@
+# HollywoodCircles (9-4) seed 2 char Some(3) objective Speed, fast forward held: 1498 frames = 14.98 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (570, 486) angle 5.1891041 click 119 | 33 pegs, 12 orange, score 103130, end tick 568, styles [3], catches 0, free 1
+2: pixel (605, 443) angle 5.3204622 click 856 | 14 pegs, 9 orange, score 91860, end tick 1303, styles [3], catches 0, free 1
+3: pixel (645, 366) angle 5.5140529 click 1487 | 4 pegs, 2 orange, score 6600, end tick 1645, styles [], catches 0, free 0
+4: pixel (357, 122) angle 4.2893057 click 1781 | 4 pegs, 1 orange, score 5200, end tick 1941, styles [], catches 0, free 0
+5: pixel (605, 93) angle 6.0911231 click 2077 | 1 pegs, 1 orange, score 81000, end tick 2226, styles [], catches 0, free 0 WIN
+# total 287790 after 5 shots, balls left 7

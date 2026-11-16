@@ -1,0 +1,6 @@
+# Baseball (6-4) seed 1 char Some(7) objective Shots, fast forward held: 4765 frames = 47.65 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (36, 498) angle 3.7792652 click 127 | 54 pegs, 17 orange, score 298020, end tick 2396, styles [10, 3], catches 0, free 3
+2: pixel (684, 190) angle 5.9662361 click 2956 | 21 pegs, 6 orange, score 233330, end tick 3665, styles [3], catches 0, free 3
+3: pixel (267, 323) angle 4.2089214 click 3913 | 13 pegs, 2 orange, score 342400, end tick 4590, styles [11], catches 0, free 1 WIN
+# total 873750 after 3 shots, balls left 14

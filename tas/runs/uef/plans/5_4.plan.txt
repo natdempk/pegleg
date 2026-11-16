@@ -1,0 +1,17 @@
+# Vermin (6-5) seed 1 char Some(3) objective Uef, fast forward held: 3696 frames = 36.96 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (164, 377) angle 3.9584002 click 103 | 32 pegs, 8 orange, score 33280, end tick 476, styles [], catches 1, free 1
+2: pixel (29, 394) angle 3.6283083 click 892 | 35 pegs, 9 orange, score 234050, end tick 1484, styles [2, 3], catches 0, free 3
+3: pixel (265, 121) angle 3.7010174 click 1884 | 15 pegs, 4 orange, score 31350, end tick 2429, styles [], catches 1, free 1
+4: pixel (785, 410) angle 5.8055849 click 2661 | 9 pegs, 3 orange, score 27900, end tick 2903, styles [], catches 0, free 1
+5: pixel (755, 164) angle 6.2187128 click 3071 | 13 pegs, 0 orange, score 80600, end tick 3424, styles [], catches 0, free 2
+6: pixel (628, 260) angle 5.6399136 click 3608 | 6 pegs, 0 orange, score 3600, end tick 3797, styles [], catches 0, free 0
+7: pixel (765, 192) angle 6.1645145 click 3949 | 7 pegs, 0 orange, score 39200, end tick 4130, styles [], catches 0, free 1
+8: pixel (656, 557) angle 5.3463778 click 4290 | 4 pegs, 0 orange, score 1600, end tick 4441, styles [], catches 0, free 0
+9: pixel (145, 238) angle 3.6610191 click 4585 | 3 pegs, 0 orange, score 900, end tick 4742, styles [], catches 0, free 0
+10: pixel (380, 452) angle 4.6540427 click 4878 | 1 pegs, 0 orange, score 100, end tick 4964, styles [], catches 0, free 0
+11: pixel (36, 146) angle 3.1405954 click 5092 | 3 pegs, 0 orange, score 15600, end tick 5279, styles [], catches 0, free 0
+12: pixel (743, 337) angle 5.8147082 click 5415 | 1 pegs, 0 orange, score 100, end tick 5523, styles [], catches 0, free 0
+13: pixel (4, 235) angle 3.2867205 click 5651 | 2 pegs, 0 orange, score 10200, end tick 5814, styles [], catches 0, free 0
+14: pixel (742, 293) angle 5.8890948 click 5942 | 2 pegs, 1 orange, score 182000, end tick 6083, styles [], catches 0, free 0 WIN
+# total 660480 after 14 shots, balls left 7

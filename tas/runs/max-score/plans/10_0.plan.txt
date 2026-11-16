@@ -1,0 +1,19 @@
+# Whirlpool (11-1) seed 1 char Some(7) objective Score, fast forward held: 9603 frames = 96.03 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (97, 185) angle 3.3991046 click 103 | 4 pegs, 1 orange, score 520, end tick 565, styles [], catches 0, free 0
+2: pixel (253, 133) angle 3.7125833 click 709 | 3 pegs, 0 orange, score 90, end tick 1323, styles [], catches 1, free 0
+3: pixel (135, 100) angle 3.2316589 click 1475 | 2 pegs, 1 orange, score 220, end tick 1913, styles [], catches 1, free 0
+4: pixel (179, 75) angle 3.2318795 click 2065 | 2 pegs, 1 orange, score 220, end tick 2226, styles [], catches 0, free 0
+5: pixel (46, 248) angle 3.4146409 click 2354 | 1 pegs, 0 orange, score 10, end tick 2661, styles [], catches 0, free 0
+6: pixel (116, 55) angle 3.0226936 click 2789 | 2 pegs, 1 orange, score 220, end tick 3231, styles [], catches 1, free 0
+7: pixel (410, 444) angle 4.7419233 click 3415 | 3 pegs, 2 orange, score 630, end tick 3711, styles [], catches 1, free 0
+8: pixel (659, 146) angle 6.0324712 click 3895 | 2 pegs, 1 orange, score 220, end tick 4212, styles [], catches 0, free 0
+9: pixel (442, 550) angle 4.8214989 click 4340 | 2 pegs, 1 orange, score 220, end tick 4673, styles [], catches 0, free 0
+10: pixel (567, 330) angle 5.3281822 click 4809 | 5 pegs, 3 orange, score 2100, end tick 5163, styles [], catches 0, free 0
+11: pixel (187, 457) angle 4.1027131 click 5323 | 20 pegs, 5 orange, score 29800, end tick 7030, styles [], catches 0, free 1
+12: pixel (715, 228) angle 5.9537134 click 7278 | 9 pegs, 3 orange, score 9720, end tick 7910, styles [], catches 0, free 0
+13: pixel (751, 542) angle 5.5843992 click 8078 | 2 pegs, 0 orange, score 200, end tick 8197, styles [], catches 0, free 0
+14: pixel (753, 565) angle 5.5671325 click 8333 | 1 pegs, 1 orange, score 5500, end tick 8562, styles [9], catches 1, free 0
+15: pixel (750, 219) angle 6.0693026 click 8770 | 12 pegs, 2 orange, score 248400, end tick 9293, styles [], catches 0, free 3
+16: pixel (680, 337) angle 5.6577845 click 9693 | 27 pegs, 3 orange, score 3160200, end tick 11284, styles [], catches 0, free 0 WIN
+# total 3458270 after 16 shots, balls left 3

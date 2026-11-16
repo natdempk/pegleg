@@ -1,0 +1,12 @@
+# Tubing (7-3) seed 2 char Some(8) objective Uef, fast forward held: 3195 frames = 31.95 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (745, 287) angle 5.9068255 click 111 | 27 pegs, 7 orange, score 24300, end tick 1436, styles [], catches 0, free 0
+2: pixel (387, 125) angle 4.5847664 click 1716 | 20 pegs, 8 orange, score 30000, end tick 2043, styles [], catches 0, free 1
+3: pixel (57, 127) angle 3.1432610 click 2275 | 25 pegs, 6 orange, score 107500, end tick 2691, styles [], catches 0, free 2
+4: pixel (461, 101) angle 5.4302592 click 2947 | 5 pegs, 2 orange, score 9000, end tick 3115, styles [], catches 0, free 0
+5: pixel (345, 285) angle 4.4811645 click 3283 | 4 pegs, 1 orange, score 5200, end tick 3497, styles [], catches 0, free 0
+6: pixel (704, 512) angle 5.5026278 click 3641 | 3 pegs, 0 orange, score 15600, end tick 3764, styles [], catches 0, free 0
+7: pixel (130, 527) angle 4.0177708 click 3900 | 2 pegs, 0 orange, score 10200, end tick 4005, styles [], catches 0, free 0
+8: pixel (24, 467) angle 3.7149076 click 4133 | 1 pegs, 0 orange, score 100, end tick 4240, styles [], catches 0, free 0
+9: pixel (116, 188) angle 3.4533191 click 4368 | 3 pegs, 1 orange, score 208300, end tick 4609, styles [4], catches 0, free 0 WIN
+# total 410200 after 9 shots, balls left 4

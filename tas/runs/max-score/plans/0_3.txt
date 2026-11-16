@@ -1,0 +1,27 @@
+char 7
+level 0 3
+shotx 4082eb67 103
+shotx 40a84839 948
+shotx 409bf706 1381
+shotx 40c54d13 1756
+shotx 407d09a2 2290
+shotx 407d09a2 2743
+shotx 408809b8 3196
+shotx 407d09a2 3427
+shotx 407d09a2 3888
+shotx 40bc4590 4341
+shotx 40b9c75a 4661
+shotx 40b9251d 5121
+shotx 407d09a2 5449
+shotx 40b9fe91 5747
+shotx 407d09a2 6175
+shotx 407d09a2 6628
+shotx 407d09a2 6927
+shotx 407d09a2 7388
+shotx 407d09a2 7849
+shotx 40b9251d 8155
+shotx 40b9fee4 8485
+shotx 40c154bf 8748
+shotx 40ad2a28 9100
+waitms 3000
+quit

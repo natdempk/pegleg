@@ -1,0 +1,6 @@
+# Plinko (2-1) seed 3 char Some(5) objective Shots, fast forward held: 4407 frames = 44.07 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (720, 220) angle 5.9937234 click 103 | 55 pegs, 17 orange, score 254850, end tick 2867, styles [10, 3], catches 0, free 3
+2: pixel (678, 396) angle 5.5603685 click 3347 | 8 pegs, 6 orange, score 75600, end tick 3774, styles [3], catches 0, free 1
+3: pixel (310, 291) angle 4.3374271 click 3934 | 23 pegs, 2 orange, score 835300, end tick 5002, styles [], catches 0, free 0 WIN
+# total 1165750 after 3 shots, balls left 11

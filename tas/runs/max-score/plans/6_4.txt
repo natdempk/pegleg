@@ -1,0 +1,16 @@
+char 7
+level 6 4
+shotx 40afc0a5 103
+shotx 407c7dc5 629
+shotx 40b9ec08 1217
+shotx 40bcac08 2152
+shotx 40a75efa 2506
+shotx 409860b2 2760
+shotx 4059283e 3214
+shotx 405476dc 3551
+shotx 40511435 4351
+shotx 40c82433 4858
+shotx 40c64ddf 5533
+shotx 40c60cb0 5835
+waitms 3000
+quit

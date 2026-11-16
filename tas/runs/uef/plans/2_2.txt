@@ -1,0 +1,15 @@
+char 3
+level 2 2
+shotx 40ae5d55 103
+shotx 408b6ab2 811
+shotx 40c10a36 1765
+shotx 40b86855 2389
+shotx 40558b8f 2931
+shotx 40a462e7 3404
+shotx 40705d26 3680
+shotx 409904e0 4039
+shotx 40809194 4341
+shotx 40c6fe9f 4584
+shotx 4066be2e 4904
+waitms 3000
+quit

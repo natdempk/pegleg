@@ -1,0 +1,18 @@
+# Bug (4-3) seed 2 char Some(7) objective Score, fast forward held: 6086 frames = 60.86 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (500, 131) angle 5.5133071 click 103 | 1 pegs, 1 orange, score 100, end tick 371, styles [], catches 0, free 0
+2: pixel (96, 474) angle 3.8960249 click 491 | 1 pegs, 1 orange, score 5100, end tick 756, styles [9], catches 1, free 0
+3: pixel (492, 366) angle 5.0418129 click 924 | 3 pegs, 2 orange, score 25630, end tick 1197, styles [0], catches 0, free 0
+4: pixel (506, 77) angle 5.8859973 click 1349 | 11 pegs, 6 orange, score 7150, end tick 1824, styles [], catches 0, free 0
+5: pixel (722, 386) angle 5.6879358 click 2016 | 3 pegs, 2 orange, score 1260, end tick 2310, styles [], catches 1, free 0
+6: pixel (118, 148) angle 3.3452134 click 2510 | 8 pegs, 4 orange, score 33160, end tick 2903, styles [0], catches 1, free 0
+7: pixel (605, 93) angle 6.0911231 click 3103 | 2 pegs, 1 orange, score 660, end tick 3331, styles [], catches 1, free 0
+8: pixel (90, 180) angle 3.3695519 click 3515 | 3 pegs, 2 orange, score 1890, end tick 3897, styles [], catches 0, free 0
+9: pixel (656, 119) angle 6.1166511 click 4033 | 1 pegs, 0 orange, score 50, end tick 4197, styles [], catches 0, free 0
+10: pixel (429, 398) angle 4.8149619 click 4325 | 1 pegs, 1 orange, score 5500, end tick 4555, styles [9], catches 1, free 0
+11: pixel (143, 109) angle 3.2802260 click 4763 | 1 pegs, 0 orange, score 5050, end tick 4895, styles [9], catches 1, free 0
+12: pixel (740, 310) angle 5.8566694 click 5087 | 0 pegs, 0 orange, score 0, end tick 5300, styles [], catches 0, free 0
+13: pixel (448, 55) angle 5.8071632 click 5652 | 2 pegs, 1 orange, score 26100, end tick 5983, styles [12], catches 1, free 0
+14: pixel (688, 135) angle 6.1427584 click 6183 | 3 pegs, 1 orange, score 11800, end tick 6396, styles [6], catches 1, free 0
+15: pixel (550, 526) angle 5.1085773 click 6596 | 30 pegs, 3 orange, score 2352000, end tick 7707, styles [], catches 0, free 2 WIN
+# total 2475450 after 15 shots, balls left 5

@@ -1,0 +1,12 @@
+# DNA (11-5) seed 1 char Some(8) objective Uef, fast forward held: 3910 frames = 39.10 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (616, 550) angle 5.2583590 click 111 | 11 pegs, 6 orange, score 7150, end tick 546, styles [], catches 1, free 0
+2: pixel (384, 414) angle 4.6627502 click 738 | 60 pegs, 15 orange, score 358200, end tick 2447, styles [3, 10], catches 1, free 3
+3: pixel (360, 565) angle 4.6098380 click 2927 | 33 pegs, 2 orange, score 176800, end tick 3495, styles [7], catches 1, free 3
+4: pixel (684, 352) angle 5.6383700 click 3879 | 11 pegs, 1 orange, score 75900, end tick 4109, styles [], catches 0, free 2
+5: pixel (72, 210) angle 3.3989837 click 4269 | 5 pegs, 0 orange, score 2500, end tick 4442, styles [], catches 1, free 0
+6: pixel (269, 131) angle 3.7658830 click 4586 | 4 pegs, 0 orange, score 1600, end tick 4752, styles [], catches 0, free 0
+7: pixel (730, 280) angle 5.8903971 click 4880 | 2 pegs, 0 orange, score 400, end tick 4999, styles [], catches 0, free 0
+8: pixel (784, 211) angle 6.1675315 click 5143 | 3 pegs, 0 orange, score 15600, end tick 5306, styles [], catches 1, free 0
+9: pixel (117, 117) angle 3.2448299 click 5434 | 2 pegs, 1 orange, score 262000, end tick 5576, styles [], catches 0, free 0 WIN
+# total 900150 after 9 shots, balls left 14

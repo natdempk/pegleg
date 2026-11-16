@@ -1,0 +1,4 @@
+[build]
+# Plans stay byte-identical across machines and CPU targets (Rust never fuses float ops into FMAs); this is
+# only for speed.
+rustflags = ["-C", "target-cpu=native"]

@@ -1,0 +1,14 @@
+# Baseball (6-4) seed 3 char Some(8) objective Uef, fast forward held: 3183 frames = 31.83 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (203, 94) angle 3.3756168 click 103 | 17 pegs, 7 orange, score 13600, end tick 599, styles [], catches 0, free 0
+2: pixel (798, 368) angle 5.9063387 click 807 | 29 pegs, 9 orange, score 121050, end tick 1366, styles [3], catches 0, free 1
+3: pixel (516, 372) angle 5.1148357 click 1630 | 22 pegs, 4 orange, score 70320, end tick 2147, styles [7], catches 1, free 1
+4: pixel (68, 501) angle 3.8533409 click 2411 | 13 pegs, 2 orange, score 20800, end tick 2851, styles [], catches 0, free 0
+5: pixel (561, 148) angle 5.7193093 click 3035 | 3 pegs, 2 orange, score 6300, end tick 3208, styles [], catches 0, free 0
+6: pixel (641, 454) angle 5.3990660 click 3344 | 6 pegs, 0 orange, score 3600, end tick 3509, styles [], catches 0, free 0
+7: pixel (442, 78) angle 5.4350204 click 3661 | 5 pegs, 0 orange, score 2500, end tick 3810, styles [], catches 0, free 0
+8: pixel (112, 258) angle 3.6131630 click 3954 | 4 pegs, 0 orange, score 1600, end tick 4090, styles [], catches 0, free 0
+9: pixel (375, 136) angle 4.4872012 click 4234 | 2 pegs, 0 orange, score 10200, end tick 4338, styles [], catches 1, free 0
+10: pixel (776, 258) angle 6.0459132 click 4506 | 2 pegs, 0 orange, score 10200, end tick 4632, styles [], catches 0, free 0
+11: pixel (264, 561) angle 4.3737245 click 4760 | 2 pegs, 1 orange, score 142000, end tick 4898, styles [], catches 0, free 0 WIN
+# total 402170 after 11 shots, balls left 3

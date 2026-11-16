@@ -1,0 +1,13 @@
+# Dice (8-4) seed 2 char Some(8) objective Uef, fast forward held: 2825 frames = 28.25 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (539, 64) angle 6.0787201 click 119 | 14 pegs, 6 orange, score 9520, end tick 612, styles [], catches 1, free 0
+2: pixel (524, 545) angle 5.0348587 click 852 | 41 pegs, 14 orange, score 194730, end tick 1322, styles [3], catches 0, free 3
+3: pixel (349, 579) angle 4.5831509 click 1762 | 23 pegs, 2 orange, score 110400, end tick 2071, styles [], catches 0, free 2
+4: pixel (520, 46) angle 6.1780367 click 2327 | 12 pegs, 1 orange, score 84000, end tick 2696, styles [], catches 0, free 2
+5: pixel (275, 243) angle 4.1196117 click 2896 | 6 pegs, 1 orange, score 9000, end tick 3117, styles [], catches 1, free 0
+6: pixel (526, 492) angle 5.0680151 click 3301 | 5 pegs, 0 orange, score 27000, end tick 3472, styles [], catches 0, free 1
+7: pixel (614, 301) angle 5.5244069 click 3616 | 2 pegs, 0 orange, score 10200, end tick 3755, styles [], catches 0, free 0
+8: pixel (563, 373) angle 5.2591887 click 3883 | 2 pegs, 0 orange, score 400, end tick 3986, styles [], catches 0, free 0
+9: pixel (683, 383) angle 5.5979948 click 4114 | 1 pegs, 0 orange, score 100, end tick 4218, styles [], catches 0, free 0
+10: pixel (127, 145) angle 3.3665643 click 4346 | 3 pegs, 1 orange, score 283300, end tick 4589, styles [4], catches 0, free 0 WIN
+# total 728650 after 10 shots, balls left 10

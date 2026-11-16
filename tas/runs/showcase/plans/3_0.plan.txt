@@ -1,0 +1,6 @@
+# TheAmoeban (4-1) seed 2 char Some(8) objective Shots, fast forward held: 2723 frames = 27.23 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (78, 594) angle 3.9591792 click 103 | 23 pegs, 10 orange, score 101450, end tick 1351, styles [10, 3], catches 0, free 1
+2: pixel (656, 155) angle 5.9967651 click 1591 | 19 pegs, 12 orange, score 124290, end tick 2148, styles [3], catches 0, free 1
+3: pixel (311, 466) angle 4.4591923 click 2364 | 28 pegs, 3 orange, score 828600, end tick 3157, styles [11], catches 0, free 2 WIN
+# total 1054340 after 3 shots, balls left 11

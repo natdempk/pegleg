@@ -1,0 +1,6 @@
+# SpiderWeb (6-2) seed 4 char Some(7) objective Shots, fast forward held: 5487 frames = 54.87 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (705, 138) angle 6.1703267 click 103 | 30 pegs, 8 orange, score 55600, end tick 1241, styles [0], catches 0, free 1
+2: pixel (518, 40) angle 6.2257380 click 1545 | 49 pegs, 14 orange, score 311860, end tick 3879, styles [3, 6], catches 1, free 3
+3: pixel (38, 308) angle 3.5184364 click 4399 | 17 pegs, 3 orange, score 432500, end tick 5368, styles [], catches 0, free 0 WIN
+# total 799960 after 3 shots, balls left 12

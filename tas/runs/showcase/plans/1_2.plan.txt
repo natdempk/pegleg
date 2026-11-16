@@ -1,0 +1,6 @@
+# ThreeValleys (2-3) seed 4 char Some(6) objective Shots, fast forward held: 3103 frames = 31.03 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (637, 497) angle 5.3494525 click 103 | 30 pegs, 15 orange, score 172500, end tick 1287, styles [0, 3], catches 0, free 2
+2: pixel (39, 265) angle 3.4389496 click 1559 | 17 pegs, 8 orange, score 123780, end tick 2628, styles [3], catches 0, free 1
+3: pixel (26, 427) angle 3.6646094 click 2836 | 20 pegs, 2 orange, score 787000, end tick 3558, styles [0], catches 0, free 0 WIN
+# total 1083280 after 3 shots, balls left 10

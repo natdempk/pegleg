@@ -1,0 +1,6 @@
+# Pinball (8-2) seed 4 char Some(5) objective Shots, fast forward held: 4797 frames = 47.97 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (190, 88) angle 3.3107698 click 127 | 28 pegs, 13 orange, score 127840, end tick 1698, styles [3], catches 1, free 2
+2: pixel (692, 333) angle 5.6958413 click 2018 | 30 pegs, 7 orange, score 156300, end tick 3702, styles [], catches 0, free 3
+3: pixel (573, 423) angle 5.2464609 click 3998 | 14 pegs, 5 orange, score 437400, end tick 5392, styles [3, 11], catches 0, free 2 WIN
+# total 721540 after 3 shots, balls left 15

@@ -1,0 +1,8 @@
+# Blocks (9-3) seed 4 char Some(3) objective Speed, fast forward held: 1312 frames = 13.12 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (538, 499) angle 5.0974698 click 103 | 47 pegs, 13 orange, score 175110, end tick 494, styles [3, 10], catches 0, free 2
+2: pixel (746, 317) angle 5.8614740 click 934 | 9 pegs, 6 orange, score 15570, end tick 1238, styles [], catches 0, free 0
+3: pixel (593, 492) angle 5.2470655 click 1398 | 4 pegs, 2 orange, score 4400, end tick 1554, styles [], catches 0, free 0
+4: pixel (15, 242) angle 3.3268754 click 1690 | 3 pegs, 2 orange, score 29800, end tick 1814, styles [0], catches 0, free 0
+5: pixel (421, 291) angle 4.8098321 click 1942 | 3 pegs, 2 orange, score 179000, end tick 2131, styles [0, 11], catches 0, free 0 WIN
+# total 403880 after 5 shots, balls left 7

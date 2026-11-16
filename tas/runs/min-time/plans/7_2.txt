@@ -1,0 +1,9 @@
+char 6
+level 7 2
+shotx 404bf3bb 119
+shotx 40aff7d4 910
+shotx 407741c0 1420
+shotx 40abd13a 1718
+shotx 40b80032 1955
+waitms 3000
+quit

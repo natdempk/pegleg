@@ -1,0 +1,15 @@
+# Sunny (7-5) seed 1 char Some(7) objective Score, fast forward held: 5566 frames = 55.66 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (591, 278) angle 5.4922662 click 103 | 3 pegs, 1 orange, score 360, end tick 493, styles [], catches 0, free 0
+2: pixel (153, 393) angle 3.9451764 click 629 | 5 pegs, 3 orange, score 1600, end tick 1065, styles [], catches 1, free 0
+3: pixel (673, 244) angle 5.8100624 click 1217 | 12 pegs, 6 orange, score 13800, end tick 1976, styles [], catches 0, free 0
+4: pixel (628, 161) angle 5.8959999 click 2152 | 3 pegs, 2 orange, score 1260, end tick 2330, styles [], catches 1, free 0
+5: pixel (557, 385) angle 5.2303438 click 2506 | 2 pegs, 1 orange, score 440, end tick 2616, styles [], catches 0, free 0
+6: pixel (411, 345) angle 4.7618036 click 2760 | 0 pegs, 0 orange, score 0, end tick 2846, styles [], catches 0, free 0
+7: pixel (5, 288) angle 3.3930812 click 3214 | 2 pegs, 1 orange, score 27400, end tick 3359, styles [0], catches 1, free 0
+8: pixel (3, 254) angle 3.3197546 click 3551 | 3 pegs, 2 orange, score 1590, end tick 4215, styles [], catches 0, free 0
+9: pixel (109, 129) angle 3.2668583 click 4351 | 2 pegs, 1 orange, score 660, end tick 4722, styles [], catches 0, free 0
+10: pixel (475, 33) angle 6.2544188 click 4858 | 5 pegs, 2 orange, score 28450, end tick 5333, styles [12], catches 1, free 0
+11: pixel (738, 154) angle 6.1970057 click 5533 | 1 pegs, 0 orange, score 50, end tick 5691, styles [], catches 0, free 0
+12: pixel (572, 56) angle 6.1890488 click 5835 | 27 pegs, 6 orange, score 1276500, end tick 6590, styles [3, 11], catches 0, free 2 WIN
+# total 1352110 after 12 shots, balls left 4

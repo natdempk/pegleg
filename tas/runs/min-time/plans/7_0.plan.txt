@@ -1,0 +1,7 @@
+# Monkey (8-1) seed 1 char Some(6) objective Speed, fast forward held: 1468 frames = 14.68 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (74, 231) angle 3.4499362 click 127 | 25 pegs, 14 orange, score 123750, end tick 571, styles [10, 3], catches 0, free 1
+2: pixel (739, 494) angle 5.6042252 click 811 | 8 pegs, 6 orange, score 15840, end tick 1242, styles [], catches 0, free 0
+3: pixel (224, 468) angle 4.2096338 click 1394 | 9 pegs, 3 orange, score 22500, end tick 1713, styles [], catches 0, free 0
+4: pixel (593, 156) angle 5.8033485 click 1873 | 5 pegs, 2 orange, score 91500, end tick 2021, styles [], catches 0, free 0 WIN
+# total 253590 after 4 shots, balls left 7

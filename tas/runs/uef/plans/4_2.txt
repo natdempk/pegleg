@@ -1,0 +1,14 @@
+char 3
+level 4 2
+shotx 405d8429 103
+shotx 405b667b 1389
+shotx 404e8090 2067
+shotx 4082056e 2784
+shotx 40a449ec 3133
+shotx 4092486c 3528
+shotx 4074bad8 3931
+shotx 40a3fe86 4225
+shotx 406be330 4635
+shotx 3df5d69c 4942
+waitms 3000
+quit

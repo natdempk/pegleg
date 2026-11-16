@@ -1,0 +1,7 @@
+# Bug (4-3) seed 1 char Some(3) objective Speed, fast forward held: 1375 frames = 13.75 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (488, 344) angle 5.0434079 click 103 | 32 pegs, 10 orange, score 105040, end tick 552, styles [3], catches 1, free 1
+2: pixel (263, 463) angle 4.3137927 click 968 | 23 pegs, 9 orange, score 168220, end tick 1383, styles [3], catches 0, free 2
+3: pixel (420, 540) angle 4.7648582 click 1623 | 10 pegs, 4 orange, score 53000, end tick 1878, styles [0], catches 0, free 1
+4: pixel (333, 405) angle 4.4922347 click 2046 | 3 pegs, 2 orange, score 216300, end tick 2145, styles [], catches 0, free 0 WIN
+# total 542560 after 4 shots, balls left 11

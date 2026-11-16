@@ -1,0 +1,19 @@
+char 6
+level 9 3
+shotx 40668923 103
+shotx 40a6d4b5 1088
+shotx 40b3081e 2434
+shotx 407e978c 3038
+shotx 40bc081c 3575
+shotx 407c5fa2 3986
+shotx 4051ef39 4600
+shotx 409d2524 5350
+shotx 40a5c73a 5621
+shotx 40b6ba72 5961
+shotx 4078cb25 6352
+shotx 40c6d535 6601
+shotx 406be7e1 6860
+shotx 4056e7e4 7228
+shotx 404fd3a7 7608
+waitms 3000
+quit

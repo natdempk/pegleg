@@ -1,0 +1,7 @@
+# Bunches (9-5) seed 4 char Some(7) objective Shots, fast forward held: 4610 frames = 46.10 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (241, 133) angle 3.6599500 click 103 | 18 pegs, 9 orange, score 42820, end tick 772, styles [0], catches 0, free 0
+2: pixel (124, 145) angle 3.3497071 click 1012 | 27 pegs, 9 orange, score 115070, end tick 1479, styles [3], catches 0, free 1
+3: pixel (504, 224) angle 5.2554803 click 1759 | 20 pegs, 4 orange, score 57600, end tick 3081, styles [], catches 0, free 1
+4: pixel (272, 163) angle 3.9122050 click 3305 | 18 pegs, 3 orange, score 518800, end tick 4545, styles [], catches 0, free 0 WIN
+# total 734290 after 4 shots, balls left 8

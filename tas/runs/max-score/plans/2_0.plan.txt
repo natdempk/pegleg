@@ -1,0 +1,16 @@
+# TotemPole (3-1) seed 1 char Some(7) objective Score, fast forward held: 6257 frames = 62.57 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (282, 48) angle 3.2966771 click 103 | 15 pegs, 9 orange, score 14400, end tick 1145, styles [], catches 0, free 0
+2: pixel (116, 140) angle 3.3162723 click 1337 | 6 pegs, 4 orange, score 4440, end tick 1797, styles [], catches 0, free 0
+3: pixel (408, 132) angle 4.8017254 click 1949 | 0 pegs, 0 orange, score 0, end tick 2035, styles [], catches 0, free 0
+4: pixel (64, 199) angle 3.3544579 click 2387 | 1 pegs, 1 orange, score 5200, end tick 2533, styles [9], catches 1, free 0
+5: pixel (187, 348) angle 3.9798188 click 2717 | 0 pegs, 0 orange, score 0, end tick 2817, styles [], catches 0, free 0
+6: pixel (386, 206) angle 4.6297941 click 3193 | 1 pegs, 1 orange, score 200, end tick 3335, styles [], catches 0, free 0
+7: pixel (187, 348) angle 3.9798188 click 3471 | 0 pegs, 0 orange, score 0, end tick 3571, styles [], catches 0, free 0
+8: pixel (22, 223) angle 3.3063800 click 3931 | 2 pegs, 1 orange, score 660, end tick 4237, styles [], catches 1, free 0
+9: pixel (607, 593) angle 5.2095289 click 4421 | 8 pegs, 3 orange, score 8560, end tick 4712, styles [], catches 0, free 0
+10: pixel (0, 195) angle 3.1857321 click 4872 | 0 pegs, 0 orange, score 0, end tick 5034, styles [], catches 0, free 0
+11: pixel (190, 57) angle 3.1753724 click 5386 | 1 pegs, 0 orange, score 10050, end tick 5551, styles [6], catches 1, free 0
+12: pixel (606, 136) angle 5.9143968 click 5743 | 23 pegs, 5 orange, score 726200, end tick 6943, styles [3], catches 0, free 3
+13: pixel (680, 407) angle 5.5543461 click 7383 | 17 pegs, 1 orange, score 1790100, end tick 8300, styles [], catches 0, free 0 WIN
+# total 2559810 after 13 shots, balls left 7

@@ -1,0 +1,7 @@
+# Owl (2-5) seed 4 char Some(6) objective Speed, fast forward held: 1313 frames = 13.13 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (430, 180) angle 4.9257894 click 111 | 23 pegs, 10 orange, score 76450, end tick 560, styles [3], catches 0, free 1
+2: pixel (287, 297) angle 4.2582769 click 816 | 19 pegs, 10 orange, score 105670, end tick 1272, styles [3], catches 1, free 1
+3: pixel (34, 340) angle 3.5647292 click 1488 | 8 pegs, 3 orange, score 19600, end tick 1636, styles [], catches 0, free 0
+4: pixel (293, 429) angle 4.3822584 click 1796 | 7 pegs, 2 orange, score 163800, end tick 1922, styles [], catches 0, free 0 WIN
+# total 365520 after 4 shots, balls left 9

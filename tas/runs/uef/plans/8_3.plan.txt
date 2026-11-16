@@ -1,0 +1,13 @@
+# HollywoodCircles (9-4) seed 4 char Some(3) objective Uef, fast forward held: 2880 frames = 28.80 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (532, 323) angle 5.2124958 click 103 | 50 pegs, 10 orange, score 145000, end tick 660, styles [10, 3], catches 0, free 1
+2: pixel (582, 540) angle 5.1858277 click 1124 | 20 pegs, 9 orange, score 119200, end tick 1665, styles [3], catches 0, free 1
+3: pixel (300, 288) angle 4.2958164 click 1889 | 10 pegs, 3 orange, score 21500, end tick 2315, styles [], catches 1, free 0
+4: pixel (472, 205) angle 5.1308789 click 2523 | 9 pegs, 2 orange, score 24300, end tick 2756, styles [], catches 1, free 0
+5: pixel (250, 408) angle 4.2434030 click 2956 | 5 pegs, 0 orange, score 27000, end tick 3135, styles [], catches 0, free 1
+6: pixel (329, 295) angle 4.4149990 click 3279 | 6 pegs, 0 orange, score 3600, end tick 3509, styles [], catches 0, free 0
+7: pixel (136, 392) angle 3.8978457 click 3661 | 2 pegs, 0 orange, score 400, end tick 3761, styles [], catches 1, free 0
+8: pixel (125, 385) angle 3.8605220 click 3929 | 2 pegs, 0 orange, score 400, end tick 4035, styles [], catches 0, free 0
+9: pixel (584, 527) angle 5.1964278 click 4187 | 1 pegs, 0 orange, score 5000, end tick 4278, styles [], catches 0, free 0
+10: pixel (245, 302) angle 4.1084375 click 4406 | 3 pegs, 1 orange, score 256000, end tick 4623, styles [0, 4], catches 0, free 0 WIN
+# total 602400 after 10 shots, balls left 6

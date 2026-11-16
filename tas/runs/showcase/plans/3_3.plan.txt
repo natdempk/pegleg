@@ -1,0 +1,6 @@
+# Spaceballs (4-4) seed 1 char Some(7) objective Shots, fast forward held: 3575 frames = 35.75 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (691, 593) angle 5.3985367 click 111 | 22 pegs, 10 orange, score 85640, end tick 1303, styles [3], catches 0, free 1
+2: pixel (792, 348) angle 5.9161787 click 1567 | 32 pegs, 10 orange, score 234320, end tick 2241, styles [3], catches 0, free 3
+3: pixel (445, 489) angle 4.8471394 click 2673 | 28 pegs, 5 orange, score 827800, end tick 3379, styles [3], catches 0, free 2 WIN
+# total 1147760 after 3 shots, balls left 13

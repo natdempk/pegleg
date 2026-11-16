@@ -1,0 +1,35 @@
+# Dice (8-4) seed 13 char Some(7) objective Score, fast forward held: 9127 frames = 91.27 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (546, 98) angle 5.8855801 click 119 | 4 pegs, 2 orange, score 25880, end tick 259, styles [0], catches 1, free 0
+2: pixel (147, 96) angle 3.2398508 click 411 | 2 pegs, 1 orange, score 220, end tick 735, styles [], catches 1, free 0
+3: pixel (426, 257) angle 4.8441691 click 887 | 1 pegs, 1 orange, score 5100, end tick 993, styles [9], catches 1, free 0
+4: pixel (443, 401) angle 4.8587012 click 1145 | 1 pegs, 1 orange, score 100, end tick 1237, styles [], catches 0, free 0
+5: pixel (410, 250) angle 4.7706761 click 1357 | 1 pegs, 0 orange, score 10, end tick 1449, styles [], catches 0, free 0
+6: pixel (411, 345) angle 4.7618036 click 1577 | 0 pegs, 0 orange, score 0, end tick 1663, styles [], catches 0, free 0
+7: pixel (412, 444) angle 4.7578287 click 2015 | 1 pegs, 1 orange, score 5100, end tick 2098, styles [9], catches 1, free 0
+8: pixel (411, 579) angle 4.7402759 click 2274 | 1 pegs, 1 orange, score 5100, end tick 2359, styles [9], catches 1, free 0
+9: pixel (299, 509) angle 4.4398365 click 2535 | 5 pegs, 3 orange, score 1600, end tick 3024, styles [], catches 0, free 0
+10: pixel (291, 356) angle 4.3301554 click 3184 | 13 pegs, 5 orange, score 40080, end tick 4065, styles [12], catches 1, free 0
+11: pixel (308, 73) angle 3.5836172 click 4249 | 0 pegs, 0 orange, score 0, end tick 4432, styles [], catches 0, free 0
+12: pixel (406, 341) angle 4.7441058 click 4784 | 0 pegs, 0 orange, score 0, end tick 4870, styles [], catches 0, free 0
+13: pixel (351, 168) angle 4.3716908 click 5222 | 1 pegs, 1 orange, score 300, end tick 5566, styles [], catches 0, free 0
+14: pixel (308, 73) angle 3.5836172 click 5710 | 0 pegs, 0 orange, score 0, end tick 5841, styles [], catches 0, free 0
+15: pixel (410, 250) angle 4.7706761 click 6193 | 1 pegs, 1 orange, score 5300, end tick 6314, styles [9], catches 1, free 0
+16: pixel (406, 341) angle 4.7441058 click 6514 | 0 pegs, 0 orange, score 0, end tick 6597, styles [], catches 1, free 0
+17: pixel (406, 341) angle 4.7441058 click 6813 | 0 pegs, 0 orange, score 0, end tick 6896, styles [], catches 1, free 0
+18: pixel (294, 234) angle 4.1902533 click 7096 | 1 pegs, 0 orange, score 5030, end tick 7357, styles [9], catches 1, free 0
+19: pixel (308, 73) angle 3.5836172 click 7557 | 0 pegs, 0 orange, score 0, end tick 7688, styles [], catches 0, free 0
+20: pixel (401, 0) angle 0.1221730 click 8040 | 5 pegs, 2 orange, score 28650, end tick 8433, styles [0], catches 0, free 0
+21: pixel (274, 79) angle 3.5039742 click 8585 | 1 pegs, 0 orange, score 50, end tick 8728, styles [], catches 0, free 0
+22: pixel (308, 73) angle 3.5836172 click 8864 | 0 pegs, 0 orange, score 0, end tick 8995, styles [], catches 0, free 0
+23: pixel (308, 73) angle 3.5836172 click 9371 | 0 pegs, 0 orange, score 0, end tick 9502, styles [], catches 0, free 0
+24: pixel (438, 371) angle 4.8503528 click 9862 | 2 pegs, 1 orange, score 26100, end tick 10033, styles [12], catches 1, free 0
+25: pixel (75, 301) angle 3.5927703 click 10257 | 0 pegs, 0 orange, score 0, end tick 10390, styles [], catches 1, free 0
+26: pixel (308, 73) angle 3.5836172 click 10614 | 0 pegs, 0 orange, score 0, end tick 10745, styles [], catches 0, free 0
+27: pixel (172, 532) angle 4.1275840 click 11105 | 3 pegs, 1 orange, score 1800, end tick 11546, styles [], catches 1, free 0
+28: pixel (308, 73) angle 3.5836172 click 11770 | 0 pegs, 0 orange, score 0, end tick 11901, styles [], catches 0, free 0
+29: pixel (656, 119) angle 6.1166511 click 12261 | 3 pegs, 1 orange, score 2100, end tick 12460, styles [], catches 1, free 0
+30: pixel (199, 131) angle 3.5145283 click 12684 | 2 pegs, 0 orange, score 5400, end tick 12836, styles [9], catches 1, free 0
+31: pixel (212, 46) angle 3.1577272 click 13060 | 2 pegs, 0 orange, score 25400, end tick 13285, styles [12], catches 1, free 0
+32: pixel (763, 308) angle 5.9188991 click 13525 | 33 pegs, 3 orange, score 3354700, end tick 14987, styles [10], catches 0, free 1 WIN
+# total 3538020 after 32 shots, balls left 1

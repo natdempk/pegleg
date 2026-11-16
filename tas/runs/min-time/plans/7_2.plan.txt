@@ -1,0 +1,8 @@
+# Cyclops (8-3) seed 2 char Some(6) objective Speed, fast forward held: 1401 frames = 14.01 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (141, 85) angle 3.1867511 click 119 | 20 pegs, 13 orange, score 134400, end tick 678, styles [0, 3, 10], catches 0, free 1
+2: pixel (634, 353) angle 5.4990025 click 910 | 13 pegs, 8 orange, score 85620, end tick 1236, styles [3], catches 0, free 1
+3: pixel (94, 452) angle 3.8633881 click 1420 | 5 pegs, 2 orange, score 8500, end tick 1574, styles [], catches 0, free 0
+4: pixel (480, 137) angle 5.3692904 click 1718 | 1 pegs, 1 orange, score 1000, end tick 1827, styles [], catches 0, free 0
+5: pixel (727, 354) angle 5.7500238 click 1955 | 1 pegs, 1 orange, score 121000, end tick 2080, styles [], catches 0, free 0 WIN
+# total 350520 after 5 shots, balls left 7

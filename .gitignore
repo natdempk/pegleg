@@ -1,0 +1,11 @@
+target/
+/game/
+/plans/
+/runs/
+/play/bin/
+__pycache__/
+.DS_Store
+*.mp4
+*.wav
+/out/
+/play/.zig/

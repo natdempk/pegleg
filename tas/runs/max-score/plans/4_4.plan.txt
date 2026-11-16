@@ -1,0 +1,12 @@
+# SideAction (5-5) seed 3 char Some(7) objective Score, fast forward held: 5479 frames = 54.79 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (154, 216) angle 3.6348102 click 103 | 3 pegs, 1 orange, score 360, end tick 539, styles [], catches 0, free 0
+2: pixel (119, 86) angle 3.1416533 click 675 | 3 pegs, 3 orange, score 25900, end tick 1276, styles [0], catches 0, free 0
+3: pixel (632, 597) angle 5.2702732 click 1412 | 3 pegs, 3 orange, score 900, end tick 1708, styles [], catches 1, free 0
+4: pixel (646, 477) angle 5.3957505 click 1884 | 2 pegs, 2 orange, score 25400, end tick 2206, styles [0], catches 1, free 0
+5: pixel (520, 384) angle 5.1185775 click 2382 | 3 pegs, 2 orange, score 28900, end tick 2746, styles [0], catches 0, free 0
+6: pixel (118, 148) angle 3.3452134 click 2882 | 1 pegs, 0 orange, score 20, end tick 3085, styles [], catches 0, free 0
+7: pixel (70, 335) angle 3.6411428 click 3213 | 20 pegs, 8 orange, score 152000, end tick 4303, styles [3, 12], catches 1, free 2
+8: pixel (294, 234) angle 4.1902533 click 4519 | 7 pegs, 3 orange, score 11900, end tick 4971, styles [], catches 0, free 0
+9: pixel (613, 516) angle 5.2766404 click 5147 | 22 pegs, 3 orange, score 2105800, end tick 5756, styles [10], catches 0, free 1 WIN
+# total 2351180 after 9 shots, balls left 7

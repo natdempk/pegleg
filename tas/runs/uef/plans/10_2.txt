@@ -1,0 +1,14 @@
+char 3
+level 10 2
+shotx 40511435 119
+shotx 40c7b3f6 1146
+shotx 40bd506b 2012
+shotx 40bbbbc0 2730
+shotx 40b0de81 3073
+shotx 40c0f3f6 3517
+shotx 40a91bdf 3869
+shotx 40810c80 4208
+shotx 40c35e6a 4589
+shotx 40b2ff43 4928
+waitms 3000
+quit

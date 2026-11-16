@@ -1,0 +1,6 @@
+# Dice (8-4) seed 4 char Some(7) objective Shots, fast forward held: 5007 frames = 50.07 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (507, 596) angle 4.9798231 click 119 | 23 pegs, 12 orange, score 84730, end tick 1575, styles [3], catches 0, free 1
+2: pixel (784, 204) angle 6.1823702 click 1855 | 35 pegs, 11 orange, score 618050, end tick 3655, styles [3], catches 0, free 3
+3: pixel (726, 176) angle 6.1128240 click 4271 | 12 pegs, 2 orange, score 1087000, end tick 5027, styles [0], catches 0, free 0 WIN
+# total 1789780 after 3 shots, balls left 11

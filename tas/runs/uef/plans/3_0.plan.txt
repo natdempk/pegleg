@@ -1,0 +1,15 @@
+# TheAmoeban (4-1) seed 4 char Some(3) objective Uef, fast forward held: 3262 frames = 32.62 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (372, 195) angle 4.5381727 click 103 | 54 pegs, 13 orange, score 185700, end tick 1270, styles [10, 3], catches 0, free 2
+2: pixel (706, 492) angle 5.5209231 click 1742 | 9 pegs, 6 orange, score 15120, end tick 1980, styles [], catches 0, free 0
+3: pixel (236, 573) angle 4.3063908 click 2148 | 17 pegs, 3 orange, score 39100, end tick 2583, styles [], catches 0, free 1
+4: pixel (309, 145) angle 4.0342579 click 2791 | 5 pegs, 2 orange, score 11500, end tick 2952, styles [], catches 0, free 0
+5: pixel (150, 355) angle 3.8833830 click 3096 | 6 pegs, 0 orange, score 33000, end tick 3302, styles [], catches 0, free 1
+6: pixel (500, 70) angle 5.9206285 click 3454 | 3 pegs, 0 orange, score 900, end tick 3582, styles [], catches 1, free 0
+7: pixel (722, 508) angle 5.5511923 click 3750 | 3 pegs, 0 orange, score 900, end tick 3876, styles [], catches 0, free 0
+8: pixel (203, 248) angle 3.8650773 click 4012 | 2 pegs, 0 orange, score 400, end tick 4114, styles [], catches 0, free 0
+9: pixel (721, 532) angle 5.5238953 click 4242 | 2 pegs, 0 orange, score 400, end tick 4405, styles [], catches 0, free 0
+10: pixel (139, 394) angle 3.9080868 click 4533 | 1 pegs, 0 orange, score 100, end tick 4635, styles [], catches 0, free 0
+11: pixel (46, 253) angle 3.4242122 click 4763 | 1 pegs, 0 orange, score 5000, end tick 4882, styles [], catches 0, free 0
+12: pixel (741, 245) angle 5.9836431 click 5010 | 2 pegs, 1 orange, score 142000, end tick 5138, styles [], catches 0, free 0 WIN
+# total 434120 after 12 shots, balls left 3

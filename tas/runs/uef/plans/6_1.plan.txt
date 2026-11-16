@@ -1,0 +1,15 @@
+# Tulips (7-2) seed 1 char Some(8) objective Uef, fast forward held: 3204 frames = 32.04 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (130, 197) angle 3.5222816 click 103 | 15 pegs, 6 orange, score 10350, end tick 643, styles [], catches 0, free 0
+2: pixel (422, 484) angle 4.7738142 click 851 | 22 pegs, 7 orange, score 26620, end tick 1156, styles [], catches 0, free 1
+3: pixel (240, 138) angle 3.6780112 click 1412 | 13 pegs, 5 orange, score 39130, end tick 1758, styles [], catches 0, free 1
+4: pixel (154, 214) angle 3.6298683 click 1942 | 14 pegs, 4 orange, score 66780, end tick 2360, styles [], catches 0, free 1
+5: pixel (780, 323) angle 5.9299154 click 2560 | 9 pegs, 2 orange, score 24300, end tick 2942, styles [], catches 0, free 0
+6: pixel (487, 582) angle 4.9321718 click 3118 | 6 pegs, 0 orange, score 3600, end tick 3301, styles [], catches 0, free 0
+7: pixel (715, 260) angle 5.8884239 click 3453 | 6 pegs, 0 orange, score 3600, end tick 3687, styles [], catches 0, free 0
+8: pixel (248, 267) angle 4.0633497 click 3839 | 2 pegs, 0 orange, score 10200, end tick 3966, styles [], catches 1, free 0
+9: pixel (457, 303) angle 4.9490356 click 4134 | 1 pegs, 0 orange, score 100, end tick 4221, styles [], catches 0, free 0
+10: pixel (182, 113) angle 3.3900011 click 4349 | 3 pegs, 0 orange, score 15600, end tick 4499, styles [], catches 0, free 0
+11: pixel (386, 594) angle 4.6773024 click 4635 | 1 pegs, 0 orange, score 100, end tick 4722, styles [], catches 0, free 0
+12: pixel (0, 0) angle 3.0194197 click 4850 | 2 pegs, 1 orange, score 132000, end tick 5017, styles [], catches 0, free 0 WIN
+# total 332380 after 12 shots, balls left 2

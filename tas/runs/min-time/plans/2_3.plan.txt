@@ -1,0 +1,8 @@
+# FourDoors (3-4) seed 3 char Some(6) objective Speed, fast forward held: 1481 frames = 14.81 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (648, 310) angle 5.6090903 click 127 | 18 pegs, 11 orange, score 82040, end tick 573, styles [3], catches 0, free 1
+2: pixel (276, 74) angle 3.4748940 click 789 | 10 pegs, 6 orange, score 15000, end tick 1016, styles [], catches 0, free 0
+3: pixel (593, 281) angle 5.4933205 click 1184 | 11 pegs, 4 orange, score 21230, end tick 1614, styles [], catches 1, free 0
+4: pixel (593, 332) angle 5.4060035 click 1846 | 9 pegs, 2 orange, score 62550, end tick 1983, styles [], catches 0, free 1
+5: pixel (187, 457) angle 4.1027131 click 2151 | 3 pegs, 2 orange, score 96300, end tick 2251, styles [], catches 0, free 0 WIN
+# total 277120 after 5 shots, balls left 8

@@ -1,0 +1,6 @@
+# Car (7-4) seed 3 char Some(7) objective Shots, fast forward held: 5671 frames = 56.71 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (102, 532) angle 3.9593196 click 103 | 36 pegs, 11 orange, score 103280, end tick 1766, styles [3], catches 0, free 1
+2: pixel (624, 428) angle 5.3840184 click 2198 | 34 pegs, 8 orange, score 157240, end tick 3826, styles [3, 6], catches 1, free 2
+3: pixel (777, 511) angle 5.6699362 click 4250 | 20 pegs, 6 orange, score 675000, end tick 5558, styles [3], catches 0, free 1 WIN
+# total 935520 after 3 shots, balls left 12

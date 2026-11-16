@@ -1,0 +1,7 @@
+char 8
+level 3 0
+shotx 407d6331 103
+shotx 40bfe580 1591
+shotx 408eb1b4 2364
+waitms 3000
+quit

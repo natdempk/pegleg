@@ -1,0 +1,10 @@
+# Car (7-4) seed 3 char Some(8) objective Uef, fast forward held: 2859 frames = 28.59 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (87, 540) angle 3.9357092 click 103 | 21 pegs, 6 orange, score 15750, end tick 1027, styles [], catches 1, free 0
+2: pixel (153, 387) angle 3.9388516 click 1283 | 44 pegs, 13 orange, score 255480, end tick 1935, styles [3], catches 0, free 3
+3: pixel (202, 533) angle 4.2049217 click 2391 | 21 pegs, 5 orange, score 146600, end tick 2854, styles [3], catches 0, free 2
+4: pixel (207, 565) angle 4.2305818 click 3078 | 6 pegs, 0 orange, score 33000, end tick 3284, styles [], catches 0, free 1
+5: pixel (492, 500) angle 4.9733267 click 3452 | 4 pegs, 0 orange, score 21200, end tick 3624, styles [], catches 0, free 0
+6: pixel (483, 347) angle 5.0242167 click 3768 | 1 pegs, 0 orange, score 5000, end tick 3864, styles [], catches 0, free 0
+7: pixel (84, 578) angle 3.9572175 click 4008 | 3 pegs, 1 orange, score 268300, end tick 4168, styles [4], catches 0, free 0 WIN
+# total 745330 after 7 shots, balls left 10

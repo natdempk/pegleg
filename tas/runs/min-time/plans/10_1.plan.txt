@@ -1,0 +1,9 @@
+# Crisscross (11-2) seed 6 char Some(8) objective Speed, fast forward held: 1556 frames = 15.56 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (525, 49) angle 6.1618490 click 103 | 17 pegs, 6 orange, score 95400, end tick 308, styles [2, 12], catches 1, free 0
+2: pixel (502, 35) angle 6.2548375 click 532 | 12 pegs, 6 orange, score 10320, end tick 859, styles [], catches 0, free 0
+3: pixel (504, 234) angle 5.2359848 click 1059 | 32 pegs, 7 orange, score 108160, end tick 1412, styles [], catches 0, free 2
+4: pixel (761, 308) angle 5.9137836 click 1788 | 12 pegs, 4 orange, score 36600, end tick 1924, styles [], catches 0, free 1
+5: pixel (465, 536) angle 4.8833737 click 2100 | 4 pegs, 1 orange, score 5200, end tick 2215, styles [], catches 0, free 0
+6: pixel (375, 571) angle 4.6486034 click 2351 | 7 pegs, 1 orange, score 210500, end tick 2606, styles [11], catches 0, free 1 WIN
+# total 466180 after 6 shots, balls left 9

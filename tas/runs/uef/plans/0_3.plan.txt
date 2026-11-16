@@ -1,0 +1,9 @@
+# Level4 (1-4) seed 3 char Some(8) objective Uef, fast forward held: 2834 frames = 28.34 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (291, 330) angle 4.3077283 click 127 | 28 pegs, 12 orange, score 173920, end tick 845, styles [3, 2], catches 0, free 1
+2: pixel (685, 276) angle 5.7793312 click 1117 | 24 pegs, 8 orange, score 140480, end tick 1995, styles [3], catches 0, free 2
+3: pixel (523, 280) angle 5.2357588 click 2259 | 22 pegs, 3 orange, score 71500, end tick 2610, styles [], catches 0, free 1
+4: pixel (448, 209) angle 4.9960794 click 2850 | 12 pegs, 1 orange, score 84000, end tick 3146, styles [], catches 0, free 2
+5: pixel (590, 222) angle 5.6065526 click 3330 | 6 pegs, 0 orange, score 33000, end tick 3500, styles [], catches 0, free 1
+6: pixel (26, 565) angle 3.8243380 click 3652 | 6 pegs, 1 orange, score 308400, end tick 3905, styles [4], catches 0, free 1 WIN
+# total 811300 after 6 shots, balls left 12

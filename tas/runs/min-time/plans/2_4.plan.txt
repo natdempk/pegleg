@@ -1,0 +1,7 @@
+# Fever (3-5) seed 5 char Some(8) objective Speed, fast forward held: 1602 frames = 16.02 s from the first board frame to the Level Complete box
+# shot: window pixel (x, y) → angle, click tick | predicted outcome
+1: pixel (62, 580) angle 3.9128044 click 103 | 36 pegs, 10 orange, score 145720, end tick 949, styles [2, 3], catches 0, free 1
+2: pixel (147, 592) angle 4.1105051 click 1341 | 29 pegs, 11 orange, score 159620, end tick 1679, styles [3], catches 0, free 2
+3: pixel (743, 184) angle 6.1322989 click 1935 | 11 pegs, 3 orange, score 60500, end tick 2089, styles [], catches 0, free 1
+4: pixel (182, 399) angle 4.0313497 click 2257 | 2 pegs, 1 orange, score 112200, end tick 2365, styles [], catches 0, free 0 WIN
+# total 478040 after 4 shots, balls left 10

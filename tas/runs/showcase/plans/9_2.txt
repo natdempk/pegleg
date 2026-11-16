@@ -1,0 +1,7 @@
+char 9
+level 9 2
+shotx 405b637f 127
+shotx 40857fea 1749
+shotx 40683634 3602
+waitms 3000
+quit

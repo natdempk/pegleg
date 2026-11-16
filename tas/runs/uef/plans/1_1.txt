@@ -1,0 +1,17 @@
+char 1
+level 1 1
+shotx 40814f6e 103
+shotx 4071a374 1458
+shotx 40c417eb 2015
+shotx 405bcd69 2529
+shotx 40b78986 2874
+shotx 40777ad3 3326
+shotx 40a4eb5a 3592
+shotx 407d355f 3863
+shotx 4060d9d9 4119
+shotx 40936ae3 4471
+shotx 409a721a 4685
+shotx 40c7a489 4911
+shotx 404fc7d7 5167
+waitms 3000
+quit
