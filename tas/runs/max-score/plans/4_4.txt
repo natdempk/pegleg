@@ -1,13 +1,19 @@
 char 7
 level 4 4
-shotx 4068a0bb 103
-shotx 404910d9 675
-shotx 40a8a614 1412
-shotx 40aca9fd 1884
-shotx 40a3cb63 2382
-shotx 405617fa 2882
-shotx 4069087c 3213
-shotx 4086168e 4519
-shotx 40a8da3d 5147
+shotx 40aba333 103
+shotx 40c75885 628
+shotx 4086dbb0 1311
+shotx 40bdbe4f 1868
+shotx 40a8a614 2827
+shotx 40b4e5a8 3198
+shotx 4072eedb 4043
+shotx 40b26228 4510
+shotx 40c154bf 4808
+shotx 407972af 5193
+shotx 40b0eca7 5718
+shotx 40413e2c 6413
+shotx 40af9460 6813
+shotx 40bf51c1 7268
+shotx 406fb144 7854
 waitms 3000
 quit

@@ -1,15 +1,12 @@
-# Pinball (8-2) seed 1 char Some(7) objective Score, fast forward held: 5258 frames = 52.58 s from the first board frame to the Level Complete box
+# Pinball (8-2) seed 1458 char Some(7) objective Score, fast forward held: 5802 frames = 58.02 s from the first board frame to the Level Complete box
 # shot: window pixel (x, y) → angle, click tick | predicted outcome
-1: pixel (473, 110) angle 5.4633460 click 103 | 2 pegs, 1 orange, score 220, end tick 267, styles [], catches 0, free 0
-2: pixel (253, 214) angle 3.9697073 click 395 | 4 pegs, 4 orange, score 1600, end tick 549, styles [], catches 0, free 0
-3: pixel (204, 352) angle 4.0445919 click 685 | 4 pegs, 3 orange, score 1240, end tick 1166, styles [], catches 0, free 0
-4: pixel (22, 223) angle 3.3063800 click 1310 | 4 pegs, 2 orange, score 880, end tick 1831, styles [], catches 0, free 0
-5: pixel (451, 352) angle 4.9011731 click 1975 | 4 pegs, 3 orange, score 27480, end tick 2267, styles [12], catches 1, free 0
-6: pixel (460, 509) angle 4.8847528 click 2459 | 2 pegs, 1 orange, score 440, end tick 2552, styles [], catches 0, free 0
-7: pixel (454, 499) angle 4.8702369 click 2704 | 3 pegs, 2 orange, score 6000, end tick 2839, styles [], catches 1, free 0
-8: pixel (429, 398) angle 4.8149619 click 3031 | 0 pegs, 0 orange, score 0, end tick 3117, styles [], catches 0, free 0
-9: pixel (695, 109) angle 6.2402563 click 3469 | 0 pegs, 0 orange, score 0, end tick 3631, styles [], catches 0, free 0
-10: pixel (308, 73) angle 3.5836172 click 3983 | 5 pegs, 3 orange, score 4800, end tick 4474, styles [], catches 1, free 0
-11: pixel (146, 461) angle 4.0065889 click 4674 | 14 pegs, 5 orange, score 224300, end tick 5475, styles [3], catches 0, free 3
-12: pixel (503, 443) angle 5.0243640 click 5883 | 23 pegs, 1 orange, score 2508000, end tick 6671, styles [], catches 0, free 0 WIN
-# total 2774960 after 12 shots, balls left 5
+1: pixel (8, 203) angle 3.2215030 click 103 | 7 pegs, 6 orange, score 4270, end tick 1162, styles [], catches 0, free 0
+2: pixel (321, 31) angle 3.1416068 click 1314 | 1 pegs, 1 orange, score 100, end tick 1487, styles [], catches 0, free 0
+3: pixel (426, 177) angle 4.9025211 click 1615 | 5 pegs, 3 orange, score 4050, end tick 1763, styles [], catches 1, free 0
+4: pixel (698, 101) angle 6.2723913 click 1963 | 2 pegs, 1 orange, score 440, end tick 2143, styles [], catches 0, free 0
+5: pixel (500, 131) angle 5.5133071 click 2295 | 7 pegs, 4 orange, score 6090, end tick 2705, styles [], catches 1, free 0
+6: pixel (200, 95) angle 3.3635817 click 2889 | 1 pegs, 0 orange, score 30, end tick 3067, styles [], catches 0, free 0
+7: pixel (304, 343) angle 4.3633208 click 3195 | 9 pegs, 4 orange, score 12150, end tick 4038, styles [], catches 1, free 0
+8: pixel (24, 585) angle 3.8290651 click 4254 | 8 pegs, 3 orange, score 93200, end tick 4824, styles [0, 10], catches 0, free 1
+9: pixel (769, 191) angle 6.1760597 click 5224 | 41 pegs, 3 orange, score 4938000, end tick 6433, styles [], catches 0, free 2 WIN
+# total 5058330 after 9 shots, balls left 7

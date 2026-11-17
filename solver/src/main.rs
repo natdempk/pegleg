@@ -134,7 +134,8 @@ fn main() {
                 let n = prefix_node(&g, &shots, &p, &angles);
                 eprintln!("prefix: {} shots, total {}, {} oranges left, balls {}, frame grid at tick {}", n.steps.len(), n.game.total, n.game.oranges_left(), n.game.balls, n.grid0);
                 eprintln!("seed {seed} char {ch:?} (power {pw}, {} oranges):", n.game.oranges_left());
-                solve_node(n, &p, &angles, &stats, true)
+                // the whole plan as prefix: no search, just rewrite the plan with this sim's predictions
+                if n.game.over() { Outcome { best: Some(n), frontier_best: vec![] } } else { solve_node(n, &p, &angles, &stats, true) }
             } else {
                 eprintln!("seed {seed} char {ch:?} (power {pw}, {} oranges):", g.oranges_left());
                 solve(&g, &p, &angles, &stats, true)

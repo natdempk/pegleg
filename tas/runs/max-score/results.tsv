@@ -1,56 +1,56 @@
 level	name	master	seed	shots	real_total	real_frames	won	exact
-1-1	Peggleland	Warren	12	40	3556990	16922	True	True
-1-2	Slip and Slide	Warren	2	55	2488620	10939	True	True
-1-3	Bjorn's Gazebo	Warren	3	32	3155450	7942	True	True
+1-1	Peggleland	Warren	80483	5	3979440	4791	True	True
+1-2	Slip and Slide	Warren	56500	18	4128830	6354	True	True
+1-3	Bjorn's Gazebo	Warren	72058	32	3261430	8748	True	True
 1-4	Das Bucket	Warren	7	23	3218080	6500	True	True
-1-5	Snow Day	Warren	1	34	2772640	7359	True	True
+1-5	Snow Day	Warren	10	29	3521370	8426	True	True
 2-1	Birdy's Crib	Warren	2	29	2936800	9018	True	True
-2-2	Buffalo Wings	Warren	3	31	2790980	8698	True	True
-2-3	Skate Park	Warren	2	45	2227010	12303	True	True
-2-4	Spiral of Doom	Warren	3	52	3594320	11314	True	True
+2-2	Buffalo Wings	Warren	26033	26	3659680	8188	True	True
+2-3	Skate Park	Warren	35668	45	2790020	11920	True	True
+2-4	Spiral of Doom	Warren	563404	54	6996970	12273	True	True
 2-5	Mr. Peepers	Warren	2	32	4775020	10128	True	True
-3-1	Scarab Crunch	Warren	1	13	2559810	6280	True	True
-3-2	Infinite Cheese	Warren	2	39	2853330	10953	True	True
-3-3	Ra Deal	Warren	2	41	3110520	11782	True	True
-3-4	Croco-gator Pit	Warren	2	49	2173580	12418	True	True
-3-5	The Fever Level	Warren	2	25	5167110	7909	True	True
-4-1	The Amoeban	Warren	3	32	4283650	8732	True	True
-4-2	The Last Flower	Warren	1	20	4458760	7960	True	True
-4-3	We Come In Peace	Warren	2	15	2505450	6121	True	True
-4-4	Maid In Space	Warren	1	32	3396840	9058	True	True
-4-5	Getting The Spare	Warren	1	23	4516180	7083	True	True
-5-1	Pearl Clam	Warren	1	17	1900820	8260	True	True
-5-2	Insane Aquarium	Warren	3	13	3070840	6787	True	True
-5-3	Tasty Waves	Warren	2	60	2986260	12076	True	True
-5-4	Our Favorite Eel	Warren	1	8	2759970	6157	True	True
-5-5	Love Story	Warren	3	9	2351180	5514	True	True
-6-1	Waves	Warren	3	58	2990700	17445	True	True
-6-2	Spiderweb	Warren	1	5	2675860	5067	True	True
-6-3	Blockers	Warren	3	17	1896310	7256	True	True
-6-4	Baseball	Warren	3	58	2537670	15543	True	True
-6-5	Vermin	Warren	10	50	3270200	10367	True	True
+3-1	Scarab Crunch	Warren	41007	54	3400020	9779	True	True
+3-2	Infinite Cheese	Warren	4670	19	5142060	6908	True	True
+3-3	Ra Deal	Warren	92049	28	4099600	8527	True	True
+3-4	Croco-gator Pit	Warren	12310	25	3494490	8120	True	True
+3-5	The Fever Level	Warren	68667	54	5582610	12753	True	True
+4-1	The Amoeban	Warren	34410	32	5081220	10852	True	True
+4-2	The Last Flower	Warren	38050	34	7065170	10513	True	True
+4-3	We Come In Peace	Warren	17071	59	4223410	15080	True	True
+4-4	Maid In Space	Warren	11930	32	4551510	9334	True	True
+4-5	Getting The Spare	Warren	5792	26	5321910	7245	True	True
+5-1	Pearl Clam	Warren	18857	35	3121620	10645	True	True
+5-2	Insane Aquarium	Warren	52630	9	3577510	6909	True	True
+5-3	Tasty Waves	Warren	504	8	3642090	5615	True	True
+5-4	Our Favorite Eel	Warren	45934	18	3152460	6534	True	True
+5-5	Love Story	Warren	2982	15	2797500	6673	True	True
+6-1	Waves	Warren	3081	51	3535500	13491	True	True
+6-2	Spiderweb	Warren	1065	17	4170870	7905	True	True
+6-3	Blockers	Warren	22322	45	3143040	12996	True	True
+6-4	Baseball	Warren	20883	37	3641130	10626	True	True
+6-5	Vermin	Warren	87	25	6230830	6950	True	True
 7-1	Holland Oats	Warren	2	16	4046930	5024	True	True
-7-2	I Heart Flowers	Warren	1	42	1748730	8364	True	True
-7-3	Workin From Home	Warren	3	14	3492290	6914	True	True
+7-2	I Heart Flowers	Warren	23849	12	2843630	4973	True	True
+7-3	Workin From Home	Warren	66055	35	4171910	11501	True	True
 7-4	Tula's Ride	Warren	2	36	3958340	12856	True	True
-7-5	70 and Sunny	Warren	1	12	1382110	5590	True	True
-8-1	Win a Monkey	Warren	3	7	4248280	5593	True	True
-8-2	Dog Pinball	Warren	1	12	2774960	5291	True	True
-8-3	Spin Again	Warren	1	32	2458230	9130	True	True
-8-4	Roll 'em	Warren	13	32	3538020	9150	True	True
-8-5	Five of a Kind	Warren	2	39	1796540	10172	True	True
+7-5	70 and Sunny	Warren	3041	32	2178680	8205	True	True
+8-1	Win a Monkey	Warren	101	57	5064650	15726	True	True
+8-2	Dog Pinball	Warren	1458	9	5058330	5858	True	True
+8-3	Spin Again	Warren	16189	48	3321740	12407	True	True
+8-4	Roll 'em	Warren	50718	40	4623070	11834	True	True
+8-5	Five of a Kind	Warren	84505	43	2338530	12848	True	True
 9-1	The Love Moat	Warren	2	32	4674610	8936	True	True
 9-2	Doom With a View	Warren	2	10	4465380	5637	True	True
 9-3	Rhombi	Warren	9	28	5049800	8191	True	True
-9-4	9 Luft Balloons	Warren	1	8	3593850	4142	True	True
+9-4	9 Luft Balloons	Warren	55302	58	3905590	13703	True	True
 9-5	Twisted Sisters	Warren	9	55	2984190	11586	True	True
-10-1	Spin Cycle	Warren	2	47	3743860	13424	True	True
-10-2	The Dude Abides	Warren	2	40	8820590	12665	True	True
-10-3	When Pigs Fly	Warren	1	24	2311780	6501	True	True
-10-4	Yang, Yin	Warren	1	34	1778790	8450	True	True
-10-5	Zen Frog	Warren	3	45	4492740	11259	True	True
+10-1	Spin Cycle	Warren	80440	5	3973930	5304	True	True
+10-2	The Dude Abides	Warren	3961	47	9982760	12544	True	True
+10-3	When Pigs Fly	Warren	75432	37	2414440	8729	True	True
+10-4	Yang, Yin	Warren	2467	36	2927200	9654	True	True
+10-5	Zen Frog	Warren	87284	49	4728560	11315	True	True
 11-1	Paw Reader	Warren	1	16	3458270	9636	True	True
 11-2	End of Time	Warren	15	8	2122390	5327	True	True
 11-3	Billions & Billions	Warren	3	58	2676080	48469	True	True
-11-4	Don't Panic	Warren	2	5	2260130	3757	True	True
-11-5	Beyond Reason	Warren	1	43	13639120	11182	True	True
+11-4	Don't Panic	Warren	24377	55	2746230	21856	True	True
+11-5	Beyond Reason	Warren	90169	16	17544980	7483	True	True
