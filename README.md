@@ -15,7 +15,7 @@ moment.
 |---|---|---|
 | [Min-time](tas/runs/min-time/README.md) | Clear each level fastest (speedrun.com Any% IL timing) | 55 levels in 884.90 s, vs 1533.38 s for the records |
 | [Ultra Extreme Fever](tas/runs/uef/README.md) | Hit every peg, fastest | 55 levels in 1841.19 s, vs 3086.03 s for the records |
-| [Max score](tas/runs/max-score/README.md) | Highest score per level | 188,496,960 points; 53 of 55 Cyberscore level records beaten |
+| [Max score](tas/runs/max-score/README.md) | Highest score per level | 235,502,410 points; all 55 Cyberscore level records beaten |
 | [Showcase](tas/runs/showcase/README.md) | Fewest shots, then highest score | All 55 levels in 162 shots |
 
 Every run is in `tas/runs/` as plans you can replay in your own copy of the game.
