@@ -85,6 +85,31 @@ pub struct Params {
     /// score objective with the probe: de-duplicate by pegs hit + balls and keep the beam (and probe pool)
     /// spread over the oranges-left counts
     pub strata: bool,
+    /// score objective: value of a running catch streak (|Board catch_streak| after a caught shot that hit a peg),
+    /// as this fraction of the styles it leads to: Crazy Mad Skillz (100000) every 10th catch in a row, Mad Skillz
+    /// (25000) at the 5th. Also keeps nodes that differ only in their streak apart. 0 = off
+    pub streak_value: f64,
+    /// bucket timing: per node, the best `bucket_top` children that hit a peg but were not caught are
+    /// re-fired at the delay (up to `bucket_max` frames) that puts the moving bucket under the ball's path (0 = off)
+    pub bucket_top: usize,
+    pub bucket_max: i32,
+    /// exact Fever probe: with 2-3 oranges left, probe once per orange L with the others cleared and L kept (its lane
+    /// as it stands, multipliers before L) instead of deleting them all and scoring 100x
+    pub probe_exact: bool,
+    /// fever probe click delays (frames after the earliest click)
+    pub probe_delays: Vec<i32>,
+    /// full signature: strata de-duplication also keeps apart the tripler state and the purple peg
+    pub sig_full: bool,
+    /// strata cells (oranges tier × tripler armed), tiers more than 2 behind the leading one dropped,
+    /// and a node dominated by a kept one (same oranges left, standing pegs ⊆, total, balls, streak <=) skipped
+    pub cells: bool,
+    /// lane tabu, goal-first: pegs of the target Fever lane (a file of peg indices); hitting one before the win costs
+    /// `tabu_cost` points in the key
+    pub tabu: Vec<usize>,
+    pub tabu_cost: f64,
+    /// final-shot scan: every depth, the best `final_scan` nodes with one orange left get every reachable angle at
+    /// the probe delays (the winning shot is a narrow target); 0 = off
+    pub final_scan: usize,
     /// real-time model with the right button held (fast forward, see `rt`): clicks only at frame starts,
     /// cost = app frames. Off: cost = harness ticks, any click tick.
     pub ff: bool,
@@ -93,7 +118,8 @@ pub struct Params {
 impl Default for Params {
     fn default() -> Self {
         Params { objective: Objective::Speed, beam: 24, coarse: 720, delays: vec![0, 10, 25, 50], refine_top: 6,
-                 refine_rounds: 4, refine_div: 8, refine_width: 8, max_shots: 10, keep_ball: false, orange_cost: 260.0, peg_cost: 60.0, score_orange_cost: 2000.0, fever_frac: 0.0, trip_bonus: 1.0, probe_n: 0, probe_pool: 0, probe_weight: 1.0, probe_untrip: 1.0, strata: false, ff: true }
+                 refine_rounds: 4, refine_div: 8, refine_width: 8, max_shots: 10, keep_ball: false, orange_cost: 260.0, peg_cost: 60.0, score_orange_cost: 2000.0, fever_frac: 0.0, trip_bonus: 1.0, probe_n: 0, probe_pool: 0, probe_weight: 1.0, probe_untrip: 1.0, strata: false, streak_value: 0.0,
+                 bucket_top: 0, bucket_max: 64, probe_exact: false, probe_delays: vec![0], sig_full: false, cells: false, tabu: vec![], tabu_cost: 0.0, final_scan: 0, ff: true }
     }
 }
 
@@ -231,7 +257,8 @@ impl Node {
             }
             Objective::Score => {
                 // balls left are worth 10000 each at the end; unwon nodes get a nominal fever bonus
-                let s = g.total as f64 + 10000.0 * g.balls as f64;
+                let mut s = g.total as f64 + 10000.0 * g.balls as f64 + p.streak_value * streak_est(g);
+                if !g.won && p.tabu_cost > 0.0 { s -= p.tabu_cost * p.tabu.iter().filter(|&&i| g.board.objs[i].hit).count() as f64; }
                 let fever = match self.probe { Some(v) => p.probe_weight * v, None => fever_est(p, g) };
                 -(if g.won { s + 1e12 } else { s - p.score_orange_cost * g.oranges_left() as f64 + fever })
             }
@@ -241,8 +268,25 @@ impl Node {
     }
 
     /// score objective with strata: pegs hit + balls (the aiming time is not a different state worth keeping)
-    fn sig_score(&self) -> (Vec<bool>, i32) {
-        (self.game.board.objs.iter().map(|o| o.hit).collect(), self.game.balls)
+    fn sig_score(&self, p: &Params) -> (Vec<bool>, i32, i32, i32) {
+        let g = &self.game;
+        // tripler pending/armed and the purple peg's index (it moves every turn and is worth 500 x multiplier)
+        let full = if p.sig_full {
+            let purple = g.board.objs.iter().position(|o| o.has_peginfo && !o.hit && o.peg_type == peggle_sim::score::PURPLE).map_or(-1, |i| i as i32);
+            (purple << 2) | ((g.trip_pend > 0) as i32) << 1 | g.trip_now as i32
+        } else { 0 };
+        (g.board.objs.iter().map(|o| o.hit).collect(), g.balls,
+         if p.streak_value > 0.0 { g.board.catch_streak.abs() } else { 0 }, full)
+    }
+
+    /// `other` is at least as good in every respect the score search keeps (`Params::cells`): same oranges left
+    /// and tripler state, every peg it has hit is hit here too (so its board still holds all of ours), and total,
+    /// balls and streak no lower
+    fn dominated_by(&self, other: &Node) -> bool {
+        let (a, b) = (&self.game, &other.game);
+        a.oranges_left() == b.oranges_left() && a.trip_now == b.trip_now && (a.trip_pend > 0) == (b.trip_pend > 0)
+            && b.total >= a.total && b.balls >= a.balls && b.board.catch_streak.abs() >= a.board.catch_streak.abs()
+            && b.board.objs.iter().zip(&a.board.objs).all(|(x, y)| !x.hit || y.hit)
     }
 
     /// state signature for de-duplication (pegs hit + timing bucket)
@@ -302,6 +346,16 @@ fn ok_child(p: &Params, g: &Game, s: &Step) -> bool {
     true
 }
 
+/// The styles a running catch streak is heading for (see `Params::streak_value`): the share of the next Crazy Mad
+/// Skillz (100000 at every 10th catch in a row) already built, plus Mad Skillz (25000 at the 5th) before it.
+/// A streak survives a shot only if the ball hits a peg and is caught (FUN_0046e880 / FUN_0046bbc0).
+fn streak_est(g: &Game) -> f64 {
+    // between shots the game keeps a running streak negated (turn start); the next caught shot continues from |k|
+    let k = g.board.catch_streak.abs();
+    if k == 0 { return 0.0; }
+    (k % 10) as f64 * 10000.0 + if k < 5 { k as f64 * 5000.0 } else { 0.0 }
+}
+
 /// Multiplier tier of an oranges-left count (score.rs `multiplier`): 1-3 left (10x, where free-ball chains of
 /// blues pay), 4-6, 7-10, 11-15, 16+
 fn tier(oranges_left: i32) -> i32 { peggle_sim::score::multiplier(oranges_left, true) }
@@ -319,6 +373,31 @@ fn stratify<F: Fn(&Node) -> i32>(v: Vec<Node>, n: usize, f: F) -> Vec<Node> {
     out
 }
 
+/// `stratify` by oranges tier (`Params::cells`: × tripler armed, tiers more than 2 behind the most advanced one
+/// present dropped, dominated nodes skipped)
+fn strat(v: Vec<Node>, n: usize, p: &Params) -> Vec<Node> {
+    if !p.cells { return stratify(v, n, |x| tier(x.game.oranges_left())); }
+    const RANK: [i32; 5] = [1, 2, 3, 5, 10];
+    let rank = |x: &Node| RANK.iter().position(|&t| t == tier(x.game.oranges_left())).unwrap() as i32;
+    let lead = v.iter().map(rank).max().unwrap_or(0);
+    let cell = |x: &Node| rank(x) * 2 + (x.game.trip_now || x.game.trip_pend > 0) as i32;
+    let mut groups: std::collections::BTreeMap<i32, std::collections::VecDeque<Node>> = Default::default();
+    for x in v { if rank(&x) >= lead - 2 { groups.entry(cell(&x)).or_default().push_back(x); } }
+    let mut out: Vec<Node> = vec![];
+    while out.len() < n && groups.values().any(|g| !g.is_empty()) {
+        for g in groups.values_mut() {
+            while out.len() < n {
+                let Some(x) = g.pop_front() else { break };
+                if out.iter().any(|o| x.dominated_by(o)) { continue; }
+                out.push(x);
+                break;
+            }
+        }
+    }
+    out.sort_by_key(|x| cell(x));
+    out
+}
+
 /// Score objective: value of the node's best Extreme Fever shot: a fan of `probe_n` shots at the earliest click.
 /// Exact for nodes with one orange left; with more, the oranges are removed on a copy (see below). The shot carries the
 /// node's Lucky Spin state (a pending Score Tripler triples it), purple, powers and moving board.
@@ -326,90 +405,137 @@ pub fn fever_probe(node: &Node, p: &Params, angles: &Angles, st: &Stats) -> f64 
     probe_all(std::slice::from_ref(node), p, angles, st)[0]
 }
 
-/// The probe's shot base for one node: (game at the click, click, total before, weight).
-fn probe_base(node: &Node, p: &Params) -> (Game, i32, i64, f64) {
-    let mut g = node.game.clone();
-    // several oranges left: they must all be cleared before the fever shot (often breaking up its lane), so value
-    // the best lane through the non-orange pegs: remove the oranges and score every hit at 100x (as if the
-    // last orange sat at the lane's start)
-    if g.board.orange_total > 1 {
-        for o in g.board.objs.iter_mut() {
-            if o.has_peginfo && o.peg_type == peggle_sim::score::ORANGE && !o.hit { o.hit = true; o.collidable = false; }
+/// The probe's shot bases for one node: (game at the click, click, total before, weight), one per probe delay
+/// (and with `probe_exact` and 2-3 oranges left, per orange L kept as the last one).
+fn probe_bases(node: &Node, p: &Params) -> Vec<(Game, i32, i64, f64)> {
+    let ors: Vec<usize> = node.game.board.objs.iter().enumerate()
+        .filter(|(_, o)| o.has_peginfo && o.peg_type == peggle_sim::score::ORANGE && !o.hit).map(|(i, _)| i).collect();
+    let n_or = node.game.board.orange_total;
+    // which orange stays (None: all removed, every hit at 100x)
+    let keeps: Vec<Option<usize>> = if n_or <= 1 { vec![None] }
+        else if p.probe_exact && n_or <= 3 && ors.len() as i32 == n_or { ors.iter().map(|&i| Some(i)).collect() }
+        else { vec![None] };
+    let mut out = vec![];
+    for keep in keeps {
+        let mut g = node.game.clone();
+        // several oranges left: they must all be cleared before the fever shot (often breaking up its lane), so value
+        // the best lane through the non-orange pegs: remove the oranges and score every hit at 100x (as if the
+        // last orange sat at the lane's start); `probe_exact`: keep orange L (the others cleared) as the last one
+        if n_or > 1 {
+            for (i, o) in g.board.objs.iter_mut().enumerate() {
+                if o.has_peginfo && o.peg_type == peggle_sim::score::ORANGE && !o.hit && Some(i) != keep { o.hit = true; o.collidable = false; }
+            }
+            g.board.orange_total = keep.is_some() as i32;
         }
-        g.board.orange_total = 0;
+        // Warren: value the fever shot as tripled (the strategy the records use); a node without a Score Tripler
+        // armed for the next shot gets `probe_untrip` of that (the chance of arming one in time)
+        let force = p.probe_untrip < 1.0 && g.board.power == 13 && !g.trip_now;
+        if force { g.trip_now = true; }
+        let w = if force { p.probe_untrip } else { 1.0 };
+        let t0 = g.total;
+        for &d in &p.probe_delays {
+            let click = grid_click(p, node.grid0, earliest(p, &g), d);
+            out.push((at_click(&g, click), click, t0, w));
+        }
     }
-    // Warren: value the fever shot as tripled (the strategy the records use); a node without a Score Tripler
-    // armed for the next shot gets `probe_untrip` of that (the chance of arming one in time)
-    let force = p.probe_untrip < 1.0 && g.board.power == 13 && !g.trip_now;
-    if force { g.trip_now = true; }
-    let w = if force { p.probe_untrip } else { 1.0 };
-    let click = grid_click(p, node.grid0, earliest(p, &g), 0);
-    let t0 = g.total;
-    (at_click(&g, click), click, t0, w)
+    out
 }
 
 /// `fever_probe` for many nodes at once: every node's fan in one parallel batch, then every refinement in one
 /// (few large batches keep all threads busy; results are per node, so identical to probing one by one).
 pub fn probe_all(nodes: &[Node], p: &Params, angles: &Angles, st: &Stats) -> Vec<f64> {
-    let bases: Vec<(Game, i32, i64, f64)> = nodes.par_iter().map(|n| probe_base(n, p)).collect();
-    let val = |ni: usize, ai: usize| -> f64 {
-        let (b, click, t0, _) = &bases[ni];
+    let per: Vec<Vec<(Game, i32, i64, f64)>> = nodes.par_iter().map(|n| probe_bases(n, p)).collect();
+    let owner: Vec<usize> = per.iter().enumerate().flat_map(|(ni, v)| std::iter::repeat(ni).take(v.len())).collect();
+    let bases: Vec<(Game, i32, i64, f64)> = per.into_iter().flatten().collect();
+    let val = |bi: usize, ai: usize| -> f64 {
+        let (b, click, t0, _) = &bases[bi];
         let (g2, _) = try_shot(b, *click, ai, angles, st);
         if g2.won { (g2.total - t0) as f64 } else { 0.0 }
     };
     let fan = angles.coarse(p.probe_n);
-    let jobs: Vec<(usize, usize)> = (0..nodes.len()).flat_map(|ni| fan.iter().map(move |&ai| (ni, ai))).collect();
-    let vals: Vec<f64> = jobs.par_iter().map(|&(ni, ai)| val(ni, ai)).collect();
-    // refine around each node's best few (a lane entry can be narrower than the fan's spacing)
+    let jobs: Vec<(usize, usize)> = (0..bases.len()).flat_map(|bi| fan.iter().map(move |&ai| (bi, ai))).collect();
+    let vals: Vec<f64> = jobs.par_iter().map(|&(bi, ai)| val(bi, ai)).collect();
+    // refine around each base's best few (a lane entry can be narrower than the fan's spacing)
     let span = (angles.list.len() / 2 / p.probe_n.max(1)).max(1);
     let step = (span / 8).max(1);
-    let mut first = vec![0.0f64; nodes.len()];
+    let mut first = vec![0.0f64; bases.len()];
     let mut rjobs: Vec<(usize, usize)> = vec![];
-    for ni in 0..nodes.len() {
-        let mut res: Vec<(f64, usize)> = fan.iter().enumerate().map(|(k, &ai)| (vals[ni * fan.len() + k], ai)).collect();
+    for bi in 0..bases.len() {
+        let mut res: Vec<(f64, usize)> = fan.iter().enumerate().map(|(k, &ai)| (vals[bi * fan.len() + k], ai)).collect();
         res.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap());
-        first[ni] = res.first().map_or(0.0, |r| r.0);
+        first[bi] = res.first().map_or(0.0, |r| r.0);
         for r in res.iter().take(4).filter(|r| r.0 > 0.0) {
-            for j in 1..8usize { for ai in [r.1.saturating_sub(j * step), (r.1 + j * step).min(angles.list.len() - 1)] { rjobs.push((ni, ai)); } }
+            for j in 1..8usize { for ai in [r.1.saturating_sub(j * step), (r.1 + j * step).min(angles.list.len() - 1)] { rjobs.push((bi, ai)); } }
         }
     }
-    let rvals: Vec<f64> = rjobs.par_iter().map(|&(ni, ai)| val(ni, ai)).collect();
+    let rvals: Vec<f64> = rjobs.par_iter().map(|&(bi, ai)| val(bi, ai)).collect();
     let mut best = first;
-    for (&(ni, _), &v) in rjobs.iter().zip(&rvals) { best[ni] = best[ni].max(v); }
-    best.iter().zip(&bases).map(|(&v, b)| v * b.3).collect()
+    for (&(bi, _), &v) in rjobs.iter().zip(&rvals) { best[bi] = best[bi].max(v); }
+    let mut out = vec![0.0f64; nodes.len()];
+    for (bi, (&v, b)) in best.iter().zip(&bases).enumerate() { out[owner[bi]] = out[owner[bi]].max(v * b.3); }
+    out
+}
+
+/// Bucket timing (`Params::bucket_top`): the moving bucket's centre x per harness tick from `g`'s tick on (`n`
+/// ticks, the board left alone), and its catch half-width and top y. None: no moving bucket.
+fn bucket_path(g: &Game, n: usize) -> Option<(Vec<f32>, f32, f32)> {
+    let (bi, _) = g.board.sync_refs();
+    let bi = bi?;
+    let peggle_sim::phys::Geom::Hole { pos, w, h, .. } = g.board.objs[bi].geom else { return None };
+    let mut h2 = g.clone();
+    let mut xs = Vec::with_capacity(n);
+    for _ in 0..n {
+        let peggle_sim::phys::Geom::Hole { pos, .. } = h2.board.objs[bi].geom else { unreachable!() };
+        xs.push(pos[0]);
+        h2.board.tick_objects(); h2.tick += 1;
+    }
+    Some((xs, w as f32 * 0.5, pos[1] - h as f32 * 0.5))
 }
 
 /// Expand every beam node: coarse grid × delays, then refinement around each node's best children. All nodes'
 /// shots of a phase go into one parallel batch; each node's children keep the order a per-node expansion
 /// gives (coarse jobs, then each round's refinement jobs), so ranking ties resolve as before.
 fn expand_all(beam: &[Node], p: &Params, angles: &Angles, st: &Stats) -> Vec<Node> {
-    let nd = p.delays.len();
-    // per node and delay: (click, game advanced to the click)
-    let bases: Vec<(i32, Game)> = (0..beam.len() * nd).into_par_iter().map(|x| {
-        let (n, d) = (&beam[x / nd], p.delays[x % nd]);
-        let c = grid_click(p, n.grid0, earliest(p, &n.game), d);
-        (c, at_click(&n.game, c))
-    }).collect();
+    use std::collections::HashMap;
+    // per (node, delay frames): (click, game advanced to the click), built as delays are needed
+    let mut bases: HashMap<(usize, i32), (i32, Game)> = HashMap::new();
+    let add_bases = |bases: &mut HashMap<(usize, i32), (i32, Game)>, need: &[(usize, i32)]| {
+        let mut need: Vec<(usize, i32)> = need.iter().copied().filter(|k| !bases.contains_key(k)).collect();
+        need.sort(); need.dedup();
+        let built: Vec<((usize, i32), (i32, Game))> = need.into_par_iter().map(|(ni, d)| {
+            let n = &beam[ni];
+            let c = grid_click(p, n.grid0, earliest(p, &n.game), d);
+            ((ni, d), (c, at_click(&n.game, c)))
+        }).collect();
+        bases.extend(built);
+    };
+    let init: Vec<(usize, i32)> = (0..beam.len()).flat_map(|ni| p.delays.iter().map(move |&d| (ni, d))).collect();
+    add_bases(&mut bases, &init);
     let zen: Vec<i32> = beam.iter().map(|n| n.game.zen_search_ticks()).collect();
-    let mk = |ni: usize, di: usize, ai: usize| -> Option<Node> {
+    let mk = |bases: &HashMap<(usize, i32), (i32, Game)>, ni: usize, d: i32, ai: usize| -> Option<Node> {
         let node = &beam[ni];
-        let (click, ref b) = bases[ni * nd + di];
+        let (click, ref b) = bases[&(ni, d)];
         let (g, s) = try_shot(b, click, ai, angles, st);
         if !ok_child(p, &g, &s) { return None; }
         let (frames, grid0) = account(p, node.frames, node.grid0, click, &s.res, zen[ni], g.won);
         Some(Node::new(g, node.steps.push(s), frames, grid0, p))
     };
-    let run = |jobs: &[(usize, usize, usize)], kids: &mut Vec<Vec<Node>>| {
-        let out: Vec<(usize, Option<Node>)> = jobs.par_iter().map(|&(ni, di, ai)| (ni, mk(ni, di, ai))).collect();
+    let run = |bases: &HashMap<(usize, i32), (i32, Game)>, jobs: &[(usize, i32, usize)], kids: &mut Vec<Vec<Node>>| {
+        let out: Vec<(usize, Option<Node>)> = jobs.par_iter().map(|&(ni, d, ai)| (ni, mk(bases, ni, d, ai))).collect();
         for (ni, k) in out { if let Some(k) = k { kids[ni].push(k); } }
     };
     let coarse = angles.coarse(p.coarse);
     let mut kids: Vec<Vec<Node>> = vec![vec![]; beam.len()];
-    let mut jobs: Vec<(usize, usize, usize)> = Vec::with_capacity(beam.len() * nd * coarse.len());
-    for ni in 0..beam.len() { for di in 0..nd { for &ai in &coarse { jobs.push((ni, di, ai)); } } }
-    run(&jobs, &mut kids);
-    let mut seen: Vec<std::collections::HashSet<(usize, usize)>> = vec![Default::default(); beam.len()];
-    for &(ni, di, ai) in &jobs { seen[ni].insert((di, ai)); }
+    let mut jobs: Vec<(usize, i32, usize)> = Vec::with_capacity(beam.len() * p.delays.len() * coarse.len());
+    for ni in 0..beam.len() { for &d in &p.delays { for &ai in &coarse { jobs.push((ni, d, ai)); } } }
+    run(&bases, &jobs, &mut kids);
+    let mut seen: Vec<std::collections::HashSet<(i32, usize)>> = vec![Default::default(); beam.len()];
+    for &(ni, d, ai) in &jobs { seen[ni].insert((d, ai)); }
+    // the delay a child was fired at (refinement keeps it)
+    let delay_of = |bases: &HashMap<(usize, i32), (i32, Game)>, ni: usize, click: i32| -> i32 {
+        *bases.iter().filter(|(k, v)| k.0 == ni && v.0 == click).map(|(k, _)| &k.1).min().unwrap()
+    };
+    if p.bucket_top > 0 && p.objective == Objective::Score { bucket_retime(beam, p, angles, st, &mut bases, &add_bases, &run, &delay_of, &mut kids, &mut seen); }
     // refinement: neighbourhoods around each node's best children, shrinking each round
     let mut span = (angles.list.len() / 2 / p.coarse.max(1)).max(1);
     for _ in 0..p.refine_rounds {
@@ -420,19 +546,165 @@ fn expand_all(beam: &[Node], p: &Params, angles: &Angles, st: &Stats) -> Vec<Nod
             ks.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
             for k in ks.iter().take(p.refine_top) {
                 let s = k.steps.last().unwrap();
-                let di = (0..nd).find(|&d| bases[ni * nd + d].0 == s.click).unwrap();
+                let d = delay_of(&bases, ni, s.click);
                 for j in 1..=p.refine_width {
                     for ai in [s.ai.saturating_sub(j * step), (s.ai + j * step).min(angles.list.len() - 1)] {
-                        if seen[ni].insert((di, ai)) { jobs.push((ni, di, ai)); }
+                        if seen[ni].insert((d, ai)) { jobs.push((ni, d, ai)); }
                     }
                 }
             }
         }
-        run(&jobs, &mut kids);
+        run(&bases, &jobs, &mut kids);
         span = (span / p.refine_div.max(1)).max(1);
         if span == 1 && step == 1 { break; }
     }
     kids.into_iter().flatten().collect()
+}
+
+type Bases = std::collections::HashMap<(usize, i32), (i32, Game)>;
+
+/// Bucket timing: each node's best `bucket_top` children that hit a peg without a catch are traced once; the
+/// first delay (frames, up to `bucket_max`) that puts the bucket's catch hole under the ball when it reaches the
+/// bucket's height (same path, everything later by the delay) is fired too (exact simulation: on a moving
+/// board the path can change and miss).
+#[allow(clippy::too_many_arguments)]
+fn bucket_retime(beam: &[Node], p: &Params, angles: &Angles, st: &Stats, bases: &mut Bases,
+                 add_bases: &dyn Fn(&mut Bases, &[(usize, i32)]), run: &dyn Fn(&Bases, &[(usize, i32, usize)], &mut Vec<Vec<Node>>),
+                 delay_of: &dyn Fn(&Bases, usize, i32) -> i32, kids: &mut [Vec<Node>], seen: &mut [std::collections::HashSet<(i32, usize)>]) {
+    let f = if p.ff { rt::FF } else { 1 };
+    // candidates: (node, delay, angle index)
+    let mut cand: Vec<(usize, i32, usize)> = vec![];
+    for ni in 0..beam.len() {
+        let mut ks: Vec<&Node> = kids[ni].iter().filter(|k| { let r = &k.steps.last().unwrap().res; !k.game.won && r.catches == 0 && r.pegs > 0 }).collect();
+        ks.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
+        for k in ks.into_iter().take(p.bucket_top) { let s = k.steps.last().unwrap(); cand.push((ni, delay_of(bases, ni, s.click), s.ai)); }
+    }
+    if cand.is_empty() { return; }
+    let d0 = p.delays[0];
+    let horizon = (p.bucket_max * f) as usize + 3000;
+    let mut nodes: Vec<usize> = cand.iter().map(|c| c.0).collect();
+    nodes.sort(); nodes.dedup();
+    let paths: std::collections::HashMap<usize, Option<(Vec<f32>, f32, f32, i32)>> = nodes.par_iter().map(|&ni| {
+        let (_, g) = &bases[&(ni, d0)];
+        (ni, bucket_path(g, horizon).map(|(xs, hw, top)| (xs, hw, top, g.tick)))
+    }).collect();
+    // trace each candidate: harness tick and x when the ball first reaches the bucket's top
+    let picks: Vec<Option<(usize, i32, usize)>> = cand.par_iter().map(|&(ni, d, ai)| {
+        let Some((xs, hw, top, t0)) = &paths[&ni] else { return None };
+        let (click, b) = &bases[&(ni, d)];
+        let mut g = b.clone();
+        g.trace = Some(vec![]);
+        let res = g.shoot(angles.list[ai].0, *click);
+        st.shots.fetch_add(1, Ordering::Relaxed);
+        let flight0 = res.end_tick - res.frames;
+        let tr = g.trace.as_ref().unwrap();
+        let k = tr.iter().position(|t| t.0[1] >= *top)?;
+        let (x, at) = (tr[k].0[0], flight0 + k as i32);
+        let c0 = bases[&(ni, d)].0;
+        for d2 in 0..=p.bucket_max {
+            if d2 == d { continue; }
+            let c2 = grid_click(p, beam[ni].grid0, earliest(p, &beam[ni].game), d2);
+            let t = at + (c2 - c0) - t0;
+            if t < 0 || t as usize >= xs.len() { continue; }
+            if (xs[t as usize] - x).abs() < hw - 12.0 { return Some((ni, d2, ai)); }
+        }
+        None
+    }).collect();
+    let jobs: Vec<(usize, i32, usize)> = picks.into_iter().flatten().filter(|&(ni, d, ai)| seen[ni].insert((d, ai))).collect();
+    let need: Vec<(usize, i32)> = jobs.iter().map(|j| (j.0, j.1)).collect();
+    add_bases(bases, &need);
+    let mut v: Vec<Vec<Node>> = vec![vec![]; beam.len()];
+    run(bases, &jobs, &mut v);
+    for (ni, ks) in v.into_iter().enumerate() { kids[ni].extend(ks); }
+}
+
+/// Dense final shot (`Params::final_scan`): from each node, a fan of `FINAL_FAN` angles at the probe delays, then
+/// neighbourhoods around the best winners refined down to single reachable angles; the best winning child.
+const FINAL_FAN: usize = 4000;
+fn final_scan(nodes: &[&Node], p: &Params, angles: &Angles, st: &Stats) -> Option<Node> {
+    if nodes.is_empty() { return None; }
+    let bases: Vec<(usize, Game, i32)> = nodes.iter().enumerate().flat_map(|(ni, n)| p.probe_delays.iter().map(move |&d| (ni, d, n)))
+        .collect::<Vec<_>>().into_par_iter().map(|(ni, d, n)| {
+            let c = grid_click(p, n.grid0, earliest(p, &n.game), d);
+            (ni, at_click(&n.game, c), c)
+        }).collect();
+    let shoot = |jobs: &[(usize, usize)]| -> Vec<(usize, usize, Node)> {
+        jobs.par_iter().filter_map(|&(bi, ai)| {
+            let (ni, b, click) = &bases[bi];
+            let node = nodes[*ni];
+            let (g, s) = try_shot(b, *click, ai, angles, st);
+            if !g.won || !ok_child(p, &g, &s) { return None; }
+            let (frames, grid0) = account(p, node.frames, node.grid0, *click, &s.res, node.game.zen_search_ticks(), true);
+            Some((bi, ai, Node::new(g, node.steps.push(s), frames, grid0, p)))
+        }).collect()
+    };
+    let fan = angles.coarse(FINAL_FAN);
+    let jobs: Vec<(usize, usize)> = (0..bases.len()).flat_map(|bi| fan.iter().map(move |&ai| (bi, ai))).collect();
+    let mut seen: std::collections::HashSet<(usize, usize)> = jobs.iter().copied().collect();
+    let mut wins = shoot(&jobs);
+    let mut span = (angles.list.len() / 2 / FINAL_FAN).max(1);
+    while span > 1 {
+        let step = (span / 8).max(1);
+        wins.sort_by(|a, b| a.2.key.partial_cmp(&b.2.key).unwrap().then((a.0, a.1).cmp(&(b.0, b.1))));
+        let mut jobs = vec![];
+        for w in wins.iter().take(6) {
+            for j in 1..8usize { for ai in [w.1.saturating_sub(j * step), (w.1 + j * step).min(angles.list.len() - 1)] { if seen.insert((w.0, ai)) { jobs.push((w.0, ai)); } } }
+        }
+        wins.extend(shoot(&jobs));
+        span = step;
+    }
+    wins.into_iter().min_by(|a, b| a.2.key.partial_cmp(&b.2.key).unwrap().then((a.0, a.1).cmp(&(b.0, b.1)))).map(|w| w.2)
+}
+
+/// Plan compaction: drop a shot that hit nothing and was not caught (it only cost a ball), keep each later
+/// shot's delay on its own frame grid (frames after its earliest click), and keep the shorter plan if it
+/// still wins with a higher total. Repeats until no shot can go.
+pub fn compact(root: &Game, steps: &[Step], p: &Params, angles: &Angles) -> Option<Node> {
+    let delays = |steps: &[Step]| -> Option<Vec<i32>> {
+        let mut n = Node::new(root.clone(), Trail::default(), 0, 0, p);
+        let mut v = vec![];
+        for s in steps {
+            let c0 = grid_click(p, n.grid0, earliest(p, &n.game), 0);
+            let f = if p.ff { rt::FF } else { 1 };
+            if (s.click - c0) % f != 0 || s.click < c0 { return None; }
+            v.push((s.click - c0) / f);
+            n = prefix_node_step(n, s.angle, s.click, p, angles);
+        }
+        Some(v)
+    };
+    let play = |shots: &[(f32, i32)]| -> Option<Node> {
+        let mut n = Node::new(root.clone(), Trail::default(), 0, 0, p);
+        for &(a, d) in shots {
+            if n.game.over() { return None; }
+            let c = grid_click(p, n.grid0, earliest(p, &n.game), d);
+            n = prefix_node_step(n, a, c, p, angles);
+        }
+        n.game.won.then_some(n)
+    };
+    let mut cur: Vec<(f32, i32)> = steps.iter().map(|s| s.angle).zip(delays(steps)?).collect();
+    let mut best = play(&cur)?;
+    loop {
+        let bs = best.steps.to_vec();
+        let mut improved = false;
+        for k in (0..bs.len()).rev() {
+            let r = &bs[k].res;
+            if r.won || r.pegs > 0 || r.catches > 0 || r.free_balls > 0 { continue; }
+            let mut t = cur.clone();
+            t.remove(k);
+            if let Some(n) = play(&t) { if n.game.total > best.game.total { cur = t; best = n; improved = true; break; } }
+        }
+        if !improved { break; }
+    }
+    Some(best)
+}
+
+fn prefix_node_step(n: Node, angle: f32, click: i32, p: &Params, angles: &Angles) -> Node {
+    let ai = angles.list.iter().position(|a| a.0.to_bits() == angle.to_bits()).expect("angle not reachable");
+    let mut g = n.game.clone();
+    let zen = g.zen_search_ticks();
+    let res = g.shoot(angle, click);
+    let (frames, grid0) = account(p, n.frames, n.grid0, click, &res, zen, g.won);
+    Node::new(g, n.steps.push(Step { ai, angle, pixel: angles.list[ai].1, click, res }), frames, grid0, p)
 }
 
 pub struct Outcome {
@@ -442,7 +714,17 @@ pub struct Outcome {
 }
 
 pub fn solve(root: &Game, p: &Params, angles: &Angles, st: &Stats, verbose: bool) -> Outcome {
-    let mut beam = vec![Node::new(root.clone(), Trail::default(), 0, 0, p)];
+    solve_from(root, Trail::default(), p, angles, st, verbose)
+}
+
+/// `solve` continuing after `start` (shots already played to reach `root`, e.g. a fixed plan prefix)
+pub fn solve_from(root: &Game, start: Trail, p: &Params, angles: &Angles, st: &Stats, verbose: bool) -> Outcome {
+    solve_node(Node::new(root.clone(), start, 0, 0, p), p, angles, st, verbose)
+}
+
+/// `solve` from a node (its frames and fast-forward frame grid included: see `prefix_node`)
+pub fn solve_node(root: Node, p: &Params, angles: &Angles, st: &Stats, verbose: bool) -> Outcome {
+    let mut beam = vec![root];
     let mut best: Option<Node> = None;
     let mut fb = vec![];
     for depth in 0..p.max_shots {
@@ -462,8 +744,8 @@ pub fn solve(root: &Game, p: &Params, angles: &Angles, st: &Stats, verbose: bool
             // pool: the best distinct children of every orange count (not just of the most advanced ones)
             let mut d = vec![];
             let mut seen = std::collections::HashSet::new();
-            for k in kids.into_iter() { if !k.game.won && seen.insert(k.sig_score()) { d.push(k); } }
-            stratify(d, cap, |n| tier(n.game.oranges_left()))
+            for k in kids.into_iter() { if !k.game.won && seen.insert(k.sig_score(p)) { d.push(k); } }
+            strat(d, cap, p)
         } else { kids };
         for k in kids.into_iter() {
             if k.game.won { continue; }
@@ -479,7 +761,14 @@ pub fn solve(root: &Game, p: &Params, angles: &Angles, st: &Stats, verbose: bool
             let pv = probe_all(&next, p, angles, st);
             for (n, v) in next.iter_mut().zip(pv) { n.set_probe(v, p); }
             next.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
-            if p.strata { next = stratify(next, p.beam, |n| tier(n.game.oranges_left())); } else { next.truncate(p.beam); }
+            if p.strata { next = strat(next, p.beam, p); } else { next.truncate(p.beam); }
+        }
+        if p.final_scan > 0 && p.objective == Objective::Score {
+            let top: Vec<&Node> = next.iter().filter(|n| n.game.oranges_left() == 1).take(p.final_scan).collect();
+            if let Some(w) = final_scan(&top, p, angles, st) {
+                if verbose { eprintln!("  final scan: win {} after {} shots", w.game.total, w.steps.len()); }
+                if best.as_ref().is_none_or(|b| w.key < b.key) { best = Some(w); }
+            }
         }
         if let Some(n) = next.first() {
             fb.push((depth + 1, n.key, n.game.oranges_left(), n.game.earliest_fire));
@@ -496,6 +785,14 @@ pub fn solve(root: &Game, p: &Params, angles: &Angles, st: &Stats, verbose: bool
         beam = next;
     }
     Outcome { best, frontier_best: fb }
+}
+
+/// The node after playing `shots` (angle, click) from `root`, with the frame accounting and the fast-forward
+/// click grid the search itself would have (a later shot's click must sit on that grid to land in the real game).
+pub fn prefix_node(root: &Game, shots: &[(f32, i32)], p: &Params, angles: &Angles) -> Node {
+    let mut n = Node::new(root.clone(), Trail::default(), 0, 0, p);
+    for &(angle, click) in shots { n = prefix_node_step(n, angle, click, p, angles); }
+    n
 }
 
 /// Replay a plan from scratch (as the game would) and check it reproduces.

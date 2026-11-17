@@ -41,6 +41,10 @@ fn main() {
     let mut out: Option<String> = None;
     let mut bench = false;
     let mut top = 10;
+    // --prefix SCRIPT --prefix-shots N: play the script's first N shots, then search the rest of the level
+    let mut prefix: Option<String> = None;
+    let mut prefix_shots = 0usize;
+    let mut compact_plan = false;
     let mut i = 2;
     while i < args.len() {
         let v = args.get(i + 1).cloned().unwrap_or_default();
@@ -60,6 +64,19 @@ fn main() {
             "--probe-pool" => { p.probe_pool = v.parse().unwrap(); i += 1; }
             "--probe-untrip" => { p.probe_untrip = v.parse().unwrap(); i += 1; }
             "--strata" => p.strata = true,
+            "--streak-value" => { p.streak_value = v.parse().unwrap(); i += 1; }
+            "--bucket-top" => { p.bucket_top = v.parse().unwrap(); i += 1; }
+            "--bucket-max" => { p.bucket_max = v.parse().unwrap(); i += 1; }
+            "--probe-exact" => p.probe_exact = true,
+            "--probe-delays" => { p.probe_delays = v.split(',').map(|x| x.parse().unwrap()).collect(); i += 1; }
+            "--sig-full" => p.sig_full = true,
+            "--cells" => p.cells = true,
+            "--tabu" => { p.tabu = std::fs::read_to_string(&v).unwrap().split_whitespace().map(|x| x.parse().unwrap()).collect(); i += 1; }
+            "--tabu-cost" => { p.tabu_cost = v.parse().unwrap(); i += 1; }
+            "--final-scan" => { p.final_scan = v.parse().unwrap(); i += 1; }
+            "--compact" => compact_plan = true,
+            // the score-search options below together (each flag above alone for A/B runs)
+            "--review" => { p.bucket_top = 6; p.probe_exact = true; p.sig_full = true; p.cells = true; p.final_scan = 2; compact_plan = true; }
             "--probe-weight" => { p.probe_weight = v.parse().unwrap(); i += 1; }
             "--fever-frac" => { p.fever_frac = v.parse().unwrap(); i += 1; }
             "--peg-cost" => { p.peg_cost = v.parse().unwrap(); i += 1; }
@@ -71,6 +88,8 @@ fn main() {
             "--out" => { out = Some(v); i += 1; }
             "--top" => { top = v.parse().unwrap(); i += 1; }
             "--bench" => bench = true,
+            "--prefix" => { prefix = Some(v); i += 1; }
+            "--prefix-shots" => { prefix_shots = v.parse().unwrap(); i += 1; }
             a => panic!("unknown option {a}"),
         }
         i += 1;
@@ -107,9 +126,30 @@ fn main() {
             eprintln!("seed {seed}: {:?}", ts.elapsed());
             for n in v { results.push((seed, ch, n)); }
         } else {
-            eprintln!("seed {seed} char {ch:?} (power {pw}, {} oranges):", g.oranges_left());
-            let o = solve(&g, &p, &angles, &stats, true);
-            match o.best {
+            let o = if let Some(pf) = &prefix {
+                let shots: Vec<(f32, i32)> = std::fs::read_to_string(pf).unwrap().lines().filter_map(|l| {
+                    let w: Vec<&str> = l.split_whitespace().collect();
+                    (w.len() == 3 && w[0] == "shotx").then(|| (f32::from_bits(u32::from_str_radix(w[1], 16).unwrap()), w[2].parse().unwrap()))
+                }).take(prefix_shots).collect();
+                let n = prefix_node(&g, &shots, &p, &angles);
+                eprintln!("prefix: {} shots, total {}, {} oranges left, balls {}, frame grid at tick {}", n.steps.len(), n.game.total, n.game.oranges_left(), n.game.balls, n.grid0);
+                eprintln!("seed {seed} char {ch:?} (power {pw}, {} oranges):", n.game.oranges_left());
+                solve_node(n, &p, &angles, &stats, true)
+            } else {
+                eprintln!("seed {seed} char {ch:?} (power {pw}, {} oranges):", g.oranges_left());
+                solve(&g, &p, &angles, &stats, true)
+            };
+            let best = o.best.map(|b| {
+                if !compact_plan { return b; }
+                match compact(&g, &b.steps.to_vec(), &p, &angles) {
+                    Some(c) if c.game.total > b.game.total => {
+                        eprintln!("compaction: {} -> {} shots, total {} -> {}", b.steps.len(), c.steps.len(), b.game.total, c.game.total);
+                        c
+                    }
+                    _ => b,
+                }
+            });
+            match best {
                 Some(b) => {
                     let r = replay(&g, &b.steps.to_vec());
                     eprintln!("seed {seed} char {ch:?}: {} shots, {} frames (~{:.2} s + load), end tick {}, total {} ({:?}){}", b.steps.len(), b.frames, rt::secs(b.frames), b.steps.last().unwrap().res.end_tick, b.game.total, ts.elapsed(),

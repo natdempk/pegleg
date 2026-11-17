@@ -1643,6 +1643,9 @@ impl Board {
                 self.next_ball_id += 1;
                 self.spawned.push(nb);
                 self.objs[peg].collidable = false;
+                // FUN_0046ead0: in Extreme Fever with two balls in play (board+0x1a4, the new one included) → style 5
+                // (25k; 4-3 real run: a Lucky Spin Multiball after the last orange)
+                if self.fever_on && balls.iter().filter(|b| !b.gone).count() + self.spawned.len() == 2 { self.styles.push((5, 25000)); }
             }
             5 => { // SpaceBlast (FUN_0045e330): BallHitPeg(ball, peg, 1) on every un-hit visible peg within
                    // ModVal 100 of the green (LogicMgr+0x344 list order ~ board order)
@@ -2299,7 +2302,9 @@ impl Board {
                 self.peg_contact(bi);
                 events.push(Event::Hit(bi));
                 self.objs[bi].hit = true;
-                if o.freeball && !o.has_peginfo && !matches!(o.geom, Geom::Hole { .. }) { self.pending_bucket.push(self.cur_ball); }
+                // FUN_004704a0 compares the id with "freeball" exactly (std::string::compare(0, size, "freeball", 8)):
+                // the lid ("freeballcover", collidable for a fireball) is not a bucket touch (8-2 real run: no style 11)
+                if o.freeball && !o.cover && !o.has_peginfo && !matches!(o.geom, Geom::Hole { .. }) { self.pending_bucket.push(self.cur_ball); }
                 if o.cover && b.fireball && !self.ai { self.pending_lid.push((self.cur_ball, bi)); }
                 if o.flipper && !self.ai { self.pending_flipper.push((self.cur_ball, self.pending_contacts.len())); }
                 if o.bumper.is_some() && !o.has_peginfo && !matches!(o.geom, Geom::Hole { .. }) { b.bumperhole_touch = true; }

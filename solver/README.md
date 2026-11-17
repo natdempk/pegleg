@@ -42,6 +42,15 @@ what `../tas/pipeline.py` automates.
 | `--keep-ball` | off | Every shot must catch the ball or earn a free ball |
 | `--orange-cost F`, `--peg-cost F` | | Heuristic weights for `speed` and `uef` |
 | `--fever-frac F`, `--probe N`, `--probe-pool N`, `--probe-untrip F`, `--strata` | off | `score` objective: value nodes by probing the Extreme Fever finish (shots fired with one orange left), optionally assuming a Score Tripler. Keep the beam spread over oranges-left counts. See `tas/pipeline.py` max-score for working values |
+| `--streak-value F` | 0 | `score`: value the bucket-catch streak's style bonuses in the node key |
+| `--probe-exact`, `--probe-delays a,b` | off, 0 | `score`: with 2–3 oranges left, probe the Fever finish once per possible last orange; probe click delays |
+| `--bucket-top N`, `--bucket-max F` | 0, 64 | `score`: re-fire the best N uncaught peg-hitting children at the delay that puts the moving bucket under the ball. Use with `--cells` |
+| `--sig-full`, `--cells` | off | `score`: strata keep the tripler and purple-peg state apart; strata cells by oranges tier × tripler, with dominance pruning |
+| `--final-scan N` | 0 | `score`: a dense angle scan for the best N nodes with one orange left |
+| `--compact` | off | Drop wasted shots from the final plan when that scores higher |
+| `--tabu FILE`, `--tabu-cost F` | | Penalise hitting the listed pegs (a Fever lane to keep) before the win |
+| `--review` | | `--bucket-top 6 --probe-exact --sig-full --cells --final-scan 2 --compact` together |
+| `--prefix SCRIPT`, `--prefix-shots N` | | Play a plan's first N shots, then search the rest |
 | `--power P` | | Override the master's power (stage 11's random master) |
 | `--no-ff` | | Model no fast forward: cost in game ticks, click on any tick |
 | `--out DIR` | | Write `DIR/S_L.txt` (script), `S_L.plan.txt` (readable plan), `S_L.seed` |

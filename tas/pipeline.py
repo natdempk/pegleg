@@ -103,17 +103,27 @@ def refine(c, o, lv):
     print(lv, "best", res[0][0], "from", os.path.relpath(res[0][1], o), flush=True)
 
 
+def reusable(d, script, seed):
+    """a finished run in d is reused only when it played this exact script and seed (after a better plan is found
+    for the level, the old plan's run must not be reported for it)"""
+    try:
+        h, sc = open(f"{d}/harness.txt").read(), open(f"{d}/script.txt").read()
+        info = open(f"{d}/peggle_oracle_info.txt").read()
+    except OSError:
+        return False
+    return "state 5" in h and sc == open(script).read() and f"tas: rng seed {seed}\n" in info + "\n"
+
+
 def play(o, lv, video=False):
     k = sl(lv); script = f"{o}/best/{k}.txt"
     if not os.path.exists(script): return None
     d = f"{o}/{'video' if video else 'play'}/{k}"
-    done = os.path.exists(f"{d}/harness.txt") and "state 5" in open(f"{d}/harness.txt").read()
-    if not done:
-        if video:  # the cursor glides to each shot's aim point on screen (visual only)
-            os.makedirs(d, exist_ok=True)
-            subprocess.run([sys.executable, f"{ROOT}/tas/cursor_script.py", script, f"{o}/best/{k}.plan.txt", f"{d}.cursor.txt"], check=True)
-            script = f"{d}.cursor.txt"
-        seed = open(f"{o}/best/{k}.seed").read().strip()
+    if video:  # the cursor glides to each shot's aim point on screen (visual only)
+        os.makedirs(d, exist_ok=True)
+        subprocess.run([sys.executable, f"{ROOT}/tas/cursor_script.py", script, f"{o}/best/{k}.plan.txt", f"{d}.cursor.txt"], check=True)
+        script = f"{d}.cursor.txt"
+    seed = open(f"{o}/best/{k}.seed").read().strip()
+    if not reusable(d, script, seed):
         subprocess.run(["sh", f"{ROOT}/tas/play.sh", script, seed, d] + (["--video"] if video else []))
     h = open(f"{d}/harness.txt").read() if os.path.exists(f"{d}/harness.txt") else ""
     tot = re.findall(r"st5 frm \d+ .* total (\d+)", h)
