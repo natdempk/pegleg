@@ -59,6 +59,20 @@ what `../tas/pipeline.py` automates.
 Threads: all cores but two by default; set `RAYON_NUM_THREADS` to change. Throughput is roughly 10k–40k simulated
 shots per second on a modern 8-core CPU, depending on the level.
 
+## Seed scouting and lane tools
+
+The seed decides which pegs are orange and green. The best max-score finishes keep a long lane of pegs for the
+winning Extreme Fever shot, and that only pays when the last orange sits at the start of the lane and the other
+oranges are off it. These tools look at that before any search:
+
+| Tool | What it does |
+|---|---|
+| `scout LEVEL CHAR FROM TO [TOP]` | Ranks seeds FROM..=TO by their Fever lane and prints the best TOP (default 20): `seed S: Fever shot N with orange #L last`. First a lane library (the shots of a fan on sample boards with the oranges cleared), then every seed scored against it without simulating, then the best `SCOUT_EXACT` (40) simulated: per orange L, the board with the others cleared and the best winning shot. Upper bounds to aim at, not plans. Env: `SCOUT_LIB` (48 sample seeds), `SCOUT_LANES` (2000), `SCOUT_EXACT`, `SCOUT_TABU=DIR` (writes the best lane's pegs as `DIR/SEED.tabu` for `--tabu`). 100k seeds take a few minutes |
+| `lane LEVEL SEED CHAR [SCRIPT [N]]` | One seed's board: pegs by kind, the longest lanes with the oranges removed and the oranges' positions. With SCRIPT: replays its first N shots and shows how much of the best lane is still standing before the Fever shot. `LANE_JSON=PREFIX` writes the peg sets as JSON |
+| `layout LEVEL CHAR FROM TO` | Per seed, which oranges and greens are bricks, best first by the innermost orange brick (written for 2-4's spiral) |
+
+`tas/pipeline.py max-score OUT scout` runs `scout` and then the Fever search on the best seeds.
+
 ## Output
 
 `S_L.txt` is the script the playback DLL reads:

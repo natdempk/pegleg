@@ -5,12 +5,15 @@ against the simulator, and record a video.
 usage: tas/pipeline.py CATEGORY OUT PHASE [levels...]
   CATEGORY  min-time | uef | max-score | showcase        (the four runs in tas/runs/, see tas/README.md)
   OUT       output directory (created; every phase is resumable and skips finished work)
-  PHASE     screen | refine | play | video | all
+  PHASE     screen | refine | scout | play | video | all   (scout: max-score only, not part of all)
   levels    1-1 .. 11-5 (default: all 55)
 
 phases:
   screen   cheap search over many (master, seed) pairs per level         → OUT/screen, OUT/logs
   refine   stronger searches on the TOP best (seed, master) pairs        → OUT/best/S_L.{txt,plan.txt,seed}
+  scout    max-score: rank SCOUT_SEEDS (default 1-100000) by their Fever lane with solver `scout`, then the
+           Fever search on the best SCOUT_TOP (2) seeds, three ways; a better plan replaces OUT/best
+                                                                         → OUT/scout, OUT/scoutruns
   play     play OUT/best in the real game (tas/play.sh), check it        → OUT/play/S_L, OUT/results.tsv
   video    replay at real speed with the cursor shown, record, stitch    → OUT/video/S_L, OUT/tas.mp4
 
@@ -103,6 +106,41 @@ def refine(c, o, lv):
     print(lv, "best", res[0][0], "from", os.path.relpath(res[0][1], o), flush=True)
 
 
+# scout phase: the Fever search per scouted seed, with the catch-streak value off / 0.5 / plus the extra options
+SCOUT_RUNS = [("w0", "--streak-value 0"), ("w0.5", "--streak-value 0.5"),
+              ("wR", "--streak-value 0.5 --review --probe-delays 0,2")]
+
+
+def scout(c, o, lv):
+    """seed scouting (the max-score results came from this): the seed decides which pegs are orange and green, and
+    the best finishes need the last orange at the start of a long lane with the other oranges off it"""
+    k = sl(lv); os.makedirs(f"{o}/scout", exist_ok=True)
+    out = f"{o}/scout/{lv}.txt"
+    if not (os.path.exists(out) and os.path.getsize(out) > 0):
+        a, b = os.environ.get("SCOUT_SEEDS", "1-100000").split("-")
+        with open(f"{out}.tmp", "w") as f, open(f"{o}/logs/{lv}.scout", "w") as lf:
+            r = subprocess.run([f"{ROOT}/solver/target/release/scout", lv, c["chars"].split(",")[0], a, b, "4"], stdout=f, stderr=lf,
+                               env=dict(os.environ, SCOUT_LANES=os.environ.get("SCOUT_LANES", "600")))
+        if r.returncode: print(lv, "scout failed, see", f"{o}/logs/{lv}.scout"); return
+        os.replace(f"{out}.tmp", out)
+    seeds = [l.split()[1].rstrip(":") for l in open(out).read().splitlines()[:int(os.environ.get("SCOUT_TOP", "2"))]]
+    sets = dict(c["sets"]); args = sets.get("light", c["sets"][0][1])
+    res = [(plan_value(f"{o}/best/{k}.plan.txt", c["rank"]), None)]
+    for seed in seeds:
+        for name, extra in SCOUT_RUNS:
+            d = f"{o}/scoutruns/{lv}_s{seed}_{name}"
+            if not os.path.exists(f"{d}/{k}.plan.txt"):
+                solve(c, lv, c["chars"].split(",")[0], seed, f"{args} {extra}", d, f"{o}/logs/{lv}_s{seed}_{name}.log")
+            res.append((plan_value(f"{d}/{k}.plan.txt", c["rank"]), d))
+    res = sorted([r for r in res if r[0] is not None], key=lambda r: r[0], reverse=True)
+    if res and res[0][1]:
+        os.makedirs(f"{o}/best", exist_ok=True)
+        for ext in ("txt", "plan.txt", "seed"): shutil.copy(f"{res[0][1]}/{k}.{ext}", f"{o}/best/{k}.{ext}")
+        print(lv, "scout best", res[0][0], "from", os.path.relpath(res[0][1], o), flush=True)
+    elif res:
+        print(lv, "scout: no better plan than OUT/best", res[0][0], flush=True)
+
+
 def reusable(d, script, seed):
     """a finished run in d is reused only when it played this exact script and seed (after a better plan is found
     for the level, the old plan's run must not be reported for it)"""
@@ -147,6 +185,9 @@ def main():
         for lv in levels: screen(c, o, lv)
     if phase in ("refine", "all"):
         for lv in levels: refine(c, o, lv)
+    if phase == "scout":
+        if c["objective"] != "score": sys.exit("scout: max-score only")
+        for lv in levels: scout(c, o, lv)
     for vid in ([False] if phase == "play" else [True] if phase == "video" else [False, True] if phase == "all" else []):
         rs = [r for r in (play(o, lv, vid) for lv in levels) if r]
         cols = ["level", "master", "seed", "shots", "predicted", "real", "frames", "won", "exact"]

@@ -4,7 +4,7 @@ Glue that ties the solver, real-game playback and video together.
 
 | File | What it does |
 |---|---|
-| `pipeline.py` | The whole flow for one category over many levels: screen, refine, play and check, video |
+| `pipeline.py` | The whole flow for one category over many levels: screen, refine (or scout, for max-score), play and check, video |
 | `play.sh` | Play one script in the real game and check it with `game_check` |
 | `video.py`, `sound_mix.py`, `cursor_script.py` | Recording helpers: a 1080p video with a side panel (timer or score), soundtrack mixed from the game's sound log, cursor moves for the recording |
 | `unpak.py` | Extracts the game's `main.pak` (used by `bootstrap.sh`) |
@@ -37,6 +37,17 @@ Categories: `min-time`, `uef`, `max-score`, `showcase`. Their settings (masters,
 
 Every phase is resumable: it skips levels whose output already exists, so you can stop it and run it again.
 Searching all 55 levels takes hours to a day depending on the category and the CPU (max-score is the slowest).
+
+For max-score the seed matters most, and `scout` finds good ones (the current max-score plans came from it):
+
+```sh
+tas/pipeline.py max-score out/score scout 2-4            # scout seeds 1-100000, Fever search on the best 2
+SCOUT_SEEDS=1-20000 SCOUT_TOP=3 tas/pipeline.py max-score out/score scout 2-4
+```
+
+It ranks seeds with `solver/target/release/scout` (see `solver/README.md`), then runs the Fever search on the
+best `SCOUT_TOP` seeds three ways (catch-streak value 0, 0.5, and 0.5 with `--review`) and copies the best plan
+to `OUT/best` if it beats what is there. Then `play` as usual. About 20–40 minutes per level on 8 cores.
 Run long searches in the background (`nohup ... &`) and check `out/<cat>/logs/`.
 
 ## Video
