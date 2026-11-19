@@ -56,6 +56,7 @@ the person to start it.
 - Plans must stay human-makeable: window-pixel aims and clicks at frame starts.
 - Code comments name the game's functions and data by address (`FUN_xxxxxxxx`, `LogicMgr+0x108`). Keep that
   convention when you add game knowledge.
+- If you need to interact with the real game, it's recommended to use the [rea skill](https://github.com/morluto/rea) to. inspect the actual game.
 
 ## Resources
 
