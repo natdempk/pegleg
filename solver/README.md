@@ -75,6 +75,10 @@ oranges are off it. These tools look at that before any search:
 
 `tas/pipeline.py max-score OUT scout` runs `scout` and then the Fever search on the best seeds.
 
+## One-shot search
+
+`oneshot` searches over all 2^32 seeds for a first shot that wins the level. See [ONESHOT.md](ONESHOT.md).
+
 ## Output
 
 `S_L.txt` is the script the playback DLL reads:
@@ -90,4 +94,6 @@ quit
 
 `S_L.plan.txt` has a header (level, seed, master, objective, predicted frames or total), then one line per shot:
 the window pixel to aim at, the angle, the click tick and the predicted outcome (pegs, oranges, score, styles,
-free balls). Plans are deterministic: the same arguments always give the same plan, on any machine.
+free balls). One-shot plans with Claude's flippers also have `flip TICK 1|0` lines (press / release at a game
+tick) before the `shotx`; they are timed without fast forward. Plans are deterministic: the same arguments always
+give the same plan, on any machine.
