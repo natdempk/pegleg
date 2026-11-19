@@ -1,0 +1,3 @@
+# ThreeValleys (2-3) seed 4279719388 char Some(6) objective OneShot, fast forward held
+1: pixel (267, 72) angle 3.4354832 click 135 | 48 pegs, 25 orange, score 761520, end tick 2434, styles [10, 3, 11], catches 0, free 3 WIN
+# total 761520 after 1 shots, balls left 12

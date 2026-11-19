@@ -16,7 +16,8 @@ first; the folder READMEs have the details.
 
 | Task | Where |
 |---|---|
-| Simulate, search (`peggle-solver`, `tas/pipeline.py screen/refine`), `game_check`, tests | Any OS with Rust |
+| Simulate, search (`peggle-solver`, `oneshot`, `tas/pipeline.py screen/refine`), `game_check`, tests | Any OS with Rust |
+| `oneshot scan --gpu` (optional CUDA kernel, `solver/gpu/`) | A machine with an NVIDIA GPU and the CUDA toolkit |
 | Play in the real game (`tas/play.sh`, `pipeline.py play/video`) | Windows with Steam running: from WSL, Git Bash or PowerShell on that machine |
 
 Playback opens a game window on the person's desktop and plays for 10–60 s per level. Tell them before you
@@ -32,6 +33,8 @@ the person to start it.
   file (`nohup tas/pipeline.py ... > OUT.log 2>&1 &`). Every phase is resumable.
 - **Beat an existing result:** search more seeds (`SEEDS=17-64`) and wider sets for that level. Seed choice
   matters more than beam width. Compare against `tas/runs/<category>/results.tsv`.
+- **Win a level with one shot:** `solver/target/release/oneshot` (lib, scan, verify; see `solver/ONESHOT.md`).
+  Scans take minutes to hours per level; run them in the background. Then `tas/pipeline.py oneshot DIR play`.
 - **Replay a finished run:** see `tas/README.md`.
 
 ## Checking results

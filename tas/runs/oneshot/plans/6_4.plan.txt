@@ -1,0 +1,3 @@
+# Sunny (7-5) seed 34470077 char Some(4) objective OneShot, flips 4 (no fast forward)
+1: pixel (734, 299) angle 5.8586230 click 143 | 48 pegs, 25 orange, score 709640, end tick 3615, styles [3, 1], catches 0, free 3 WIN
+# total 709640 after 1 shots, balls left 12

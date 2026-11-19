@@ -1,0 +1,3 @@
+# Sine (5-3) seed 2901433790 char Some(6) objective OneShot, fast forward held
+1: pixel (765, 305) angle 5.9286675 click 103 | 41 pegs, 25 orange, score 705410, end tick 1310, styles [10, 3], catches 0, free 3 WIN
+# total 705410 after 1 shots, balls left 12

@@ -1,0 +1,13 @@
+char 4
+level 6 4
+flip 793 1
+flip 797 0
+flip 1655 1
+flip 1659 0
+flip 2368 1
+flip 2372 0
+flip 2798 1
+flip 2802 0
+shotx 40bb79d7 143
+waitms 3000
+quit

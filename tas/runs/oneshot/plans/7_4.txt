@@ -1,0 +1,37 @@
+char 4
+level 7 4
+flip 1198 1
+flip 1202 0
+flip 1445 1
+flip 1449 0
+flip 1638 1
+flip 1642 0
+flip 1809 1
+flip 1813 0
+flip 2036 1
+flip 2040 0
+flip 2454 1
+flip 2458 0
+flip 2705 1
+flip 2709 0
+flip 3039 1
+flip 3043 0
+flip 3350 1
+flip 3374 0
+flip 3659 1
+flip 3663 0
+flip 4009 1
+flip 4013 0
+flip 4351 1
+flip 4355 0
+flip 4993 1
+flip 4997 0
+flip 5611 1
+flip 5615 0
+flip 5816 1
+flip 5820 0
+flip 6512 1
+flip 6516 0
+shotx 40a89f5b 103
+waitms 3000
+quit

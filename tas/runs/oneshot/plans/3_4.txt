@@ -1,0 +1,27 @@
+char 4
+level 3 4
+flip 1377 1
+flip 1381 0
+flip 1780 1
+flip 1784 0
+flip 2177 1
+flip 2181 0
+flip 2318 1
+flip 2322 0
+flip 2704 1
+flip 2708 0
+flip 3183 1
+flip 3243 0
+flip 3925 1
+flip 3929 0
+flip 4065 1
+flip 4069 0
+flip 4180 1
+flip 4184 0
+flip 4674 1
+flip 4678 0
+flip 5307 1
+flip 5311 0
+shotx 40885476 111
+waitms 3000
+quit

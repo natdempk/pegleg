@@ -1,0 +1,3 @@
+# Waves (6-1) seed 4281037417 char Some(0) objective OneShot, fast forward held
+1: pixel (226, 507) angle 4.2453809 click 135 | 63 pegs, 25 orange, score 887950, end tick 1529, styles [3, 2, 2], catches 0, free 3 WIN
+# total 887950 after 1 shots, balls left 12

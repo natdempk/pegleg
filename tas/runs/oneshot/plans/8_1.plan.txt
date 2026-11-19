@@ -1,0 +1,3 @@
+# Gateway (9-2) seed 2520607599 char Some(6) objective OneShot, fast forward held
+1: pixel (247, 183) angle 3.8691890 click 127 | 39 pegs, 25 orange, score 623730, end tick 1547, styles [10, 3, 11], catches 0, free 3 WIN
+# total 623730 after 1 shots, balls left 12

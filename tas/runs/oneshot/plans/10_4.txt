@@ -1,0 +1,5 @@
+char 0
+level 10 4
+shotx 407f5769 111
+waitms 3000
+quit

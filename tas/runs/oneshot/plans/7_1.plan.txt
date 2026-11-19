@@ -1,0 +1,3 @@
+# Pinball (8-2) seed 997954403 char Some(3) objective OneShot, fast forward held
+1: pixel (71, 184) angle 3.3350239 click 103 | 49 pegs, 25 orange, score 607290, end tick 1068, styles [3, 10], catches 0, free 3 WIN
+# total 607290 after 1 shots, balls left 12

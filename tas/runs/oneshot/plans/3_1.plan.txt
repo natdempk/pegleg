@@ -1,0 +1,3 @@
+# 3D (4-2) seed 4287016897 char Some(0) objective OneShot, fast forward held
+1: pixel (598, 66) angle 6.1965652 click 127 | 64 pegs, 25 orange, score 1129840, end tick 4596, styles [2, 3], catches 0, free 3 WIN
+# total 1129840 after 1 shots, balls left 12

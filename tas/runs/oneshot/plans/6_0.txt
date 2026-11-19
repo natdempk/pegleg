@@ -1,0 +1,5 @@
+char 6
+level 6 0
+shotx 404f6551 423
+waitms 3000
+quit

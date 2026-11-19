@@ -1,0 +1,43 @@
+char 4
+level 9 1
+flip 1277 1
+flip 1281 0
+flip 1532 1
+flip 1536 0
+flip 1736 1
+flip 1740 0
+flip 2432 1
+flip 2436 0
+flip 2999 1
+flip 3003 0
+flip 3582 1
+flip 3586 0
+flip 4072 1
+flip 4076 0
+flip 4313 1
+flip 4317 0
+flip 4912 1
+flip 4916 0
+flip 5238 1
+flip 5242 0
+flip 5664 1
+flip 5668 0
+flip 5922 1
+flip 5926 0
+flip 6636 1
+flip 6640 0
+flip 7016 1
+flip 7020 0
+flip 7400 1
+flip 7404 0
+flip 7837 1
+flip 7841 0
+flip 8122 1
+flip 8126 0
+flip 8825 1
+flip 8829 0
+flip 8926 1
+flip 8930 0
+shotx 404a454b 127
+waitms 3000
+quit

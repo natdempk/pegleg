@@ -1,0 +1,3 @@
+# Level5 (1-5) seed 4065948471 char Some(6) objective OneShot, fast forward held
+1: pixel (724, 274) angle 5.8856068 click 103 | 43 pegs, 25 orange, score 681630, end tick 1883, styles [10, 3, 11], catches 0, free 3 WIN
+# total 681630 after 1 shots, balls left 12

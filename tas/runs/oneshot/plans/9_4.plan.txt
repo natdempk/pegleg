@@ -1,0 +1,3 @@
+# DoubleHelix (10-5) seed 4280379148 char Some(3) objective OneShot, fast forward held
+1: pixel (370, 95) angle 4.2771006 click 159 | 70 pegs, 25 orange, score 1141000, end tick 1694, styles [3, 10], catches 0, free 3 WIN
+# total 1141000 after 1 shots, balls left 12

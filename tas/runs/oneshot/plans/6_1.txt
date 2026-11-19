@@ -1,0 +1,17 @@
+char 4
+level 6 1
+flip 989 1
+flip 993 0
+flip 1524 1
+flip 1528 0
+flip 2169 1
+flip 2173 0
+flip 2764 1
+flip 2768 0
+flip 2996 1
+flip 3000 0
+flip 3723 1
+flip 3727 0
+shotx 4060e8cb 103
+waitms 3000
+quit

@@ -1,0 +1,3 @@
+# Infinity (3-2) seed 4279365445 char Some(6) objective OneShot, fast forward held
+1: pixel (68, 243) angle 3.4596701 click 119 | 43 pegs, 25 orange, score 692320, end tick 1262, styles [10, 3], catches 0, free 3 WIN
+# total 692320 after 1 shots, balls left 12

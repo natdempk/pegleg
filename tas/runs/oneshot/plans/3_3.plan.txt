@@ -1,0 +1,3 @@
+# Spaceballs (4-4) seed 4081562376 char Some(3) objective OneShot, fast forward held
+1: pixel (225, 304) angle 4.0459070 click 127 | 50 pegs, 25 orange, score 757000, end tick 1909, styles [10, 3], catches 0, free 3 WIN
+# total 757000 after 1 shots, balls left 12

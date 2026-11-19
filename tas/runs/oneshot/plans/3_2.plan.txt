@@ -1,0 +1,3 @@
+# Bug (4-3) seed 4278686614 char Some(3) objective OneShot, fast forward held
+1: pixel (448, 432) angle 4.8665519 click 127 | 54 pegs, 25 orange, score 700340, end tick 1058, styles [10, 3, 11], catches 0, free 3 WIN
+# total 700340 after 1 shots, balls left 12

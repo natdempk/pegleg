@@ -1,0 +1,3 @@
+# Vortex (10-2) seed 173999149 char Some(4) objective OneShot, flips 19 (no fast forward)
+1: pixel (37, 149) angle 3.1604793 click 127 | 92 pegs, 25 orange, score 2123040, end tick 10252, styles [3, 1, 10, 11], catches 0, free 3 WIN
+# total 2123040 after 1 shots, balls left 12

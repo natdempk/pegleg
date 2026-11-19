@@ -1,0 +1,3 @@
+# Owl (2-5) seed 40296831 char Some(4) objective OneShot, flips 10 (no fast forward)
+1: pixel (719, 246) angle 5.9262166 click 159 | 69 pegs, 25 orange, score 919450, end tick 5299, styles [3, 10, 1, 11], catches 0, free 3 WIN
+# total 919450 after 1 shots, balls left 12

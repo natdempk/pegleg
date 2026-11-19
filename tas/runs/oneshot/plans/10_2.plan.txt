@@ -1,0 +1,3 @@
+# Blindfold (11-3) seed 3417566394 char Some(6) objective OneShot, fast forward held
+1: pixel (284, 409) angle 4.3447161 click 143 | 37 pegs, 25 orange, score 530810, end tick 1953, styles [10, 3, 11], catches 0, free 3 WIN
+# total 530810 after 1 shots, balls left 12

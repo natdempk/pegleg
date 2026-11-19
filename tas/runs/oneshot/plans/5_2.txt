@@ -1,0 +1,5 @@
+char 5
+level 5 2
+shotx 40c66ebc 135
+waitms 3000
+quit

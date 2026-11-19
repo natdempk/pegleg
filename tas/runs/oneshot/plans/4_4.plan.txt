@@ -1,0 +1,3 @@
+# SideAction (5-5) seed 3821406628 char Some(3) objective OneShot, fast forward held
+1: pixel (508, 102) angle 5.7167082 click 103 | 54 pegs, 25 orange, score 806600, end tick 911, styles [3, 10], catches 0, free 3 WIN
+# total 806600 after 1 shots, balls left 12

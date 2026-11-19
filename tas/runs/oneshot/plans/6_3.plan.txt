@@ -1,0 +1,3 @@
+# Car (7-4) seed 2112757656 char Some(1) objective OneShot, fast forward held
+1: pixel (107, 489) angle 3.9352407 click 111 | 48 pegs, 25 orange, score 669120, end tick 2735, styles [3], catches 0, free 3 WIN
+# total 669120 after 1 shots, balls left 12

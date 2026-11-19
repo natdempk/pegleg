@@ -1,0 +1,3 @@
+# Blockers (6-3) seed 4883902 char Some(5) objective OneShot, fast forward held
+1: pixel (645, 88) angle 6.2010174 click 135 | 62 pegs, 25 orange, score 1059060, end tick 2782, styles [10, 3], catches 0, free 3 WIN
+# total 1059060 after 1 shots, balls left 12

@@ -1,0 +1,3 @@
+# Toggle (5-2) seed 2360073963 char Some(6) objective OneShot, fast forward held
+1: pixel (216, 484) angle 4.2072105 click 143 | 41 pegs, 25 orange, score 801950, end tick 1700, styles [10, 3, 11], catches 0, free 3 WIN
+# total 801950 after 1 shots, balls left 12

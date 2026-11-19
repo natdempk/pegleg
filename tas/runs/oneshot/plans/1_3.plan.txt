@@ -1,0 +1,3 @@
+# Spiral (2-4) seed 3627043448 char Some(6) objective OneShot, fast forward held
+1: pixel (343, 37) angle 3.2575772 click 119 | 43 pegs, 25 orange, score 756020, end tick 2218, styles [3, 2, 10, 11], catches 0, free 3 WIN
+# total 756020 after 1 shots, balls left 12

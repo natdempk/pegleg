@@ -1,0 +1,3 @@
+# Fever (3-5) seed 4261686533 char Some(6) objective OneShot, fast forward held
+1: pixel (716, 225) angle 5.9627504 click 111 | 47 pegs, 25 orange, score 891610, end tick 1182, styles [10, 3, 2], catches 0, free 3 WIN
+# total 891610 after 1 shots, balls left 12

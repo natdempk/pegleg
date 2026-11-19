@@ -1,0 +1,3 @@
+# Monkey (8-1) seed 4291200906 char Some(6) objective OneShot, fast forward held
+1: pixel (642, 266) angle 5.6688647 click 135 | 47 pegs, 25 orange, score 794610, end tick 1250, styles [10, 3], catches 0, free 3 WIN
+# total 794610 after 1 shots, balls left 12

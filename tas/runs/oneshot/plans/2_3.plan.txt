@@ -1,0 +1,3 @@
+# FourDoors (3-4) seed 4283191368 char Some(6) objective OneShot, fast forward held
+1: pixel (92, 151) angle 3.2956021 click 159 | 35 pegs, 25 orange, score 550000, end tick 1320, styles [10, 3, 11], catches 0, free 3 WIN
+# total 550000 after 1 shots, balls left 12

@@ -6,8 +6,8 @@ the glue to play those runs in the real game, check them, and record them.
 The simulator reproduces the game exactly: a simulated shot ends in the same place, to the last bit of every
 float, as the real one. That's checked against 274 recorded real-game runs on every build. A beam search then tries
 millions of shots per level and picks the plan that best fits a goal (fastest clear, highest score, fewest shots,
-or clearing every peg). Plans are inputs a person could make: an aim at a window pixel and a click at a normal
-moment.
+or clearing every peg). A second search, `oneshot`, goes through the 2^32 RNG seeds for a first shot that wins
+the level. Plans are inputs a person could make: an aim at a window pixel and a click at a normal moment.
 
 ## Runs made with it
 
@@ -17,6 +17,7 @@ moment.
 | [Ultra Extreme Fever](tas/runs/uef/README.md) | Hit every peg, fastest | 55 levels in 1841.19 s, vs 3086.03 s for the records |
 | [Max score](tas/runs/max-score/README.md) | Highest score per level | 235,502,410 points; all 55 Cyberscore level records beaten |
 | [Showcase](tas/runs/showcase/README.md) | Fewest shots, then highest score | All 55 levels in 162 shots |
+| [One shot](tas/runs/oneshot/README.md) | Win each level with its first shot | All 55 levels won with a single shot each; 47,059,470 points |
 
 Every run is in `tas/runs/` as plans you can replay in your own copy of the game.
 
@@ -54,14 +55,15 @@ from Git Bash on that machine, because the game is started through Steam. See [p
 | Folder | What's in it |
 |---|---|
 | [`sim/`](sim/README.md) | The simulator (Rust library), `game_check` (compares real runs with the simulator), and the golden test |
-| [`solver/`](solver/README.md) | `peggle-solver`: beam search over shots for one level, which writes a playable script |
+| [`solver/`](solver/README.md) | `peggle-solver`: beam search over shots for one level, which writes a playable script. `oneshot`: the first-shot win search ([ONESHOT.md](solver/ONESHOT.md)), with an optional CUDA kernel |
 | [`play/`](play/README.md) | The playback DLL: it plays scripts inside the real game and logs state for checking. Also the Windows runner |
-| [`tas/`](tas/README.md) | Glue scripts: the four-category pipeline, `play.sh`, video recording and stitching, and the finished runs |
+| [`tas/`](tas/README.md) | Glue scripts: the category pipeline, `play.sh`, video recording and stitching, and the finished runs |
 
 ## What's legitimate about these runs (and what isn't)
 
 - **Inputs are human-makeable.** Each shot is an aim at a window pixel and a click at a frame boundary. Fast
-  forward is the game's own right-mouse-button feature.
+  forward is the game's own right-mouse-button feature. Claude's flippers are pressed with the mouse button, as a
+  player does, at frame starts.
 - **The RNG is seeded.** The playback DLL reseeds the game's random number generator at fixed points from one
   seed per level (recorded with each plan). The seed decides which pegs are orange, purple and green, and how
   Lucky Spins and coin flips land. Without it no run could be reproduced. It's the same thing as a TAS on an

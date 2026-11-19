@@ -1,0 +1,3 @@
+# Holes (10-3) seed 4072096390 char Some(6) objective OneShot, fast forward held
+1: pixel (26, 251) angle 3.3708701 click 103 | 33 pegs, 25 orange, score 493340, end tick 990, styles [10, 3, 11], catches 0, free 3 WIN
+# total 493340 after 1 shots, balls left 12

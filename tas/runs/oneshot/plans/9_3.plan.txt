@@ -1,0 +1,3 @@
+# YinYang (10-4) seed 253253792 char Some(4) objective OneShot, flips 6 (no fast forward)
+1: pixel (282, 323) angle 4.2598724 click 119 | 68 pegs, 25 orange, score 933680, end tick 5122, styles [1, 3, 11], catches 0, free 3 WIN
+# total 933680 after 1 shots, balls left 12

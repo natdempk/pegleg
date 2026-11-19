@@ -1,0 +1,5 @@
+char 3
+level 7 2
+shotx 40b7dd1a 151
+waitms 3000
+quit

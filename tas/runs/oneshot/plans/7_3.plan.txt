@@ -1,0 +1,3 @@
+# Dice (8-4) seed 4164334928 char Some(3) objective OneShot, fast forward held
+1: pixel (302, 147) angle 4.0040207 click 103 | 56 pegs, 25 orange, score 821360, end tick 1773, styles [0, 3, 10], catches 0, free 3 WIN
+# total 821360 after 1 shots, balls left 12

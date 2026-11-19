@@ -1,0 +1,3 @@
+# SpiderWeb (6-2) seed 4637413 char Some(4) objective OneShot, flips 15 (no fast forward)
+1: pixel (191, 50) angle 3.1424484 click 103 | 90 pegs, 25 orange, score 2764400, end tick 8468, styles [3, 1, 10], catches 0, free 3 WIN
+# total 2764400 after 1 shots, balls left 12

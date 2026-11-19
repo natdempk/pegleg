@@ -1,0 +1,3 @@
+# Bunches (9-5) seed 4243844348 char Some(3) objective OneShot, fast forward held
+1: pixel (114, 498) angle 3.9593208 click 103 | 59 pegs, 25 orange, score 784010, end tick 1497, styles [0, 3, 10], catches 0, free 3 WIN
+# total 784010 after 1 shots, balls left 12

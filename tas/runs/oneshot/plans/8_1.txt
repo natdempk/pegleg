@@ -1,0 +1,5 @@
+char 6
+level 8 1
+shotx 4077a0cb 127
+waitms 3000
+quit

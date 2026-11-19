@@ -1,0 +1,5 @@
+char 6
+level 4 3
+shotx 408f6210 103
+waitms 3000
+quit

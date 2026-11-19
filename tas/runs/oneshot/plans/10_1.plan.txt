@@ -1,0 +1,3 @@
+# Crisscross (11-2) seed 159102524 char Some(4) objective OneShot, flips 26 (no fast forward)
+1: pixel (157, 274) angle 3.7682836 click 151 | 73 pegs, 25 orange, score 986490, end tick 9334, styles [3, 1, 11], catches 0, free 3 WIN
+# total 986490 after 1 shots, balls left 12

@@ -1,0 +1,3 @@
+# InfiniteJest (5-4) seed 3701528228 char Some(6) objective OneShot, fast forward held
+1: pixel (336, 356) angle 4.4807205 click 103 | 44 pegs, 25 orange, score 665640, end tick 1277, styles [10, 3], catches 0, free 3 WIN
+# total 665640 after 1 shots, balls left 12
