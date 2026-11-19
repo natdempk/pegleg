@@ -157,7 +157,13 @@ pub struct Game {
     /// The aim is kept because the playback reports the aim guide's first hit at step 0 (Gun+0x198 = 0, see
     /// `hook_collide` in play/hook.c): the assist's ball filter then rejects every ball and the gun stays put.
     pub assist_balls: i32,
+    /// Flipper presses / releases for the next shot: (harness tick, down), applied before that tick's physics
+    /// while the flipper power is on (LogicMgr::MouseDown / MouseUp → FUN_0045ea70); cleared by `shoot`.
+    pub flips: Vec<(i32, bool)>,
 }
+
+/// Harness tick of a flip relative to the shot loop's tick (calibrated on real captures; SIM_FLIP_OFS overrides).
+pub const FLIP_OFS: i32 = 0;
 
 /// Next turn's tip check (FUN_0046e880 → FUN_0046a370(-1)): the first of tips 0 (catch), 1 (score free
 /// ball), 2 (coin flip) whose event happened this level and that the profile has not shown yet is shown
@@ -186,7 +192,7 @@ impl Game {
         let mut g = Game { board, gun: Gun::default(), tick: 0, seed, balls: 10, total: 0, shots: 0, ctr: [0; 14],
                            trip_pend: 0, hat_pend: 0, trip_now: false, hat_now: false, purple: None,
                            earliest_fire: FIRST_FIRE, won: false, lost: false, unlocked: 9, trace: None, ff_pad: 0, trace_all: None,
-                           tube: Tube::reset(10), tip_bits: 0, tip_flags: 0, assist_balls: 0 };
+                           tube: Tube::reset(10), tip_bits: 0, tip_flags: 0, assist_balls: 0, flips: vec![] };
         // first turn: the first ball leaves the tube long before FIRST_FIRE
         g.tube.kick();
         for _ in 0..400 { g.tube.step(); if g.tube.settled { break; } }
@@ -262,8 +268,16 @@ impl Game {
         let mut tube_adds: Vec<(i32, i32)> = vec![];
         let flight_start = self.tick;
         let (mut slowmo_at, mut targets, mut tgt_hits) = (None, vec![], None);
+        let mut flips = std::mem::take(&mut self.flips);
+        flips.sort_by_key(|f| f.0);
+        let flip_ofs = std::env::var("SIM_FLIP_OFS").ok().and_then(|v| v.parse().ok()).unwrap_or(FLIP_OFS);
+        let mut fi = 0;
         for n in 0..30000 {
             ev.clear();
+            while fi < flips.len() && flips[fi].0 + flip_ofs <= flight_start + n {
+                if bd.flippers_on() { bd.flip(flips[fi].1); }
+                fi += 1;
+            }
             if let Some(t) = self.trace.as_mut() { t.push((balls[0].pos, balls[0].vel)); }
             if let Some(t) = self.trace_all.as_mut() { t.push(balls.iter().filter(|b| !b.gone).map(|b| (b.pos, b.vel)).collect()); }
             let alive = bd.frame_multi(&mut balls, &mut ev);

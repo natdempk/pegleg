@@ -910,6 +910,8 @@ pub struct Board {
     pub styles: Vec<(u8, i32)>,
     /// Lucky Spin wheel results this shot (0 random power, 1 magic hat, 2 score tripler, 3 extra ball)
     pub lucky_results: Vec<u32>,
+    /// one-shot search only (never set by replays): force the Lucky Spin wheel result (1 = Magic Hat)
+    pub force_lucky: Option<u32>,
     /// wheel updates of each spin this shot (slot::lucky_wheel_steps; the board is frozen meanwhile)
     pub lucky_steps: Vec<i32>,
     /// LogicMgr+0x68 at fire: Score Tripler active for this shot (Lucky Spin result 2 last turn)
@@ -1070,7 +1072,7 @@ impl Board {
             .map(|(i, _)| i as u32).collect();
         let sapx = std::sync::Arc::new(build_sap_index(&mut objs, &movers));
         Board { sapx, scratch: StepScratch::default(), ticking, objs, movers, width: 650, height: 560, hit_list: vec![], pop_delay: 0, shot_timer: -2, force_pop: false, shot_hits: vec![], shot_hit_bticks: vec![],
-                power: 0, flippers_init: false, new_hits: vec![], cur_ball: 0, pair_sap: vec![], next_ball_id: 1, spawned: vec![], lucky_list: vec![], lucky_ctr: None, lucky_results: vec![], lucky_steps: vec![], triple: false, orange_total: 25, n_base: base.map_or(0, |b| b.objects.len()), fever_on: false, fever_hole: 0, contact_log: vec![], pending_contacts: vec![], hat_contact: false, pending_bucket: vec![], pending_lid: vec![], pending_flipper: vec![], flipper_hits: 0, forced_contact: false, catch_streak: 0, caught_this_shot: false, styles: vec![], btick: 0, amp_target: 0, spooky_left: 0, rng_seed: 0, ai: false, peek: false, activations: vec![], flipper_applies: 0, rng_n: 0 }
+                power: 0, flippers_init: false, new_hits: vec![], cur_ball: 0, pair_sap: vec![], next_ball_id: 1, spawned: vec![], lucky_list: vec![], lucky_ctr: None, lucky_results: vec![], force_lucky: None, lucky_steps: vec![], triple: false, orange_total: 25, n_base: base.map_or(0, |b| b.objects.len()), fever_on: false, fever_hole: 0, contact_log: vec![], pending_contacts: vec![], hat_contact: false, pending_bucket: vec![], pending_lid: vec![], pending_flipper: vec![], flipper_hits: 0, forced_contact: false, catch_streak: 0, caught_this_shot: false, styles: vec![], btick: 0, amp_target: 0, spooky_left: 0, rng_seed: 0, ai: false, peek: false, activations: vec![], flipper_applies: 0, rng_n: 0 }
     }
 
     /// Per-tick object updates (vt+0x58 → FUN_00479a30) for objects with movers: advance the
@@ -1380,6 +1382,35 @@ impl Board {
         for o in self.objs.iter_mut() { if o.flipper { o.collidable = on; } }
     }
 
+    /// The flipper power is on (its objects collide): LogicMgr+0x1e4 >= 1, so a click flips.
+    pub fn flippers_on(&self) -> bool { self.objs.iter().any(|o| o.flipper && o.collidable) }
+
+    /// FUN_0045ea70(down) (LogicMgr::MouseDown → 1, MouseUp FUN_0045ebb0 → 0, while the flipper power is on):
+    /// for each "flipper" object with a mover, c = counter % period; press: past half a period the counter is
+    /// mirrored to period - c (FUN_00479980), then the mover runs to phase 0.5 (FUN_004799a0(0.5, 0): moving +
+    /// ticks left); release: with c >= 1, it runs to phase 1.0 (back to rest).
+    pub fn flip(&mut self, down: bool) {
+        for i in 0..self.objs.len() {
+            if !self.objs[i].flipper { continue; }
+            let Some(mi) = self.objs[i].mover else { continue };
+            let period = self.movers[mi].def.time as i32;
+            if period < 1 { continue; }
+            let c = self.objs[i].counter % period;
+            let target = if down {
+                if period / 2 < c { self.objs[i].counter = period - c; self.objs[i].settled = false; }
+                0.5
+            } else {
+                if c < 1 { continue; }
+                1.0
+            };
+            let n = self.movers[mi].ticks_to_phase(self.objs[i].counter, target);
+            if n < 1 { continue; }
+            self.objs[i].moving = true;
+            self.objs[i].move_timer = n;
+            self.add_ticking(i);
+        }
+    }
+
     /// Reset per-shot logic state (call at shot start).
     pub fn begin_shot(&mut self) {
         self.hit_list.clear();
@@ -1564,7 +1595,7 @@ impl Board {
         b.set_pos_full(start);
     }
 
-    fn spooky_trial(&self, start: [f32; 2], vel: [f32; 2], r: f32, n: i32) -> usize {
+    pub fn spooky_trial(&self, start: [f32; 2], vel: [f32; 2], r: f32, n: i32) -> usize {
         let mut bd = self.clone();
         let mut tb = Ball::new(start, vel);
         tb.r = r;
@@ -1612,6 +1643,7 @@ impl Board {
             let mut rng = crate::rng::keyed(self.rng_seed, crate::rng::SITE_LUCKY, self.btick - 2);
             let (r1, r2) = (rng.rand() as u32, rng.rand() as u32);
             let (res, steps) = crate::slot::lucky_wheel_steps(r1, r2);
+            let res = self.force_lucky.unwrap_or(res);
             self.lucky_steps.push(steps);
             if std::env::var_os("SIM_DEBUG").is_some() { eprintln!("lucky spin btick {} rands {r1} {r2} -> {res} (ctr {:?} list {:?})", self.btick - 2, self.lucky_ctr, self.lucky_list); }
             self.lucky_results.push(res as u32);
@@ -2002,6 +2034,9 @@ impl Board {
         // previous one was < 20 ticks ago at speed^2 > 2.5. Then already-hit pegs return early (+0x14):
         // only first hits reach the +0xb8 log, Long Shot, and the combo count (+0x154 == 12 → style 2).
         let flips = std::mem::take(&mut self.pending_flipper);
+        // FUN_004704a0, a "flipper" contact: Ball+0x144 = 1 (below) and the shot timer LogicMgr+0x38 is capped
+        // at DAT_00649acc, so a ball kept up by the flippers is not force-popped (FUN_00472f60)
+        if !flips.is_empty() { self.shot_timer = self.shot_timer.min(SHOT_POP_CAP); }
         let contacts = std::mem::take(&mut self.pending_contacts);
         let nc = contacts.len();
         for (j, (k, i, first, hat)) in contacts.into_iter().enumerate() {

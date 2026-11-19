@@ -67,6 +67,19 @@ pub fn real_fire_ticks(harness: &str) -> Vec<i32> {
     }).collect()
 }
 
+/// Real flipper presses / releases from harness.txt ("flip down|up tick T ..."), in order. A press made between
+/// frames at logged tick T acts before the objects update of shot-loop tick T (`Game::flips`; calibrated on a
+/// real capture: the whole flipped shot matches the ball trace bit for bit).
+pub fn real_flips(harness: &str) -> Vec<(i32, bool)> {
+    harness.lines().filter_map(|l| {
+        let w: Vec<&str> = l.split_whitespace().collect();
+        let i = w.iter().position(|&x| x == "flip")?;
+        let down = match w.get(i + 1) { Some(&"down") => true, Some(&"up") => false, _ => return None };
+        let j = w.iter().position(|&x| x == "tick")?;
+        w.get(j + 1)?.parse::<i32>().ok().map(|t| (t, down))
+    }).collect()
+}
+
 /// The final total the Level Complete state showed (last 'st5 ... total N' line), if logged.
 pub fn real_final_total(harness: &str) -> Option<i64> {
     harness.lines().rev().find(|l| l.contains(" st5 ")).and_then(|l| l.trim_end().rsplit(' ').next()?.parse().ok())
@@ -78,11 +91,21 @@ pub fn check(f: &RunFiles, base: &Level, level_file: &dyn Fn(&str) -> Option<Vec
     let ff = f.info.contains("fast forward held");
     let seed: u32 = f.info.lines().find_map(|l| l.strip_prefix("tas: rng seed ")).and_then(|s| s.trim().parse().ok()).unwrap_or(0);
     let mut shots: Vec<(f32, i32)> = vec![];
+    // script flips: `flip TICK 1|0` lines before a shotx belong to that shot
+    let mut shot_flips: Vec<Vec<(i32, bool)>> = vec![];
+    let mut pend: Vec<(i32, bool)> = vec![];
     for l in f.script.lines() {
         let w: Vec<&str> = l.split_whitespace().collect();
         if let ["shotx", a, t] = w.as_slice() {
             shots.push((f32::from_bits(u32::from_str_radix(a, 16).ok()?), t.parse::<i32>().ok()?));
+            shot_flips.push(std::mem::take(&mut pend));
         }
+        if let ["flip", t, d] = w.as_slice() { pend.push((t.parse().ok()?, *d == "1")); }
+    }
+    if real_fire {
+        // real flip ticks, in order, replace the script's (same count per shot)
+        let mut rf = real_flips(&f.harness).into_iter();
+        for v in shot_flips.iter_mut() { for x in v.iter_mut() { if let Some(r) = rf.next() { *x = r; } } }
     }
     if real_fire {
         for (s, t) in shots.iter_mut().zip(real_fire_ticks(&f.harness)) { s.1 = t; }
@@ -119,6 +142,7 @@ pub fn check(f: &RunFiles, base: &Level, level_file: &dyn Fn(&str) -> Option<Vec
             rep.errors.push(format!("shot {}: real fire at tick {t} while the sim's previous shot ran to {}", k + 1, g.tick));
             break;
         }
+        g.flips = shot_flips.get(k).cloned().unwrap_or_default();
         let res = g.shoot(a, t);
         if verbose { eprintln!("shot {}: {:?}", k + 1, res); }  // "shot N: ShotResult {..}" (parsed by scripts)
         rep.results.push(res);
