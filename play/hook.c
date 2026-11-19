@@ -110,7 +110,9 @@ static void __attribute__((fastcall)) hook_physupd(void *obj) {
     uint8_t *o = (uint8_t *)obj;
     uint32_t t = *(uint32_t *)(o + 0x10);
     if (t == 1 && *(uint32_t *)(o + 0x48) && o[0x26]) g_frames++;
-    if ((t == 1 || t == 3) && *(uint32_t *)(o + 0x48) && o[0x26])
+    static int movall = -1;
+    if (movall < 0) movall = getenv("PEGGLE_MOVALL") != 0;   // PEGGLE_MOVALL=1: every moving object (e.g. flippers)
+    if ((t == 1 || t == 3 || movall) && *(uint32_t *)(o + 0x48) && o[0x26])
         log_rec(0x20564f4d /*'MOV '*/, o, (uint32_t)(uintptr_t)__builtin_return_address(0));
 }
 
@@ -460,6 +462,14 @@ static void dismiss_dialogs(void) { dismiss_dialogs_f(0); }
 // LogicMgr::MouseDown FUN_00472810(this, x, y, clickCount, p5, p6): the real click path (closes tips,
 // sets fire request +0xed when aiming). Position only stored at +0x98/+0x9c.
 typedef int (__attribute__((thiscall)) *mousedown_fn)(void *, int, int, int, char, char);
+// LogicMgr::MouseUp FUN_0045ebb0(this, x, y, clickCount, p5): releases the flippers (FUN_0045ea70(0)) when the
+// press went through MouseDown's in-flight path (LogicMgr+0x1e)
+typedef int (__attribute__((thiscall)) *mouseup_fn)(void *, int, int, int, char);
+// `flip TICK 1|0` script lines (before a shotx): flipper presses / releases for that shot, made at frame starts
+// during the flight like a player's (MouseDown flips while LogicMgr+0x1e4[player] >= 1, FUN_0045ea70)
+#define MAXFLIP 4096   // flip lines per shot (long flipper juggles: oneshot class flip plans use 100+)
+static int g_flip_t[MAXFLIP], g_flip_d[MAXFLIP], g_nflip_pend, g_nflip, g_flip_i;
+static int g_flip_pt[MAXFLIP], g_flip_pd[MAXFLIP];
 static int g_last_click;
 static void click(uint8_t *l) {
     if (tick() == g_last_click) return;
@@ -587,13 +597,22 @@ static void __attribute__((fastcall)) w_53e990(void *b) {
              g_shot_start, g_fire_at, g_bframes, late ? " LATE" : "");
         g_hstate = 3; g_fire_at = -1; g_prev_aim = g_aim;
     }
+    while (l && st == 2 && g_flip_i < g_nflip && tick() >= g_flip_t[g_flip_i]) {
+        int d = g_flip_d[g_flip_i];
+        if (d) ((mousedown_fn)0x472810)(l, 400, 300, 1, 0, 0);
+        else ((mouseup_fn)0x45ebb0)(l, 400, 300, 1, 0);
+        hlog("flip %s tick %d sched %d frm %d flippers %d (frame start)", d ? "down" : "up", tick(), g_flip_t[g_flip_i], g_bframes,
+             *(int *)(l + 0x1e4 + *(int *)(l + 0x128) * 4));
+        g_flip_i++;
+    }
     if (g_autoclick && l) {
         // a player's clicks, made between frames: skip the level intro (state 8), cancel the near-win
         // slow-mo (state 2 with Board+0xc1 and LogicMgr+0xf9), and confirm the level end (state 5, +0xfd)
         uint8_t *bd = (uint8_t *)b;
         const char *why = 0;
         if (st == 8 && !l[0x100]) why = "intro";
-        else if (st == 2 && bd[0xc1] && l[0xf9]) why = "slowmo";
+        // (not while the flipper power is on: that click would flip, LogicMgr::MouseDown → FUN_0045ea70)
+        else if (st == 2 && bd[0xc1] && l[0xf9] && *(int *)(l + 0x1e4 + *(int *)(l + 0x128) * 4) < 1) why = "slowmo";
         else if (st == 5 && l[0xfd] && *(int *)(l + 8) < 100) why = "end";
         if (st == 5 && ((g_bframes % 25) == 0 || why)) { // also when confirming the end (it may quit before a 25th frame)
             uint8_t *x160 = *(uint8_t **)(bd + 0x160);
@@ -830,6 +849,12 @@ static void harness_step(void) {
         }
         {   float cx, cy;
             if (sscanf(line, "cursor %f %f", &cx, &cy) == 2) { pend_x = cx; pend_y = cy; g_cur_on = 1; goto next_line; }
+            int ft; unsigned fd;   // `flip TICK 1|0`: queued for the next shot (no ready dump)
+            if (sscanf(line, "flip %d %u", &ft, &fd) == 2) {
+                if (g_nflip_pend < MAXFLIP) { g_flip_pt[g_nflip_pend] = ft; g_flip_pd[g_nflip_pend] = (int)fd; g_nflip_pend++; }
+                hlog("cmd %s", line);
+                goto next_line;
+            }
         }
         g_rdy_done = 0;
         hlog("cmd %s", line);
@@ -869,6 +894,8 @@ static void harness_step(void) {
             if (strncmp(line, "shotx", 5) == 0) memcpy(&f, &u, 4);
             { char w[32]; int at; g_fire_at = (sscanf(line, "%15s %15s %d", w, w + 16, &at) == 3) ? at : -1; }
             g_aim = f; g_aim_since = -1; g_hstate = 2;
+            memcpy(g_flip_t, g_flip_pt, sizeof g_flip_t); memcpy(g_flip_d, g_flip_pd, sizeof g_flip_d);
+            g_nflip = g_nflip_pend; g_nflip_pend = 0; g_flip_i = 0;
             if (pend_x >= 0) { cur_plan(pend_x, pend_y); pend_x = pend_y = -1; }
         } else if (sscanf(line, "mode %d", &n) == 1) {
             g_mode = n;                       // app+0x760 for later `level` commands (1 adventure)

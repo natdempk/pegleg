@@ -28,7 +28,8 @@ param(
   [int]$TimeoutSec = 1800,
   [string]$Game = "",         # Peggle Deluxe folder (default: found through Steam)
   [switch]$Video,             # record run.mp4 (needs ffmpeg on PATH) and the sound log
-  [switch]$Fast               # fast forward (right mouse button held) and human-timed clicks, as the plans expect
+  [switch]$Fast,              # fast forward (right mouse button held) and human-timed clicks, as the plans expect
+  [switch]$NoFF               # with -Fast: human-timed clicks without fast forward (flipper plans, one-shot videos)
 )
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -86,7 +87,7 @@ try {
     PEGGLE_SCRIPT = (Join-Path $Out "script.txt"); PEGGLE_LOG = (Join-Path $Out "oracle.bin"); PEGGLE_HLOG = (Join-Path $Out "harness.txt")
     PEGGLE_OUT = $Out; PEGGLE_RNG_SEED = "$Seed"; PEGGLE_PROGRESS = "$Progress"; PEGGLE_SPEED = "$Speed"; PEGGLE_FRMLOG = "1"
     PEGGLE_SOUNDLOG = $(if ($Video) { "1" } else { "0" })
-    PEGGLE_FF = $(if ($Fast) { "1" } else { "0" }); PEGGLE_CLICKS = $(if ($Fast) { "1" } else { "0" }); PEGGLE_HUMANFIRE = $(if ($Fast) { "1" } else { "0" })
+    PEGGLE_FF = $(if ($Fast -and -not $NoFF) { "1" } else { "0" }); PEGGLE_CLICKS = $(if ($Fast) { "1" } else { "0" }); PEGGLE_HUMANFIRE = $(if ($Fast) { "1" } else { "0" })
     # the game's launcher loads Steam.dll from Steam's own folder, as when Steam starts it
     PATH = "$Steam;$env:PATH"; SteamAppId = "3480"; SteamGameId = "3480"
   }

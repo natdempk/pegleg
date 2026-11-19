@@ -42,7 +42,8 @@ stopped and everything is restored. If a run was interrupted hard (power loss), 
 leftover `bass_orig.dll` and profile backup and still restores them.
 
 Options: `-Speed N` (game clock multiplier; 1 = real time), `-Fast` (fast forward and human-timed clicks; solver
-plans need it, and `tas/play.sh` always passes it), `-Video` (real time, records `run.mp4` of the game window
+plans need it, and `tas/play.sh` always passes it), `-NoFF` (with `-Fast`: human-timed clicks without fast
+forward; `tas/play.sh` uses it for scripts with `flip` lines and with `--no-ff`), `-Video` (real time, records `run.mp4` of the game window
 and a sound log; the OS cursor glides to each aim point, so don't touch the mouse), `-Progress N`,
 `-TimeoutSec N`, `-Game DIR`.
 
@@ -63,5 +64,5 @@ sh play/build.sh     # Zig 0.17.1 C compiler, downloaded into play/.zig on first
 | `PEGGLE_PROGRESS` | Profile progress set at each `level` command (55 = everything unlocked; greens and purples need > 2) |
 | `PEGGLE_FRMLOG`, `PEGGLE_SOUNDLOG` | Per-frame log lines; sound log for the video soundtrack |
 
-Others (`PEGGLE_BHPLOG`, `PEGGLE_TUBELOG`, `PEGGLE_TRACE_CCD`, `PEGGLE_AILOG`, ...) add extra records to `oracle.bin`
+Others (`PEGGLE_MOVALL`, `PEGGLE_BHPLOG`, `PEGGLE_TUBELOG`, `PEGGLE_TRACE_CCD`, `PEGGLE_AILOG`, ...) add extra records to `oracle.bin`
 for investigating simulator differences; see the comments in `hook.c`.

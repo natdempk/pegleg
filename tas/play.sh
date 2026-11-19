@@ -1,15 +1,19 @@
 #!/bin/sh
 # Play a TAS script in the real game and check the run against the simulator.
-#   tas/play.sh SCRIPT SEED OUT [--video] [--speed N]
+#   tas/play.sh SCRIPT SEED OUT [--video] [--speed N] [--no-ff]
 # SCRIPT is a solver output (S_L.txt), SEED its RNG seed (S_L.seed), OUT the run directory to create.
 # Runs on Windows (WSL or Git Bash) through play/play.ps1 with your Steam copy; Steam must be running.
-# Plans from the solver expect fast forward + human-timed clicks, which are always on here.
+# Plans from the solver expect fast forward + human-timed clicks, which are on here by default. Scripts with
+# `flip` lines (one-shot flipper plans), and --no-ff, play without fast forward: every tick is then a frame start,
+# and a click made at frame start s acts at tick s - 1, so each shotx click moves one tick later to fire on the
+# plan's tick (with fast forward the 8-tick frame grid absorbs that).
 set -e
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-[ $# -ge 3 ] || { echo "usage: tas/play.sh SCRIPT SEED OUT [--video] [--speed N]"; exit 2; }
+[ $# -ge 3 ] || { echo "usage: tas/play.sh SCRIPT SEED OUT [--video] [--speed N] [--no-ff]"; exit 2; }
 SCRIPT=$1; SEED=$2; OUT=$3; shift 3
-VIDEO=0; SPEED=8
-while [ $# -gt 0 ]; do case $1 in --video) VIDEO=1 ;; --speed) SPEED=$2; shift ;; *) echo "unknown option $1"; exit 2 ;; esac; shift; done
+VIDEO=0; SPEED=8; NOFF=0
+while [ $# -gt 0 ]; do case $1 in --video) VIDEO=1 ;; --speed) SPEED=$2; shift ;; --no-ff) NOFF=1 ;; *) echo "unknown option $1"; exit 2 ;; esac; shift; done
+grep -q '^flip ' "$SCRIPT" && NOFF=1
 mkdir -p "$OUT"
 # powershell.exe: on PATH (Git Bash, most WSL setups) or at its standard place (WSL without the Windows PATH)
 PS=$(command -v powershell.exe 2>/dev/null || true)
@@ -25,7 +29,12 @@ unixpath() { if command -v wslpath >/dev/null 2>&1; then wslpath -u "$1"; else c
 name=pegleg-$(date +%s)-$$
 wtmp=$("$PS" -NoProfile -Command '[IO.Path]::GetTempPath()' | tr -d '\r')$name
 extra=""; [ "$VIDEO" = 1 ] && extra="-Video"
-cp "$SCRIPT" "$(unixpath "$wtmp").txt"
+if [ "$NOFF" = 1 ]; then
+  extra="$extra -NoFF"
+  awk '$1 == "shotx" { $3 = $3 + 1 } { print }' "$SCRIPT" > "$(unixpath "$wtmp").txt"
+else
+  cp "$SCRIPT" "$(unixpath "$wtmp").txt"
+fi
 "$PS" -NoProfile -ExecutionPolicy Bypass -File "$(winpath "$ROOT/play/play.ps1")" \
   -Script "$wtmp.txt" -Seed "$SEED" -Out "$wtmp" -Speed "$SPEED" -Fast $extra 2>&1 | tr -d '\r'
 src=$(unixpath "$wtmp")
