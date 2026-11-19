@@ -5,7 +5,8 @@ RNG seed and a running timer (app frames / 100 from the first board frame, stopp
 box appears), and the game's sound (mixed from the recording's sound log, sound_mix.py). Needs Pillow and
 numpy (pip install pillow numpy).
 
-usage: MODE=time|score|fun tas/video.py OUT [levels...]   → OUT/tas.mp4 (NAME=... to rename)
+usage: MODE=time|score|fun|oneshot tas/video.py OUT [levels...]   → OUT/tas.mp4 (NAME=... to rename)
+MODE=oneshot: gameplay only, no panel, the game scaled SCALE x (default 2, 1600x1200) by nearest neighbour.
 Fonts: FONT / MONO env, else Helvetica/Menlo (macOS), Arial/Consolas (Windows), DejaVu (Linux).
 """
 import json, os, re, shutil, subprocess, sys
@@ -29,7 +30,12 @@ STYLES = {0: "Long Shot", 1: "Flipper Maniac", 2: "Extreme Slide", 3: "Orange At
           6: "Hat Trick", 7: "Hot Stuff", 8: "Free Ball Frenzy", 9: "Free Ball Skills", 10: "Power-up Combo",
           11: "Kick the Bucket", 12: "Lucky Bounce", 13: "Mad Skillz", 14: "Crazy Mad Skillz", 15: "Super Long Shot",
           16: "Pyramid Pickup", 17: "Bucket Bonus", 19: "Mega Shot Bonus"}
-MODE = os.environ.get("MODE", "time")  # time (min-time IL) | score (max score) | fun (showcase captions)
+SC = int(os.environ.get("SCALE", "2"))
+MODE = os.environ.get("MODE", "time")  # time (min-time IL) | score (max score) | fun (showcase captions) | oneshot
+# oneshot: gameplay only, the 800x600 game scaled SCALE x (default 2: 1600x1200) by nearest neighbour (a clean
+# integer scale, no bars), no panel; the raw recordings (video/S_L/run.mp4 + sound) are kept, so a rebuild at another
+# SCALE only needs the final.mp4 clips deleted; finished clips (final.mp4 newer than run.mp4) are
+# reused as more levels are added
 GC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "sim/target/release/game_check")
 _memo = {}
 
@@ -73,6 +79,8 @@ def clip(out, lv, rec, idx, total, run_total=0):
     k = sl(lv)
     d = f"{out}/video/{k}"
     mp4, h = f"{d}/run.mp4", open(f"{d}/harness.txt").read()
+    if MODE == "oneshot" and os.path.exists(f"{d}/final.mp4") and os.path.getmtime(f"{d}/final.mp4") > os.path.getmtime(mp4):
+        return f"{d}/final.mp4", 0.0
     ms = lambda pat: int(re.search(r"\[(\d+)\] " + pat, h).group(1))
     m5 = re.search(r"\[(\d+)\] frm (\d+) tick \d+ state 5", h)
     if m5 is None:  # the run did not reach Level Complete: leave it out
@@ -88,6 +96,19 @@ def clip(out, lv, rec, idx, total, run_total=0):
     shots = len(re.findall(r"^\d+: pixel", plan, re.M))
     r = rec.get(lv, {})
     ours = frames5 / 100 + 0.5
+    if MODE == "oneshot":
+        o = f"{d}/final.mp4"
+        if os.path.exists(f"{d}/sound.txt") and not os.path.exists(f"{d}/sound.wav"):
+            import sound_mix
+            sound_mix.mix(d)
+        snd = ["-ss", f"{start:.3f}", "-t", f"{end - start:.3f}", "-i", f"{d}/sound.wav"] if os.path.exists(f"{d}/sound.wav") else \
+              ["-f", "lavfi", "-t", f"{end - start:.3f}", "-i", "anullsrc=r=48000:cl=stereo"]
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{start:.3f}", "-t", f"{end - start:.3f}", "-i", mp4, *snd,
+                        "-filter_complex", f"[0:v]fps=50,scale={800 * SC}:{600 * SC}:flags=neighbor,setsar=1,format=yuv420p[v]", "-map", "[v]", "-map", "1:a",
+                        "-c:v", "libx264", "-preset", "slow", "-crf", "12", "-tune", "animation", "-profile:v", "high",
+                        "-c:a", "aac", "-b:a", "384k", "-ar", "48000", "-ac", "2", "-shortest",
+                        "-r", str(FPS), "-movflags", "+faststart", o], check=True)
+        return o, frames5 / 100
     pd = f"{d}/panel"; shutil.rmtree(pd, ignore_errors=True); os.makedirs(pd, exist_ok=True); _memo.clear()
     fire_ms = [int(x) for x in re.findall(r"\[(\d+)\] fire \d+ ", h)]
     info = shot_info(d) if MODE != "time" else []

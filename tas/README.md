@@ -4,12 +4,12 @@ Glue that ties the solver, real-game playback and video together.
 
 | File | What it does |
 |---|---|
-| `pipeline.py` | The whole flow for one category over many levels: screen, refine (or scout, for max-score), play and check, video |
+| `pipeline.py` | The whole flow for one category over many levels: screen, refine (or scout, for max-score), play and check, video. For one-shot plans (from `solver/target/release/oneshot`) only play and video |
 | `play.sh` | Play one script in the real game and check it with `game_check` |
-| `video.py`, `sound_mix.py`, `cursor_script.py` | Recording helpers: a 1080p video with a side panel (timer or score), soundtrack mixed from the game's sound log, cursor moves for the recording |
+| `video.py`, `sound_mix.py`, `cursor_script.py` | Recording helpers: a 1080p video with a side panel (timer or score), or gameplay only for one-shots; soundtrack mixed from the game's sound log; cursor moves for the recording |
 | `unpak.py` | Extracts the game's `main.pak` (used by `bootstrap.sh`) |
 | `levels.json` | Level names |
-| `runs/` | The four finished runs: plans, results and write-ups |
+| `runs/` | The finished runs: plans, results and write-ups |
 
 ## One level by hand
 
@@ -22,6 +22,12 @@ tas/play.sh plans/1_2.txt $(cat plans/1_2.seed) runs/2-3                        
 `play.sh` ends with `game_check`'s verdict. `N/N shots ok (… real won at shot N)` means the real game did exactly
 what the simulator predicted. The real final score is the `total` on the last `st5` line of `runs/2-3/harness.txt`.
 
+## Without fast forward
+
+Solver plans are timed with fast forward held (clicks on its 8-tick frame grid). Scripts with `flip` lines (the
+one-shot flipper plans) play without fast forward, and so does `tas/play.sh --no-ff`: every tick is then a frame
+start, and `play.sh` moves each click one tick later so the shot fires on the plan's tick.
+
 ## A whole category
 
 ```sh
@@ -32,7 +38,7 @@ tas/pipeline.py min-time out/min-time video           # record each level and st
 tas/pipeline.py max-score out/score all 2-4 6-5       # all phases, just two levels
 ```
 
-Categories: `min-time`, `uef`, `max-score`, `showcase`. Their settings (masters, seeds, beam sizes) are in the
+Categories: `min-time`, `uef`, `max-score`, `showcase`, `oneshot`. Their settings (masters, seeds, beam sizes) are in the
 `CATEGORIES` table at the top of `pipeline.py`. Override with `CHARS=7 SEEDS=1-32 TOP=4 SETS=light`.
 
 Every phase is resumable: it skips levels whose output already exists, so you can stop it and run it again.
@@ -56,6 +62,10 @@ The `video` phase replays each plan at real speed with the cursor shown (`cursor
 window. It mixes the soundtrack from the game's sound log (`sound_mix.py`; the playback DLL records every sound
 the game plays, and the mix is aligned to the frames). It then builds a 1920x1080 video per level with a side
 panel and joins them. Needs `ffmpeg` and Python `pillow` and `numpy`.
+
+For `oneshot` (`MODE=oneshot`) the levels are recorded without fast forward and each clip is the game alone,
+scaled 2x by nearest neighbour to 1600x1200 (`SCALE=N` for another factor), with no panel. Finished clips are
+reused when more levels are added.
 
 ## Replaying a finished run
 

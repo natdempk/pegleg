@@ -3,9 +3,10 @@
 against the simulator, and record a video.
 
 usage: tas/pipeline.py CATEGORY OUT PHASE [levels...]
-  CATEGORY  min-time | uef | max-score | showcase        (the four runs in tas/runs/, see tas/README.md)
+  CATEGORY  min-time | uef | max-score | showcase | oneshot   (the runs in tas/runs/, see tas/README.md)
   OUT       output directory (created; every phase is resumable and skips finished work)
-  PHASE     screen | refine | scout | play | video | all   (scout: max-score only, not part of all)
+  PHASE     screen | refine | scout | play | video | all   (scout: max-score only, not part of all; oneshot: play
+            and video only, its plans come from solver/target/release/oneshot, see solver/ONESHOT.md)
   levels    1-1 .. 11-5 (default: all 55)
 
 phases:
@@ -44,6 +45,8 @@ CATEGORIES = {
                       sets=[("light", "--beam 30 --probe-pool 150 --probe 240 --coarse 480 --delays 0,1,3 --refine-top 4 --refine-rounds 3"),
                             ("wide", "--beam 60 --probe-pool 240 --probe 240 --coarse 480 --delays 0,1,3 --refine-top 4 --refine-rounds 3")]),
     # fewest shots, then highest score
+    # every level won by its first shot (plans from the oneshot search, OUT/best); recorded without fast forward
+    "oneshot": dict(objective="oneshot", rank="total", mode="oneshot", noff=True),
     "showcase": dict(objective="shots", extra="--max-shots 15", chars="0,1,2,3,4,5,6,7,8,9", seeds="1-2", top=3, rank="shots", mode="fun",
                      screen="--beam 16 --coarse 480 --delays 0 --refine-top 4 --refine-rounds 3",
                      sets=[("light", "--beam 32 --coarse 720 --delays 0,2 --refine-top 6 --refine-rounds 4"),
@@ -152,7 +155,7 @@ def reusable(d, script, seed):
     return "state 5" in h and sc == open(script).read() and f"tas: rng seed {seed}\n" in info + "\n"
 
 
-def play(o, lv, video=False):
+def play(o, lv, video=False, noff=False):
     k = sl(lv); script = f"{o}/best/{k}.txt"
     if not os.path.exists(script): return None
     d = f"{o}/{'video' if video else 'play'}/{k}"
@@ -162,7 +165,8 @@ def play(o, lv, video=False):
         script = f"{d}.cursor.txt"
     seed = open(f"{o}/best/{k}.seed").read().strip()
     if not reusable(d, script, seed):
-        subprocess.run(["sh", f"{ROOT}/tas/play.sh", script, seed, d] + (["--video"] if video else []))
+        # (scripts with flip lines always play without fast forward, see tas/play.sh)
+        subprocess.run(["sh", f"{ROOT}/tas/play.sh", script, seed, d] + (["--video"] if video else []) + (["--no-ff"] if noff and video else []))
     h = open(f"{d}/harness.txt").read() if os.path.exists(f"{d}/harness.txt") else ""
     tot = re.findall(r"st5 frm \d+ .* total (\d+)", h)
     frm = re.findall(r"frm (\d+) tick \d+ state 5", h)
@@ -180,6 +184,8 @@ def main():
     if len(sys.argv) < 4 or sys.argv[1] not in CATEGORIES: sys.exit(__doc__)
     c, o, phase = CATEGORIES[sys.argv[1]], sys.argv[2], sys.argv[3]
     levels = sys.argv[4:] or ALL
+    if c["objective"] == "oneshot" and phase not in ("play", "video"):
+        sys.exit("oneshot: play and video only (search with solver/target/release/oneshot, see solver/ONESHOT.md)")
     for sub in ("logs", "screen", "refine", "best"): os.makedirs(f"{o}/{sub}", exist_ok=True)
     if phase in ("screen", "all"):
         for lv in levels: screen(c, o, lv)
@@ -189,7 +195,7 @@ def main():
         if c["objective"] != "score": sys.exit("scout: max-score only")
         for lv in levels: scout(c, o, lv)
     for vid in ([False] if phase == "play" else [True] if phase == "video" else [False, True] if phase == "all" else []):
-        rs = [r for r in (play(o, lv, vid) for lv in levels) if r]
+        rs = [r for r in (play(o, lv, vid, c.get("noff", False)) for lv in levels) if r]
         cols = ["level", "master", "seed", "shots", "predicted", "real", "frames", "won", "exact"]
         path = f"{o}/results{'_video' if vid else ''}.tsv"
         rows = {}  # keep other levels' rows when only some levels were played
