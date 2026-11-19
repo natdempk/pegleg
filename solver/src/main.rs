@@ -6,6 +6,10 @@
 //!   --seeds A-B | N,M     hook RNG seeds to try (default 5); the best plan over all seeds wins
 //!   --beam N --coarse N --delays 0,10,25 --refine-top N --refine-rounds N --max-shots N
 //!   --keep-ball           every shot must return the ball (bucket catch or free ball)
+//!   --allow-empty         score: allow shots that hit no peg (old behaviour; also env SCORE_ALLOW_EMPTY=1). By
+//!                         default they are rejected and the next shot may wait instead (--wait-delays)
+//!   --wait-delays 8,16,.. score: extra click delays (frames) on a sparser grid (--wait-coarse N, default coarse/3);
+//!                         default 8,16,32,64,96,128 (SCORE_WAIT_DELAYS) without --allow-empty, "none" = off
 //!   --orange-cost T       speed heuristic weight (ticks per orange left)
 //!   --power P             override the character power (needed for stage 11 with seeds other than 5)
 //!   --chars all | 0,3,6   individual-level runs may pick the master: search these characters
@@ -45,6 +49,8 @@ fn main() {
     let mut prefix: Option<String> = None;
     let mut prefix_shots = 0usize;
     let mut compact_plan = false;
+    let mut wait_set = false;
+    if std::env::var_os("SCORE_ALLOW_EMPTY").is_some_and(|v| v != "0") { p.no_empty = false; }
     let mut i = 2;
     while i < args.len() {
         let v = args.get(i + 1).cloned().unwrap_or_default();
@@ -81,6 +87,9 @@ fn main() {
             "--fever-frac" => { p.fever_frac = v.parse().unwrap(); i += 1; }
             "--peg-cost" => { p.peg_cost = v.parse().unwrap(); i += 1; }
             "--keep-ball" => p.keep_ball = true,
+            "--allow-empty" => p.no_empty = false,
+            "--wait-delays" => { p.wait_delays = if v == "none" { vec![] } else { v.split(',').map(|x| x.parse().unwrap()).collect() }; wait_set = true; i += 1; }
+            "--wait-coarse" => { p.wait_coarse = v.parse().unwrap(); i += 1; }
             "--power" => { power = Some(v.parse().unwrap()); i += 1; }
             "--chars" => { chars = if v == "all" { (0..10).map(Some).collect() } else { v.split(',').map(|x| Some(x.parse().unwrap())).collect() }; i += 1; }
             "--no-ff" => p.ff = false,
@@ -94,6 +103,8 @@ fn main() {
         }
         i += 1;
     }
+    // score without empty shots: the next shot waits instead (unless --allow-empty: the old search, plans unchanged)
+    if p.objective == Objective::Score && p.no_empty && !wait_set { p.wait_delays = SCORE_WAIT_DELAYS.to_vec(); }
     let name = levels::LEVELS[st][ix];
     let t_ang = Instant::now();
     let angles = Angles::new();

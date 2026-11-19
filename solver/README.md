@@ -40,6 +40,8 @@ what `../tas/pipeline.py` automates.
 | `--refine-top N`, `--refine-rounds N` | 6, 4 | Fine refinement around the best coarse angles |
 | `--max-shots N` | 10 | Depth limit |
 | `--keep-ball` | off | Every shot must catch the ball or earn a free ball |
+| `--allow-empty` | off | `score`: allow shots that hit no peg (also `SCORE_ALLOW_EMPTY=1`). By default they are rejected: a shot that hits nothing keeps the ball through a won coin flip or a 0-peg bucket catch, so it cost nothing in the ranking, and the search filled plans with such shots just to let the bucket and moving pegs move on. The next shot waits instead (`--wait-delays`). The `tas/runs/max-score` plans were searched before this change; `--allow-empty` gives the old search |
+| `--wait-delays a,b,…`, `--wait-coarse N` | 8,16,32,64,96,128; coarse/3 | `score` without `--allow-empty`: extra click delays (frames) tried on a sparser angle grid, so a shot can wait for the bucket or moving pegs. `none` turns them off |
 | `--orange-cost F`, `--peg-cost F` | | Heuristic weights for `speed` and `uef` |
 | `--fever-frac F`, `--probe N`, `--probe-pool N`, `--probe-untrip F`, `--strata` | off | `score` objective: value nodes by probing the Extreme Fever finish (shots fired with one orange left), optionally assuming a Score Tripler. Keep the beam spread over oranges-left counts. See `tas/pipeline.py` max-score for working values |
 | `--streak-value F` | 0 | `score`: value the bucket-catch streak's style bonuses in the node key |

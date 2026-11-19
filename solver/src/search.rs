@@ -42,6 +42,10 @@ fn fever_est(p: &Params, g: &Game) -> f64 {
     1000.0 * k * k * if g.trip_pend > 0 { p.trip_bonus } else { 1.0 }
 }
 
+/// score objective without empty shots: default `Params::wait_delays` (frames after the earliest click; an
+/// empty shot advanced the board ~300-480 ticks, and plans chained up to 3 of them: up to 128 frames = 1024 ticks)
+pub const SCORE_WAIT_DELAYS: [i32; 6] = [8, 16, 32, 64, 96, 128];
+
 #[derive(Clone, Debug)]
 pub struct Params {
     pub objective: Objective,
@@ -113,13 +117,25 @@ pub struct Params {
     /// real-time model with the right button held (fast forward, see `rt`): clicks only at frame starts,
     /// cost = app frames. Off: cost = harness ticks, any click tick.
     pub ff: bool,
+    /// score objective: reject unwon children whose shot hit no peg (an "empty" shot: the ball goes into the void
+    /// and comes back by a won coin flip or a 0-peg bucket catch). The sim's coin flip is deterministic, so such a
+    /// shot was free in the key (ball kept, total unchanged) while a real shot that loses a ball costs 10k, and
+    /// the board (bucket, movers, RNG) advanced ~440 ticks: the beam used them to stall and to wait for a better
+    /// phase. Waiting is done by `wait_delays` instead. `--allow-empty` turns this (and the wait delays) off
+    pub no_empty: bool,
+    /// extra click delays (frames after the earliest click) tried on a sparser angle grid (`wait_coarse`) besides
+    /// `delays`: the next real shot can wait for the bucket / moving pegs (what empty shots were used for)
+    pub wait_delays: Vec<i32>,
+    /// coarse angle samples per wait delay (0 = `coarse` / 3)
+    pub wait_coarse: usize,
 }
 
 impl Default for Params {
     fn default() -> Self {
         Params { objective: Objective::Speed, beam: 24, coarse: 720, delays: vec![0, 10, 25, 50], refine_top: 6,
                  refine_rounds: 4, refine_div: 8, refine_width: 8, max_shots: 10, keep_ball: false, orange_cost: 260.0, peg_cost: 60.0, score_orange_cost: 2000.0, fever_frac: 0.0, trip_bonus: 1.0, probe_n: 0, probe_pool: 0, probe_weight: 1.0, probe_untrip: 1.0, strata: false, streak_value: 0.0,
-                 bucket_top: 0, bucket_max: 64, probe_exact: false, probe_delays: vec![0], sig_full: false, cells: false, tabu: vec![], tabu_cost: 0.0, final_scan: 0, ff: true }
+                 bucket_top: 0, bucket_max: 64, probe_exact: false, probe_delays: vec![0], sig_full: false, cells: false, tabu: vec![], tabu_cost: 0.0, final_scan: 0, ff: true,
+                 no_empty: true, wait_delays: vec![], wait_coarse: 0 }
     }
 }
 
@@ -341,6 +357,8 @@ fn try_shot(base: &Game, click: i32, ai: usize, angles: &Angles, st: &Stats) -> 
 fn ok_child(p: &Params, g: &Game, s: &Step) -> bool {
     if g.lost { return false; }
     if p.keep_ball && !g.won && s.res.catches + s.res.free_balls == 0 { return false; }
+    // score: no empty shots (see `Params::no_empty`)
+    if p.objective == Objective::Score && p.no_empty && !g.won && s.res.pegs == 0 { return false; }
     // UEF: ending the level with pegs left is a dead end
     if p.objective == Objective::Uef && g.won && (pegs_left(g) > 0 || s.res.fever_hole != 100000) { return false; }
     true
@@ -509,7 +527,9 @@ fn expand_all(beam: &[Node], p: &Params, angles: &Angles, st: &Stats) -> Vec<Nod
         }).collect();
         bases.extend(built);
     };
-    let init: Vec<(usize, i32)> = (0..beam.len()).flat_map(|ni| p.delays.iter().map(move |&d| (ni, d))).collect();
+    // wait delays (`Params::wait_delays`) not already among `delays`
+    let waits: Vec<i32> = p.wait_delays.iter().copied().filter(|d| !p.delays.contains(d)).collect();
+    let init: Vec<(usize, i32)> = (0..beam.len()).flat_map(|ni| p.delays.iter().chain(&waits).map(move |&d| (ni, d))).collect();
     add_bases(&mut bases, &init);
     let zen: Vec<i32> = beam.iter().map(|n| n.game.zen_search_ticks()).collect();
     let mk = |bases: &HashMap<(usize, i32), (i32, Game)>, ni: usize, d: i32, ai: usize| -> Option<Node> {
@@ -527,7 +547,11 @@ fn expand_all(beam: &[Node], p: &Params, angles: &Angles, st: &Stats) -> Vec<Nod
     let coarse = angles.coarse(p.coarse);
     let mut kids: Vec<Vec<Node>> = vec![vec![]; beam.len()];
     let mut jobs: Vec<(usize, i32, usize)> = Vec::with_capacity(beam.len() * p.delays.len() * coarse.len());
-    for ni in 0..beam.len() { for &d in &p.delays { for &ai in &coarse { jobs.push((ni, d, ai)); } } }
+    let coarse_w = if waits.is_empty() { vec![] } else { angles.coarse(if p.wait_coarse > 0 { p.wait_coarse } else { (p.coarse / 3).max(1) }) };
+    for ni in 0..beam.len() {
+        for &d in &p.delays { for &ai in &coarse { jobs.push((ni, d, ai)); } }
+        for &d in &waits { for &ai in &coarse_w { jobs.push((ni, d, ai)); } }
+    }
     run(&bases, &jobs, &mut kids);
     let mut seen: Vec<std::collections::HashSet<(i32, usize)>> = vec![Default::default(); beam.len()];
     for &(ni, d, ai) in &jobs { seen[ni].insert((d, ai)); }
