@@ -782,7 +782,7 @@ fn gpu_range(bin: &str, spec: &str, near: u32, ranges: &[(u64, u64)]) -> Option<
     let txt = String::from_utf8_lossy(&out.stdout);
     let mut res = vec![];
     let mut cur: Option<(ChunkRes, Vec<(u32, u32, u32)>, bool)> = None;
-    let mut flush = |cur: &mut Option<(ChunkRes, Vec<(u32, u32, u32)>, bool)>, res: &mut Vec<ChunkRes>| {
+    let flush = |cur: &mut Option<(ChunkRes, Vec<(u32, u32, u32)>, bool)>, res: &mut Vec<ChunkRes>| {
         if let Some((mut r, mut e, ok)) = cur.take() {
             if !ok { return false; }
             let (from, to) = ranges[res.len()];
