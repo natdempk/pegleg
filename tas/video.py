@@ -34,7 +34,8 @@ SC = int(os.environ.get("SCALE", "2"))
 MODE = os.environ.get("MODE", "time")  # time (min-time IL) | score (max score) | fun (showcase captions) | oneshot
 # oneshot: gameplay only, the 800x600 game scaled SCALE x (default 2: 1600x1200) by nearest neighbour (a clean
 # integer scale, no bars), no panel; the raw recordings (video/S_L/run.mp4 + sound) are kept, so a rebuild at another
-# SCALE only needs the final.mp4 clips deleted; finished clips (final.mp4 newer than run.mp4) are
+# SCALE only needs the final.mp4 clips deleted; finished clips (final.mp4 newer than run.mp4 and its
+# soundtrack, sound.wav remixed whenever the run was recorded again) are
 # reused as more levels are added
 GC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "sim/target/release/game_check")
 _memo = {}
@@ -75,11 +76,25 @@ def panel(path, lines, timer, timer_col):
     im.save(path)
 
 
+def fresh(path, *deps):
+    """path exists and is at least as new as each existing dep (a re-recorded run invalidates what was built from it)"""
+    return os.path.exists(path) and all(os.path.getmtime(path) >= os.path.getmtime(x) for x in deps if os.path.exists(x))
+
+
+def soundtrack(d):
+    """RUN/sound.wav mixed from this recording's sound log; remixed when the run was recorded again (a soundtrack
+    left from an earlier take would be out of sync with the new video)"""
+    if os.path.exists(f"{d}/sound.txt") and not fresh(f"{d}/sound.wav", f"{d}/run.mp4", f"{d}/sound.txt"):
+        import sound_mix
+        sound_mix.mix(d)
+
+
 def clip(out, lv, rec, idx, total, run_total=0):
     k = sl(lv)
     d = f"{out}/video/{k}"
     mp4, h = f"{d}/run.mp4", open(f"{d}/harness.txt").read()
-    if MODE == "oneshot" and os.path.exists(f"{d}/final.mp4") and os.path.getmtime(f"{d}/final.mp4") > os.path.getmtime(mp4):
+    if MODE == "oneshot" and fresh(f"{d}/final.mp4", mp4, f"{d}/sound.txt", f"{d}/sound.wav") and \
+            (not os.path.exists(f"{d}/sound.txt") or fresh(f"{d}/sound.wav", mp4, f"{d}/sound.txt")):
         return f"{d}/final.mp4", 0.0
     ms = lambda pat: int(re.search(r"\[(\d+)\] " + pat, h).group(1))
     m5 = re.search(r"\[(\d+)\] frm (\d+) tick \d+ state 5", h)
@@ -98,9 +113,7 @@ def clip(out, lv, rec, idx, total, run_total=0):
     ours = frames5 / 100 + 0.5
     if MODE == "oneshot":
         o = f"{d}/final.mp4"
-        if os.path.exists(f"{d}/sound.txt") and not os.path.exists(f"{d}/sound.wav"):
-            import sound_mix
-            sound_mix.mix(d)
+        soundtrack(d)
         snd = ["-ss", f"{start:.3f}", "-t", f"{end - start:.3f}", "-i", f"{d}/sound.wav"] if os.path.exists(f"{d}/sound.wav") else \
               ["-f", "lavfi", "-t", f"{end - start:.3f}", "-i", "anullsrc=r=48000:cl=stereo"]
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{start:.3f}", "-t", f"{end - start:.3f}", "-i", mp4, *snd,
@@ -156,9 +169,7 @@ def clip(out, lv, rec, idx, total, run_total=0):
         panel(f"{pd}/{i:05d}.png", lines, "", (0, 0, 0))
     o = f"{d}/final.mp4"
     # soundtrack: mixed offline from the recording's sound log (sound_mix.py); silence if there is none
-    if os.path.exists(f"{d}/sound.txt") and not os.path.exists(f"{d}/sound.wav"):
-        import sound_mix
-        sound_mix.mix(d)
+    soundtrack(d)
     snd = ["-ss", f"{start:.3f}", "-t", f"{end - start:.3f}", "-i", f"{d}/sound.wav"] if os.path.exists(f"{d}/sound.wav") else \
           ["-f", "lavfi", "-t", f"{end - start:.3f}", "-i", "anullsrc=r=48000:cl=stereo"]
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{start:.3f}", "-t", f"{end - start:.3f}", "-i", mp4,
