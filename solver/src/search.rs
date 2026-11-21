@@ -204,9 +204,13 @@ pub mod rt {
     pub const FF: i32 = 8;
     pub const SHOT_FRAMES_OFF: i64 = 5;
     pub const SLOWMO_FRAMES: i64 = 22;
-    /// mean over the 288 fast-forward verify runs (state 3/6 -> 5 at 8 ticks per frame, sd 13): its length
-    /// follows the final shot's pops and score tally (LogicMgr state 3, FUN_00471030), not modelled yet
+    /// mean over the 288 fast-forward verify runs (state 3/6 -> 5 at 8 ticks per frame, sd 13);
+    /// see `fever_frames` for the per-shot model from FUN_00470a50 / FUN_0046ca60 / FUN_0044fe00 / FUN_0046c400.
     pub const FEVER_FRAMES: i64 = 80;
+    /// Per-shot Extreme Fever ending frames (FF = 8) from `Game::fever_end_ticks`.
+    pub fn fever_frames(res: &super::ShotResult, balls_left: i32, hit_list_rem: i32, pegs_left: i32) -> i64 {
+        (super::Game::fever_end_ticks(res.shot_score, res.fever_hole, balls_left, hit_list_rem, pegs_left, res.tripled) + FF - 1) as i64 / FF as i64
+    }
     /// earliest first click (harness tick, level-relative) with the character dialog closed at once
     pub const FIRST_CLICK: i32 = 103;
     pub fn secs(frames: i64) -> f64 { frames as f64 / 100.0 }

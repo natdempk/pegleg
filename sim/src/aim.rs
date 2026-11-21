@@ -8,18 +8,21 @@
 //! 7°..173°) into LogicMgr+0xe0, which the gun slews to and fires.
 //!
 //! The cursor position is in board coordinates: window pixel − board widget offset (Board+0x1a8/+0x1ac,
-//! FUN_00407840/60). The window is 800×600; the board is 650 wide and centred, so the offset is
-//! (75, 0) (pivot 325 = window x 400).
+//! FUN_00407840/60). The window is 800×600; the board sits at `(75, 40)` (650 wide, below the 40 px top
+//! HUD bar, verified live from `Board+0x1a8/+0x1ac` via `WidgetManager::MouseMove`, pivot 325 = window x 400,
+//! pivot y 30 = window y 70).
 //!
-//! Not modelled yet: mouse-wheel fine aim (FUN_0043d6a0: ±0.1° per notch, accelerated).
+//! Mouse-wheel fine aim (`wheel_aim`, FUN_0043d6a0) and arrow-key aiming (`arrow_key_aim`,
+//! FUN_00402930 / FUN_00410e10) are modelled alongside `mouse_aim`.
 use crate::phys::{cos_r, sin_r, Gun};
 use crate::x87::{x, X};
 
-pub const BOARD_OFFSET: [i32; 2] = [75, 0];
+pub const BOARD_OFFSET: [i32; 2] = [75, 40];
 pub const WINDOW: [i32; 2] = [800, 600];
 
 const TWO_PI_D: f64 = 6.2831854820251465; // 5d8fe0 (f64 of f32 2π)
 const PI_D: f64 = 3.1415927410125732; // 5d26d8
+const DEG_TO_RAD_D: f64 = 0.01745329238474369; // 5dfa60 (f32 pi/180)
 
 fn atan2_r(y: f32, xv: f32) -> f32 { (y as f64).atan2(xv as f64) as f32 }
 
@@ -102,6 +105,28 @@ pub fn mouse_aim(gun: &Gun, mx: i32, my: i32) -> f32 {
     clamp_aim(best_a)
 }
 
+/// FUN_0043d6a0: mouse-wheel fine aim. `delta` is the notch count (±1 per wheel detent, or ±5 per
+/// held arrow-key tick in FUN_00410e10). `prev_step` is LogicMgr+0x70 (degrees, starts at 0.1).
+/// When the aim guide is active (`guide_on`), `guide_dist` (Gun+0x17c) <= 1.0 and `|delta| < 2`,
+/// the step scales by `0.02 / guide_dist` clamped to `[0.01, 0.1]`. Returns the new clamped aim.
+pub fn wheel_aim(angle: f32, delta: i32, prev_step: &mut f32, guide_on: bool, guide_dist: f32) -> f32 {
+    let mut step = 0.10000000149011612f32; // FUN_00436f10 ModVal LogicMgr.cpp1053 (_DAT_005d26bc)
+    if guide_on && guide_dist <= 1.0 && delta.abs() < 2 {
+        let ratio = (x(0.019999999552965164f32) / guide_dist).r(); // _DAT_005d5764
+        step = (x(*prev_step) * ratio).r().clamp(0.009999999776482582f32, 0.10000000149011612f32);
+    }
+    *prev_step = step;
+    let rad = ((x(step) * X::d(DEG_TO_RAD_D)) * (delta as f32)).r();
+    clamp_aim((x(rad) + angle).r())
+}
+
+/// Arrow-key aiming: `dir` = -1 (VK_LEFT 0x25) or +1 (VK_RIGHT 0x27).
+/// Single press (FUN_00402930) passes ±1; held tick (FUN_00410e10, Board.cpp107/108) passes ±5.
+pub fn arrow_key_aim(angle: f32, dir: i32, held: bool, prev_step: &mut f32, guide_on: bool, guide_dist: f32) -> f32 {
+    let delta = dir.signum() * if held { 5 } else { 1 };
+    wheel_aim(angle, delta, prev_step, guide_on, guide_dist)
+}
+
 /// Every distinct angle a cursor inside the 800×600 window can produce, sorted ascending, with one
 /// window pixel that produces it.
 pub fn mouse_angles(gun: &Gun) -> Vec<(f32, [i32; 2])> {
@@ -115,4 +140,99 @@ pub fn mouse_angles(gun: &Gun) -> Vec<(f32, [i32; 2])> {
     let mut v: Vec<(f32, [i32; 2])> = m.into_iter().map(|(b, p)| (f32::from_bits(b), p)).collect();
     v.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
     v
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Both host libm and MSVC SSE2 `__cos_pentium4`/`__sin_pentium4` (0x5a99e0) are accurate to
+    /// < 0.6 f64-ULP. If no reachable mouse angle lands within 2 f64-ULP of an f32 rounding midpoint
+    /// (low 29 bits == 0x10000000), `cos_r`/`sin_r` are guaranteed bit-identical to the CRT across
+    /// all ~430k human-reachable angles.
+    #[test]
+    fn crt_trig_safe_across_all_mouse_angles() {
+        let angles = mouse_angles(&Gun::default());
+        assert!(angles.len() > 400_000);
+        let mut min_dist = u64::MAX;
+        for &(a, _) in &angles {
+            for v in [(a as f64).cos(), (a as f64).sin()] {
+                let low = v.to_bits() & 0x1fff_ffff;
+                let dist = low.abs_diff(0x1000_0000);
+                if dist < min_dist { min_dist = dist; }
+            }
+        }
+        assert!(min_dist > 2, "found reachable angle within {min_dist} f64-ULP of f32 midpoint");
+    }
+
+    #[test]
+    fn wheel_arrow_and_gun_slew_work() {
+        // Live wheelshot/keyshot angles verified in peggle-wine (audit_input_wheel_key):
+        let g = Gun::default();
+        let mut a = mouse_aim(&g, 250 - BOARD_OFFSET[0], 400 - BOARD_OFFSET[1]);
+        let mut step = 0.1f32;
+        for _ in 0..5 { a = wheel_aim(a, 1, &mut step, false, 1.0); }
+        assert_eq!(a.to_bits(), 0x4086739a);
+        let mut a = mouse_aim(&g, 620 - BOARD_OFFSET[0], 320 - BOARD_OFFSET[1]);
+        step = 0.1;
+        for _ in 0..8 { a = arrow_key_aim(a, -1, false, &mut step, false, 1.0); }
+        assert_eq!(a.to_bits(), 0x40b20d4c);
+        let mut a = mouse_aim(&g, 401 - BOARD_OFFSET[0], 250 - BOARD_OFFSET[1]);
+        step = 0.1;
+        for _ in 0..12 { a = arrow_key_aim(a, 1, false, &mut step, false, 1.0); }
+        assert_eq!(a.to_bits(), 0x4097f8cd);
+        // Live Gun::Update (FUN_00484120) slew bits from 3.5 (0x40600000) to 4.0 (0x40800000):
+        let mut cur = f32::from_bits(0x40600000);
+        let mut target = f32::from_bits(0x40800000);
+        for &expect in &[0x406ccccdu32, 0x4079999a, 0x40800000] {
+            Gun::update_slew(&mut cur, &mut target);
+            assert_eq!(cur.to_bits(), expect);
+        }
+        assert_eq!(Gun::fire_angle(4.0, 3.8, 5, true), 3.8);
+        assert_eq!(Gun::fire_angle(4.0, 3.8, 10, true), 4.0);
+    }
+
+    /// 25 window pixels fed live into the real game's `WidgetManager::MouseMove` (FUN_00543270) →
+    /// `Board::MouseMove` → `FUN_0043ece0(0)` → `LogicMgr+0xe0` (`peggle-wine`, Level 1-1).
+    /// Covers near-barrel (< thr), vertical (|cos| < 0.001), upward-cone clamp (7°..173°), corners,
+    /// board edges, and mid-board parabola fits across all quadrants.
+    #[test]
+    fn mouse_aim_matches_real_game_live_pixels() {
+        const LIVE: &[(i32, i32, u32)] = &[
+            (400, 35, 0x40413e2c),
+            (405, 40, 0x3dfa35dd),
+            (395, 40, 0x40413e2c),
+            (400, 300, 0x40971dd0),
+            (400, 599, 0x40971dd0),
+            (0, 0, 0x40413e2c),
+            (799, 0, 0x3dfa35dd),
+            (0, 599, 0x40704e41),
+            (799, 599, 0x40b55ba8),
+            (75, 30, 0x40413e2c),
+            (725, 30, 0x3dfa35dd),
+            (120, 200, 0x4058ac2b),
+            (250, 400, 0x40862c1e),
+            (310, 150, 0x4077d423),
+            (490, 150, 0x40b2518e),
+            (550, 400, 0x40a76bab),
+            (680, 200, 0x40c141b3),
+            (180, 520, 0x40837fd4),
+            (620, 520, 0x40aa69e0),
+            (401, 250, 0x40974d3d),
+            (399, 250, 0x40969c77),
+            (80, 590, 0x407b18a9),
+            (720, 590, 0x40b00b74),
+            (350, 90, 0x4061208e),
+            (450, 90, 0x40bd0782),
+        ];
+        let g = Gun::default();
+        for &(wx, wy, expected) in LIVE {
+            let got = mouse_aim(&g, wx - BOARD_OFFSET[0], wy - BOARD_OFFSET[1]);
+            assert_eq!(
+                got.to_bits(), expected,
+                "pixel ({wx}, {wy}): got {:.9} (0x{:08x}) != real {:.9} (0x{expected:08x})",
+                got, got.to_bits(), f32::from_bits(expected)
+            );
+        }
+    }
 }

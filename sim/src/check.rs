@@ -7,9 +7,11 @@
 //! collidable), balls, total, oranges, power counters, Lucky Spin flags, catch streak and the bucket phase;
 //! the model's earliest next click must not be before the real one (ready + 3, plus the fast-forward frame
 //! pad); and when the level was won the sim's total must equal the real final total.
+use crate::aim;
 use crate::game::{Game, ShotResult, FIRE_LAG};
 use crate::level::{self, Level};
 use crate::oracle::{self, Ready};
+use crate::phys::Gun;
 
 /// The files of one run, as text / bytes.
 #[derive(Default, Clone)]
@@ -80,6 +82,20 @@ pub fn real_flips(harness: &str) -> Vec<(i32, bool)> {
     }).collect()
 }
 
+/// Real Extreme Fever ending frames (last `frm F3 ... state 3` → `frm F5 ... state 5`), if logged.
+pub fn real_fever_frames(harness: &str) -> Option<i32> {
+    let mut s3 = None;
+    let mut s5 = None;
+    for l in harness.lines() {
+        if l.contains(" state 3") {
+            s3 = l.split_whitespace().skip_while(|&w| w != "frm").nth(1)?.parse::<i32>().ok();
+        } else if l.contains(" state 5") {
+            s5 = l.split_whitespace().skip_while(|&w| w != "frm").nth(1)?.parse::<i32>().ok();
+        }
+    }
+    match (s3, s5) { (Some(a), Some(b)) if b > a => Some(b - a), _ => None }
+}
+
 /// The final total the Level Complete state showed (last 'st5 ... total N' line), if logged.
 pub fn real_final_total(harness: &str) -> Option<i64> {
     harness.lines().rev().find(|l| l.contains(" st5 ")).and_then(|l| l.trim_end().rsplit(' ').next()?.parse().ok())
@@ -98,6 +114,29 @@ pub fn check(f: &RunFiles, base: &Level, level_file: &dyn Fn(&str) -> Option<Vec
         let w: Vec<&str> = l.split_whitespace().collect();
         if let ["shotx", a, t] = w.as_slice() {
             shots.push((f32::from_bits(u32::from_str_radix(a, 16).ok()?), t.parse::<i32>().ok()?));
+            shot_flips.push(std::mem::take(&mut pend));
+        }
+        if let ["mouseshot", x, y, t] = w.as_slice() {
+            let (wx, wy): (i32, i32) = (x.parse().ok()?, y.parse().ok()?);
+            let ang = aim::mouse_aim(&Gun::default(), wx - aim::BOARD_OFFSET[0], wy - aim::BOARD_OFFSET[1]);
+            shots.push((ang, t.parse::<i32>().ok()?));
+            shot_flips.push(std::mem::take(&mut pend));
+        }
+        if let ["wheelshot", x, y, d, n, t] = w.as_slice() {
+            let (wx, wy, delta, cnt): (i32, i32, i32, i32) = (x.parse().ok()?, y.parse().ok()?, d.parse().ok()?, n.parse().ok()?);
+            let mut ang = aim::mouse_aim(&Gun::default(), wx - aim::BOARD_OFFSET[0], wy - aim::BOARD_OFFSET[1]);
+            let mut step = 0.1f32;
+            for _ in 0..cnt { ang = aim::wheel_aim(ang, delta, &mut step, false, 1.0); }
+            shots.push((ang, t.parse::<i32>().ok()?));
+            shot_flips.push(std::mem::take(&mut pend));
+        }
+        if let ["keyshot", x, y, vk, n, t] = w.as_slice() {
+            let (wx, wy, key, cnt): (i32, i32, i32, i32) = (x.parse().ok()?, y.parse().ok()?, vk.parse().ok()?, n.parse().ok()?);
+            let mut ang = aim::mouse_aim(&Gun::default(), wx - aim::BOARD_OFFSET[0], wy - aim::BOARD_OFFSET[1]);
+            let mut step = 0.1f32;
+            let dir = if key == 0x25 { -1 } else { 1 };
+            for _ in 0..cnt { ang = aim::arrow_key_aim(ang, dir, false, &mut step, false, 1.0); }
+            shots.push((ang, t.parse::<i32>().ok()?));
             shot_flips.push(std::mem::take(&mut pend));
         }
         if let ["flip", t, d] = w.as_slice() { pend.push((t.parse().ok()?, *d == "1")); }
@@ -186,6 +225,16 @@ pub fn check(f: &RunFiles, base: &Level, level_file: &dyn Fn(&str) -> Option<Vec
     rep.real_total = real_final_total(&f.harness);
     if let (true, Some(rt)) = (g.won, rep.real_total) {
         if rt != g.total { rep.errors.push(format!("final total sim {} real {rt}", g.total)); }
+    }
+    if g.won && ff {
+        if let (Some(rf), Some(last)) = (real_fever_frames(&f.harness), rep.results.last()) {
+            let pegs_left = g.board.objs.iter().filter(|o| o.has_peginfo && o.peg_type != 0 && o.visible && o.collidable).count() as i32;
+            let hit_rem = g.board.hit_list.len() as i32;
+            let pred = (Game::fever_end_ticks(last.shot_score, last.fever_hole, g.balls, hit_rem, pegs_left, last.tripled) + 7) / 8;
+            if (pred - rf).abs() > 16 {
+                rep.errors.push(format!("fever frames sim {pred} real {rf} (diff {})", pred - rf));
+            }
+        }
     }
     Some(rep)
 }

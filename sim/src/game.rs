@@ -37,25 +37,25 @@ pub const FIRST_FIRE: i32 = 310;
 /// (`Game::tube_turn`, tube.rs; exact on every non-FF shot of the golden captures without a margin below).
 pub const POP_BASE: i32 = 47;
 pub const POP_PER_PEG: i32 = 5;
-/// extra margins for phases not modelled step by step, set from the real ready points of every consistent
-/// capture (2026-11-05: need = margin − (model earliest − real ready − 3)): a tripled shot's tally needs
-/// 121..186 (404 shots; with 0..2 tally free balls, not a clean function of score or balls), and 204 on
-/// score3 11-5 shot 21 (2026-11-14: 7 pegs, 3 oranges, 1 tally free ball); a Zen shot 0..1 (13 exact + 14 FF);
-/// a Lucky Spin 0 (8 exact + 222 FF spins).
-pub const TRIPLE_MARGIN: i32 = 204;
+/// Exact LogicMgr state 3 Score Tripler tally duration (FUN_00471030: +0x158 runs 1..125).
+/// At tick 75 (+0x4b), FUN_0046e740 adds 2x shot_score and drops any `tally_balls` into the ball tube;
+/// state 6 then waits for the tube to settle naturally (no separate TRIPLE_MARGIN / TALLY_BALL_MARGIN).
+pub const TRIPLE_TALLY_TICKS: i32 = 125;
+pub const TRIPLE_TALLY_DROP_TICK: i32 = 75;
+/// Kept for compatibility; see `TRIPLE_TALLY_TICKS`.
+pub const TRIPLE_MARGIN: i32 = TRIPLE_TALLY_TICKS;
 pub const ZEN_MARGIN: i32 = 1;
-/// Extra turn-start wait per free ball the Score Tripler tally earns (`ShotResult::tally_balls`): the margin
-/// over all captured tripled shots was 73..83 with no tally ball but down to -16 with one or two (score4 5-1
-/// shot 57, 6-2 shot 41, 7-2 shot 11, 2026-11-15); 10 per ball makes every one safe, 12 leaves slack.
-pub const TALLY_BALL_MARGIN: i32 = 12;
+pub const TALLY_BALL_MARGIN: i32 = 0;
 // The Zen AI search runs `zen::search_steps` (500) live object updates that advance the harness tick, then
 // restores the board (counters included): a Zen shot costs that many harness ticks with no board time
 // (stage 9 captures: GUN counter = click + 501, next shot's counter 500 behind the script). `Game::zen_search_ticks`.
 pub const LUCKY_MARGIN: i32 = 0;
-/// A shot with no peg hit and no score ends in a coin flip (FUN_00471030 → FUN_00471500): the next shot
-/// is ready later; one capture with 14 flips, won and lost): ready − ball gone 179..317 vs ~111 without.
-/// Margin need up to 231 (score3 1-5 shot 30, 2026-11-14; was 215).
-pub const COIN_MARGIN: i32 = 231;
+/// Coin flip (FUN_0044dfc0 + FUN_00435a90 + FUN_00471500): duration 250, spins 9°/tick from an unseeded
+/// initial angle `Rand() % 360`, stopping on the first 0° (win) or 180° (loss) crossing once age >= 101
+/// (101..141 ticks; +1 for state 4→6 check = 142 max). On a win, FUN_0045d880(1) drops the refunded ball
+/// into the tube at spin end and enters state 6; on a loss, state 6 is skipped.
+pub const COIN_SPIN_MAX: i32 = 142;
+pub const COIN_MARGIN: i32 = COIN_SPIN_MAX;
 /// With fast forward held (8 ticks per frame outside ball flight) the real ready tick lands on the
 /// frame grid, up to 7 past the exact one. `ff_pad` is added on top in FF plans.
 pub const FF_PAD: i32 = 7;
@@ -225,13 +225,43 @@ impl Game {
 
     fn zen_ctx(&self) -> crate::zen::ZenCtx {
         crate::zen::ZenCtx { fever_off: false, l124: false, l18: false, power: self.board.power, guide: self.ctr[1] > 0,
-                             fireball: self.ctr[12] > 0, ctr11: self.ctr[11] > 0, oranges_left: self.board.orange_total, l244: false }
+                             fireball: self.ctr[12] > 0, ctr11: self.ctr[11] > 0, oranges_left: self.board.orange_total, l244: false,
+                             power_active: self.ctr[2] > 0 || self.ctr[4] > 0 }
     }
 
     /// Harness ticks the next shot's Zen search (or beginner aim assist, `assist_balls`) costs (board frozen):
     /// `zen::search_steps`, 0 if neither runs.
     pub fn zen_search_ticks(&self) -> i32 {
         if self.zen_armed() || self.balls <= self.assist_balls { crate::zen::search_steps(&self.board, &self.zen_ctx()) } else { 0 }
+    }
+
+    /// Extreme Fever ending tick count (state 3 → state 5, FUN_00470a50 + FUN_0046ca60 + FUN_0044fe00 +
+    /// FUN_0046c400):
+    /// 1. FUN_00470a50 appends all remaining unhit pegs (`pegs_left`) to `hit_list` (`hit_list_rem`) and
+    ///    sets LogicMgr+0xc = 50 (`POP_BASE`); FUN_0046ca60 waits until both `hit_list` is drained
+    ///    (`POP_BASE + pop_ticks(hit_list_rem + pegs_left)`) and the first effect `0x11` particle from
+    ///    FUN_0044fe00 reaches `duration - 30` (mean ~115/135/180 ticks for 10k/50k/100k holes, with
+    ///    unseeded `Sexy::Rand` initial age variance).
+    /// 2. FUN_0046ca60 then waits 100 ticks (2D software) or 120 ticks (3D), counts up `pre_drain`
+    ///    (`shot_score - 10_000 * balls_left`) at 5000/1000/200/100/10 per tick, and drains `balls_left`
+    ///    balls from the tube (`20 + 11 * balls_left` ticks).
+    /// 3. If the winning shot was tripled, FUN_00471030 runs the 125-tick tripler tally afterwards.
+    pub fn fever_end_ticks(shot_score: i64, fever_hole: i32, balls_left: i32, hit_list_rem: i32, pegs_left: i32, tripled: bool) -> i32 {
+        let splash_wait = if fever_hole >= 100_000 { 180 } else if fever_hole >= 50_000 { 135 } else { 115 };
+        let total_pops = (hit_list_rem + pegs_left).max(0);
+        let pop_wait = if total_pops > 0 { POP_BASE + pop_ticks(total_pops) } else { 0 };
+        let mut t = pop_wait.max(splash_wait) + 100;
+        let pre_drain = (shot_score - 10_000 * balls_left.max(0) as i64).max(0);
+        let mut cur = 0i64;
+        while cur < pre_drain {
+            let d = pre_drain - cur;
+            let step = if d > 100_000 { 5000 } else if d > 10_000 { 1000 } else if d > 1000 { 200 } else if d > 100 { 100 } else { 10 };
+            cur = (cur + step).min(pre_drain);
+            t += 1;
+        }
+        if balls_left > 0 { t += 20 + 11 * balls_left; }
+        if tripled { t += TRIPLE_TALLY_TICKS; }
+        t
     }
 
     /// Fire at `angle` with a click at tick `fire_tick` (>= earliest_fire). For a Zen shot `angle` is
@@ -272,7 +302,7 @@ impl Game {
         flips.sort_by_key(|f| f.0);
         let flip_ofs = std::env::var("SIM_FLIP_OFS").ok().and_then(|v| v.parse().ok()).unwrap_or(FLIP_OFS);
         let mut fi = 0;
-        for n in 0..30000 {
+        for n in 0..1_000_000 {
             ev.clear();
             while fi < flips.len() && flips[fi].0 + flip_ofs <= flight_start + n {
                 if bd.flippers_on() { bd.flip(flips[fi].1); }
@@ -321,11 +351,19 @@ impl Game {
         let factor = bd.score_factor();
         // tripler tally balls join the tube during the tally (TRIPLE_MARGIN covers it)
         let tally_balls = if factor == 3 { ss.tally_triple(rem) } else { 0 };
-        if bd.fever_hole > 0 { ss.fever_end(bd.fever_hole, self.balls); }
-        let style_sum: i64 = bd.styles.iter().map(|s| s.1 as i64).sum();
-        let oranges = bd.shot_hits.iter().filter(|&&i| bd.objs[i].peg_type == ORANGE).count() as i32;
         let lucky = bd.lucky_results.clone();
         let extra = lucky.iter().filter(|&&r| r == 3).count() as i32;
+        for (j, &r) in lucky.iter().enumerate() {
+            if r == 3 {
+                let drop_t = bd.lucky_bticks.get(j).map_or(self.tick, |&b| b + blag + TUBE_HIT_OFS).max(flight_start);
+                tube_adds.push((drop_t, 1));
+            }
+        }
+        // FUN_0046c400 drains every ball in the tube (+10,000 each, ×3 if tripled), including balls
+        // caught or awarded by Lucky Spin Extra Ball earlier in the winning shot.
+        if bd.fever_hole > 0 { ss.fever_end(bd.fever_hole, self.balls + catches + extra); }
+        let style_sum: i64 = bd.styles.iter().map(|s| s.1 as i64).sum();
+        let oranges = bd.shot_hits.iter().filter(|&&i| bd.objs[i].peg_type == ORANGE).count() as i32;
         let mut res = ShotResult {
             angle, fire_tick, frames, end_tick: self.tick, pegs: ss.pegs, oranges, score: ss.score * factor + style_sum,
             shot_score: ss.score, styles: bd.styles.iter().map(|s| s.0).collect(), catches, free_balls: ss.free_balls,
@@ -354,7 +392,7 @@ impl Game {
         // shot end: hit pegs are removed
         // (power hits — Space Blast, Flower Power — go through BallHitPeg without a contact: mark them too)
         for &i in &bd.shot_hits { bd.objs[i].hit = true; }
-        for o in bd.objs.iter_mut() { if o.has_peginfo && o.hit { o.collidable = false; o.remove_timer = 0; } }
+        for o in bd.objs.iter_mut() { if o.has_peginfo && o.hit { o.collidable = false; o.visible = false; o.remove_timer = 0; } }
         // power counters (FUN_0046edf0 increments, in activation order)
         for &p in &res.activations {
             let c = &mut self.ctr[p as usize];
@@ -372,16 +410,25 @@ impl Game {
         if self.balls <= 0 { self.lost = true; return res; }
         let tripled = factor == 3;
         self.turn_start(res.pegs > 0);
-        // phases not modelled step by step delay the turn start by a margin; their balls (Lucky Spin extra
-        // ball, won coin flip) join the tube at rest
-        let wait = LUCKY_MARGIN * lucky.len() as i32 + (if tripled { TRIPLE_MARGIN } else { 0 }) + (if zen { ZEN_MARGIN } else { 0 })
-            + (if coin { COIN_MARGIN } else { 0 });
-        let wait = wait + TALLY_BALL_MARGIN * tally_balls;
-        let unmodelled = extra + coin_won as i32 + tally_balls;
         // every hit peg already popped during the flight: the turn starts 5 ticks later (5/5 captured shots)
         let all_popped = res.pegs > 0 && self.board.hit_list.is_empty();
-        let k0 = self.tick + res.pop_tail + POP_BASE - 1 + pop_ticks(res.pegs) + wait + if all_popped { ALL_POPPED_WAIT } else { 0 };
-        let out = self.tube_turn(flight_start, k0, tube_adds, unmodelled);
+        // When 0 pegs were hit, LogicMgr+0xc is already 0 on state 3 entry (no POP_BASE wait).
+        let k0_pop = if res.pegs > 0 {
+            self.tick + res.pop_tail + POP_BASE - 1 + pop_ticks(res.pegs) + if all_popped { ALL_POPPED_WAIT } else { 0 }
+        } else {
+            self.tick + res.pop_tail + 1
+        };
+        // Exact state-machine timings (FUN_00471030 tripler tally, FUN_00435a90/FUN_00471500 coin flip):
+        // tripler runs first (125 ticks, tally free balls drop at +75), then coin flip (up to 142 ticks,
+        // refunded ball drops at spin end into state 6) — all via `tube_adds` instead of `Tube::reset`.
+        let wait = LUCKY_MARGIN * lucky.len() as i32
+            + (if tripled { TRIPLE_TALLY_TICKS } else { 0 })
+            + (if zen { ZEN_MARGIN } else { 0 })
+            + (if coin { COIN_SPIN_MAX } else { 0 });
+        let k0 = k0_pop + wait;
+        if tripled && tally_balls > 0 { tube_adds.push((k0_pop + TRIPLE_TALLY_DROP_TICK, tally_balls)); }
+        if coin_won { tube_adds.push((k0, 1)); }
+        let out = self.tube_turn(flight_start, k0, tube_adds, 0);
         self.earliest_fire = out + 28 + READY_OFS;
         self.ff_pad = FF_PAD;
         res
@@ -397,7 +444,7 @@ impl Game {
         let mut t = adds.first().map_or(k0, |a| a.0.min(k0)).max(from);
         let mut ai = 0;
         // logic first (turn start once at rest), then the drops of that tick, then the tube update
-        while !(t >= k0 && tube.settled) && t < k0 + 5000 {
+        while !(t >= k0 && ai >= adds.len() && tube.settled) && t < k0 + 5000 {
             while ai < adds.len() && adds[ai].0 <= t { tube.add_top(adds[ai].1); ai += 1; }
             tube.step();
             if *TUBE_TRACE { eprintln!("TUBE {t} {:?}", tube); }
@@ -432,6 +479,8 @@ impl Game {
                         let n = self.board.rng_n; // FUN_004582f0 via the hooked call site 0x4613bb
                         self.board.rng_n += 1;
                         if !self.board.flippers_init { self.board.flippers_init = true; self.board.flipper_clear(n); }
+                    } else {
+                        self.board.flip(false); // FUN_004612e0:664 calls FUN_0045ea70(0) when turning flippers off
                     }
                     self.board.set_flippers(on);
                 }

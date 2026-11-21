@@ -28,7 +28,7 @@ static uint32_t g_seq;
 static void *g_tramp_update, *g_tramp_collide, *g_tramp_fire, *g_tramp_physupd, *g_tramp_bounce, *g_tramp_pcl;
 static int g_trace_ccd, g_last_real;
 static volatile int g_frames, g_fired, g_bframes;
-static int g_fire_at = -1, g_aim_held, g_mode = 1, g_char = -1, g_autoclick, g_humanfire;  // physics ticks (bucket hole updates); Gun::Fire count
+static int g_fire_at = -1, g_aim_held, g_mode = 1, g_char = -1, g_autoclick, g_humanfire, g_mouse_shot;  // physics ticks (bucket hole updates); Gun::Fire count
 
 static uint8_t *logic(void);
 static void log_blob(uint32_t magic, uint8_t *p, uint32_t extra);
@@ -684,7 +684,8 @@ static void tas_init(FILE *info) {
         patch_call(0x457fb2, 0x43d430, (void *)tas_green_stub);
         patch_call(0x45827c, 0x4fce50, (void *)tas_purple_stub);
         patch_call(0x458885, 0x43d430, (void *)tas_green_stub);   // flipper orange relocation shuffle
-        patch_call(0x45f1bf, 0x45eca0, (void *)w_45eca0);         // spooky ball respawn search
+        patch_call(0x45f1bf, 0x45eca0, (void *)w_45eca0);         // spooky ball respawn search (out of bounds)
+        patch_call(0x4703f9, 0x45eca0, (void *)w_45eca0);         // spooky ball respawn search (fever hole FUN_00470230)
         patch_call(0x46ed54, 0x4fce50, (void *)w_rand_lucky);     // lucky spin wheel result
         patch_call(0x46adad, 0x4fce50, (void *)w_rand_shot);      // fire: LogicMgr+0x2c/+0x30 rolls
         patch_call(0x40f660, 0x4fce50, (void *)w_rand_char);      // level load: random character (stage 10)
@@ -768,19 +769,23 @@ static void __attribute__((fastcall)) hook_aimupd(uint8_t *l) {
     // from the moment the shot command is active and the fire waits until it has been held >= 2 ticks.
     uint8_t *g0 = (g_fire_at >= 0 && g_hstate == 2 && l == logic()) ? gun() : 0;
     float vis;
-    if (g0 && g_cur_on && cur_step(&vis)) { *(float *)(l + 0xe0) = vis; gun_set_angle(g0, vis); g_aim_held = 0; }
+    if (g0 && g_mouse_shot) {
+        if (*(float *)(g0 + 0x150) == *(float *)(l + 0xe0)) g_aim_held++; else g_aim_held = 0;
+    }
+    else if (g0 && g_cur_on && cur_step(&vis)) { *(float *)(l + 0xe0) = vis; gun_set_angle(g0, vis); g_aim_held = 0; }
     else if (g0) { *(float *)(l + 0xe0) = g_aim; gun_set_angle(g0, g_aim); g_aim_held++; }
     else g_aim_held = 0;
     if (g0 && !g_humanfire && tick() >= g_fire_at && g_aim_held > 2 && *(int *)(l + 0x138) == 0) {
         uint8_t *g = g0;
         {
-            *(float *)(l + 0xe0) = g_aim; gun_set_angle(g, g_aim);
+            float fa = g_mouse_shot ? *(float *)(l + 0xe0) : g_aim;
+            if (!g_mouse_shot) { *(float *)(l + 0xe0) = g_aim; gun_set_angle(g, g_aim); }
             int late = tick() - g_fire_at;
             ((mousedown_fn)0x472810)(l, 400, 300, 1, 0, 0);
             g_shot_start = tick(); g_shots++; g_fire_seen = g_fired; g_last_click = tick();
-            hlog("fire %d angle %.9g (0x%08x) tick %d sched %d%s", g_shots, g_aim, *(unsigned *)&g_aim,
+            hlog("fire %d angle %.9g (0x%08x) tick %d sched %d%s", g_shots, fa, *(unsigned *)&fa,
                  g_shot_start, g_fire_at, late ? " LATE" : "");
-            g_hstate = 3; g_fire_at = -1; g_prev_aim = g_aim;
+            g_hstate = 3; g_fire_at = -1; g_mouse_shot = 0; g_prev_aim = fa;
         }
     }
     ((update_fn)g_tramp_aimupd)(l);
@@ -855,6 +860,20 @@ static void harness_step(void) {
                 hlog("cmd %s", line);
                 goto next_line;
             }
+            int ax, ay;            // `aimtest X Y`: call WidgetManager::MouseMove (FUN_00543270) and log Board offset + LogicMgr+0xe0
+            if (sscanf(line, "aimtest %d %d", &ax, &ay) == 2) {
+                uint8_t *b = board(), *wm = *(uint8_t **)(a + 800);
+                typedef int (__attribute__((thiscall)) *wmmove_fn)(void *, int, int);
+                if (wm) ((wmmove_fn)0x543270)(wm, ax, ay);
+                int dirty = l ? (int)l[0x1f] : -1;
+                if (l && l[0x1f]) { typedef void (__attribute__((thiscall)) *aim_fn)(void *, char); ((aim_fn)0x43ece0)(l, 0); }
+                float ang = l ? *(float *)(l + 0xe0) : -1.0f;
+                uint32_t bits; memcpy(&bits, &ang, 4);
+                int bx = b ? *(int *)(b + 0x1a8) : -999, by = b ? *(int *)(b + 0x1ac) : -999;
+                int wmx = wm ? *(int *)(wm + 0xe0) : -999, wmy = wm ? *(int *)(wm + 0xe4) : -999;
+                hlog("aimtest win %d %d wm %d %d bofs %d %d dirty %d angle %.9g (0x%08x)", ax, ay, wmx, wmy, bx, by, dirty, ang, bits);
+                goto next_line;
+            }
         }
         g_rdy_done = 0;
         hlog("cmd %s", line);
@@ -889,11 +908,53 @@ static void harness_step(void) {
             }
             log_blob(0x204c564c /*'LVL '*/, buf, 0);
             g_hstate = 1; g_cmd_tick = 0; g_level_over = 0;
+        } else if (sscanf(line, "mouseshot %d %d %d", &s, &lv, &n) == 3) {
+            if (g_level_over) return;
+            uint8_t *wm = *(uint8_t **)(a + 800);
+            typedef int (__attribute__((thiscall)) *wmmove_fn)(void *, int, int);
+            if (wm) ((wmmove_fn)0x543270)(wm, s, lv);
+            if (l && l[0x1f]) { typedef void (__attribute__((thiscall)) *aim_fn)(void *, char); ((aim_fn)0x43ece0)(l, 0); }
+            g_fire_at = n; g_mouse_shot = 1; g_aim_since = -1; g_hstate = 2;
+            memcpy(g_flip_t, g_flip_pt, sizeof g_flip_t); memcpy(g_flip_d, g_flip_pd, sizeof g_flip_d);
+            g_nflip = g_nflip_pend; g_nflip_pend = 0; g_flip_i = 0;
+        } else if (strncmp(line, "wheelshot ", 10) == 0 || strncmp(line, "keyshot ", 8) == 0) {
+            int wx, wy, p1, p2, at;
+            if (!g_level_over && sscanf(strchr(line, ' ') + 1, "%d %d %d %d %d", &wx, &wy, &p1, &p2, &at) == 5) {
+                uint8_t *wm = *(uint8_t **)(a + 800), *b = board();
+                typedef int (__attribute__((thiscall)) *wmmove_fn)(void *, int, int);
+                if (wm) ((wmmove_fn)0x543270)(wm, wx, wy);
+                if (l && l[0x1f]) { typedef void (__attribute__((thiscall)) *aim_fn)(void *, char); ((aim_fn)0x43ece0)(l, 0); }
+                if (line[0] == 'w') {
+                    typedef int (__attribute__((thiscall)) *wheel_fn)(void *, int);
+                    for (int k = 0; k < p2; k++) ((wheel_fn)0x43d6a0)(l, p1);
+                } else {
+                    typedef void (__attribute__((thiscall)) *key_fn)(void *, int);
+                    for (int k = 0; k < p2; k++) ((key_fn)0x402930)(b, p1);
+                }
+                float ang = l ? *(float *)(l + 0xe0) : -1.0f; uint32_t bits; memcpy(&bits, &ang, 4);
+                hlog("inputshot %c win %d %d p %d %d -> angle %.9g (0x%08x)", line[0], wx, wy, p1, p2, ang, bits);
+                g_fire_at = at; g_mouse_shot = 1; g_aim_since = -1; g_hstate = 2;
+                memcpy(g_flip_t, g_flip_pt, sizeof g_flip_t); memcpy(g_flip_d, g_flip_pd, sizeof g_flip_d);
+                g_nflip = g_nflip_pend; g_nflip_pend = 0; g_flip_i = 0;
+            }
+        } else if (strncmp(line, "slewtest ", 9) == 0) {
+            unsigned u1, u2;
+            if (sscanf(line + 9, "%x %x", &u1, &u2) == 2 && gun()) {
+                uint8_t *g = gun(); float a1, a2; memcpy(&a1, &u1, 4); memcpy(&a2, &u2, 4);
+                *(float *)(g + 0x150) = a1; *(float *)(g + 0x154) = a2;
+                typedef void (__attribute__((fastcall)) *gupd_fn)(void *);
+                for (int k = 0; k < 8; k++) {
+                    ((gupd_fn)0x484120)(g);
+                    float c = *(float *)(g + 0x150); uint32_t cb; memcpy(&cb, &c, 4);
+                    hlog("slew %d angle %.9g (0x%08x)", k + 1, c, cb);
+                }
+                goto next_line;
+            }
         } else if (sscanf(line, "shotx %x", &u) == 1 || sscanf(line, "shot %f", &f) == 1) {
             if (g_level_over) return;           // level finished: ignore remaining shots
             if (strncmp(line, "shotx", 5) == 0) memcpy(&f, &u, 4);
             { char w[32]; int at; g_fire_at = (sscanf(line, "%15s %15s %d", w, w + 16, &at) == 3) ? at : -1; }
-            g_aim = f; g_aim_since = -1; g_hstate = 2;
+            g_aim = f; g_mouse_shot = 0; g_aim_since = -1; g_hstate = 2;
             memcpy(g_flip_t, g_flip_pt, sizeof g_flip_t); memcpy(g_flip_d, g_flip_pd, sizeof g_flip_d);
             g_nflip = g_nflip_pend; g_nflip_pend = 0; g_flip_i = 0;
             if (pend_x >= 0) { cur_plan(pend_x, pend_y); pend_x = pend_y = -1; }

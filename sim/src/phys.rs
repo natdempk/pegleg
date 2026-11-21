@@ -24,8 +24,11 @@ pub struct Hat { pub anchor: [f32; 2], pub pos: [f32; 2], pub ctr: i32 }
 
 #[derive(Clone, Debug, Default)]
 pub struct Ball {
-    /// Ball+0xe8: set on Multiball-spawned balls (blocks the catch streak / quick-catch style)
-    pub child: bool,
+    /// Ball+0xe8: ball slot (lowest unused in {0, 1} when added to board+0x1a0; FUN_00421070).
+    /// Only slot 0 logs Long Shot contacts, increments catch streak, and scores quick-catch styles.
+    pub slot: u8,
+    /// Per-AIBall hit set (used only when `Board::ai` is true, mirroring FUN_004428e0).
+    pub ai_hits: Vec<usize>,
     /// Magic Hat (Lucky Spin result 1; Ball+0x18d/+0x188): see `Hat`
     pub hat: Option<Hat>,
     /// Ball+0x178: LogicMgr tick of the first touch of a "freeball*" (bucket) object (0 = none)
@@ -199,6 +202,9 @@ pub struct Obj {
     pub maxbouncevel: f32,
     pub ballstopreset: bool,
     pub collidable: bool,
+    /// PhysObj+0x25: visible (cleared immediately when popped by FUN_00466a00, while `collidable`
+    /// stays true for 4 more ticks via `remove_timer`, and cleared on fireball burn / flipper_clear).
+    pub visible: bool,
     pub has_peginfo: bool,
     pub bbox: [f32; 4],
     pub src_index: usize,
@@ -869,7 +875,12 @@ pub struct Board {
     /// LogicMgr+0xff: the flipper power's first activation (peg clearing) has happened
     pub flippers_init: bool,
     /// first hits since the last queued-contact pass (for BallHitPeg-time effects)
-    new_hits: Vec<(usize, usize)>, // (ball slot, object) first hits queued for BallHitPeg side effects
+    /// (ball index, object index, is_hat_ball, forced_power_hit) first hits queued for BallHitPeg side effects
+    new_hits: Vec<(usize, usize, bool, bool)>,
+    /// Pyramid power active (LogicMgr+0x1f4 > 0): kept so mid-shot power activations compute amp_target accurately
+    pub pyramid_on: bool,
+    /// Allow `movetoggle` in AI mode (set on per-AIBall board clones in `zen.rs`)
+    pub ai_movetoggle: bool,
     cur_ball: usize,
     pair_sap: Vec<(u32, u32, u8)>,  // ball-ball sweep-and-prune state (lower id, higher id)
     next_ball_id: u32,
@@ -910,6 +921,8 @@ pub struct Board {
     pub styles: Vec<(u8, i32)>,
     /// Lucky Spin wheel results this shot (0 random power, 1 magic hat, 2 score tripler, 3 extra ball)
     pub lucky_results: Vec<u32>,
+    /// Board ticks (`btick`) when each Lucky Spin in `lucky_results` occurred (for exact Extra Ball tube drops)
+    pub lucky_bticks: Vec<i32>,
     /// one-shot search only (never set by replays): force the Lucky Spin wheel result (1 = Magic Hat)
     pub force_lucky: Option<u32>,
     /// wheel updates of each spin this shot (slot::lucky_wheel_steps; the board is frozen meanwhile)
@@ -1038,6 +1051,7 @@ impl Board {
                 objs.push(Obj {
                     geom, bouncy: p.bouncy, rolly: p.rolly, maxbouncevel: p.maxbouncevel,
                     ballstopreset: p.ballstopreset, collidable: p.id != "flipper" && (p.collidable || was_hit),
+                    visible: p.id != "flipper" && (p.collidable || was_hit),
                     has_peginfo: p.peg.is_some(),
                     bbox, src_index: *r, hit: false,
                     mover: p.mover.map(|m| m + mbase), counter: p.i4c, moving: p.moving,
@@ -1072,7 +1086,7 @@ impl Board {
             .map(|(i, _)| i as u32).collect();
         let sapx = std::sync::Arc::new(build_sap_index(&mut objs, &movers));
         Board { sapx, scratch: StepScratch::default(), ticking, objs, movers, width: 650, height: 560, hit_list: vec![], pop_delay: 0, shot_timer: -2, force_pop: false, shot_hits: vec![], shot_hit_bticks: vec![],
-                power: 0, flippers_init: false, new_hits: vec![], cur_ball: 0, pair_sap: vec![], next_ball_id: 1, spawned: vec![], lucky_list: vec![], lucky_ctr: None, lucky_results: vec![], force_lucky: None, lucky_steps: vec![], triple: false, orange_total: 25, n_base: base.map_or(0, |b| b.objects.len()), fever_on: false, fever_hole: 0, contact_log: vec![], pending_contacts: vec![], hat_contact: false, pending_bucket: vec![], pending_lid: vec![], pending_flipper: vec![], flipper_hits: 0, forced_contact: false, catch_streak: 0, caught_this_shot: false, styles: vec![], btick: 0, amp_target: 0, spooky_left: 0, rng_seed: 0, ai: false, peek: false, activations: vec![], flipper_applies: 0, rng_n: 0 }
+                power: 0, flippers_init: false, new_hits: vec![], pyramid_on: false, ai_movetoggle: false, cur_ball: 0, pair_sap: vec![], next_ball_id: 1, spawned: vec![], lucky_list: vec![], lucky_ctr: None, lucky_results: vec![], lucky_bticks: vec![], force_lucky: None, lucky_steps: vec![], triple: false, orange_total: 25, n_base: base.map_or(0, |b| b.objects.len()), fever_on: false, fever_hole: 0, contact_log: vec![], pending_contacts: vec![], hat_contact: false, pending_bucket: vec![], pending_lid: vec![], pending_flipper: vec![], flipper_hits: 0, forced_contact: false, catch_streak: 0, caught_this_shot: false, styles: vec![], btick: 0, amp_target: 0, spooky_left: 0, rng_seed: 0, ai: false, peek: false, activations: vec![], flipper_applies: 0, rng_n: 0 }
     }
 
     /// Per-tick object updates (vt+0x58 → FUN_00479a30) for objects with movers: advance the
@@ -1101,7 +1115,7 @@ impl Board {
             // FUN_00479a30 head: removal countdown → FUN_004769f0(0)
             if o.remove_timer != 0 {
                 o.remove_timer -= 1;
-                if o.remove_timer == 0 { o.collidable = false; }
+                if o.remove_timer == 0 { o.collidable = false; o.visible = false; }
             }
             // FUN_00479680 PegInfo::Update: crumble pegs vanish 97 ticks after their 3rd contact
             if o.has_peginfo && o.since_hit != 0 && (o.since_hit < 20 || o.crumble || no_fast) {
@@ -1109,7 +1123,7 @@ impl Board {
                 o.since_hit += 1;
                 if o.crumble && o.contacts >= 3 && o.contacts < 100 {
                     o.contacts += 1;
-                    if o.contacts == 100 { o.collidable = false; } // FUN_004769f0(0)
+                    if o.contacts == 100 { o.collidable = false; o.visible = false; } // FUN_004769f0(0)
                 }
             }
             // nothing left to do for this object until a contact / mover start re-adds it (`add_ticking`)
@@ -1278,9 +1292,56 @@ impl Board {
         }
     }
 
+    /// FUN_00454dc0 + FUN_00454f90 predictor collision step (used by FUN_0045eca0 spooky trials and
+    /// FUN_00409d50 slow-mo look-ahead): ±75 broadphase cache (skipping all PegInfo objects when
+    /// `fireball` is set: CollisionMgr+0x78), instant delay-0 teleport, then swept CCD (FUN_0047f160)
+    /// over pegs/lines/polys sorted by `(type, id)`, then move if `!moved`.
+    fn predict_fill_cache(&self, b: &Ball, fireball: bool, bounds: &mut [f32; 4], cache: &mut Vec<usize>) {
+        const PAD: f32 = 75.0; // ModVal CollisionMgr.cpp81
+        *bounds = [sub(b.bbox[0], PAD).r(), sub(b.bbox[1], PAD).r(), add(b.bbox[2], PAD).r(), add(b.bbox[3], PAD).r()];
+        cache.clear();
+        for (i, o) in self.objs.iter().enumerate() {
+            if fireball && o.has_peginfo { continue; }
+            let ob = &o.bbox;
+            if ob[0] <= bounds[2] && bounds[0] < ob[2] && ob[1] <= bounds[3] && bounds[1] < ob[3] {
+                cache.push(i);
+            }
+        }
+    }
+
+    fn predict_step(&mut self, b: &mut Ball, fireball: bool, bounds: &mut [f32; 4], cache: &mut Vec<usize>, events: &mut Vec<Event>) {
+        if bounds[2] < b.bbox[2] || b.bbox[0] < bounds[0] || b.bbox[1] < bounds[1] || bounds[3] < b.bbox[3] {
+            self.predict_fill_cache(b, fireball, bounds, cache);
+        }
+        let mut cands: Vec<usize> = vec![];
+        for &i in cache.iter() {
+            let o = &self.objs[i];
+            if !o.collidable { continue; }
+            let ob = &o.bbox;
+            if !(ob[0] <= b.bbox[2] && b.bbox[0] < ob[2] && ob[1] <= b.bbox[3] && b.bbox[1] < ob[3]) { continue; }
+            match o.geom {
+                Geom::Hole { pos, w, h, ellipse, teleport: Some((uid, _)) } => {
+                    if hole_test(pos, w, h, ellipse, b.pos) {
+                        if let Some(p) = self.obj_pos(uid) { b.set_pos_full(p); }
+                    }
+                }
+                Geom::Hole { .. } => {}
+                Geom::Peg { .. } | Geom::Line(_) | Geom::Poly { .. } => cands.push(i),
+            }
+        }
+        if !cands.is_empty() {
+            cands.sort_by_key(|&i| (match self.objs[i].geom { Geom::Hole { .. } => 1, Geom::Peg { .. } => 3, Geom::Line(_) => 4, Geom::Poly { .. } => 5 }, i));
+            self.ccd(b, &cands, events);
+        }
+        if !b.moved {
+            let v = b.vel;
+            b.move_by(v);
+        }
+    }
+
     /// FUN_00409d50 for live ball `b`: a copy of the ball (hit callbacks off, movers frozen) runs 4 steps
-    /// (ModVal Board.cpp97); after each it sweeps one step ahead against the targets with its radius + 10
-    /// (FUN_0047f4c0). True = the near-win slow-mo starts. Stops when the copy falls below the board.
+    /// (ModVal Board.cpp97) via FUN_00454f90; after each it sweeps one step ahead against the targets with
+    /// its radius + 10 (FUN_0047f4c0). True = the near-win slow-mo starts. Stops when the copy falls below the board.
     pub fn slowmo_peek(&mut self, b: &Ball, targets: &[usize]) -> bool {
         // reach of 4 moves + the final sweep (|v| <= 15) plus the margin: skip the copy when no target is near
         let reach = 5.0 * 15.0 + b.r + 10.0 + 1.0;
@@ -1291,29 +1352,23 @@ impl Board {
             b.pos[0] >= bb[0] - reach && b.pos[0] <= bb[2] + reach && b.pos[1] >= bb[1] - reach && b.pos[1] <= bb[3] + reach
         };
         if !targets.iter().any(|&i| near(i)) { return false; }
-        // the copy steps on the live board like the game's (CollisionMgr::Collide on the real objects, which
-        // also runs the lazy poly rebuilds); `peek` keeps hit flags and contact side effects off
         let (ai, cur) = (self.ai, self.cur_ball);
         self.ai = true;
         self.peek = true;
         let mut c = Ball::new(b.pos, b.vel);
         c.r = b.r;
         c.set_pos(b.pos);
-        c.fireball = b.fireball;
-        // broadphase state from the live ball: the incremental update then finds the same pairs as a full scan
-        // (SIM_NO_FAST scans in full)
-        c.sap.clone_from(&b.sap);
-        c.sap_over.clone_from(&b.sap_over);
-        c.sap_bb = b.sap_bb;
-        c.sap_ix = b.sap_ix;
-        let mut balls = vec![c];
+        // FUN_00409d50: CollisionMgr+0x78 = ball->fireball, while the copy itself is a normal Ball (+0x161 = 0)
+        let mut bounds = [0.0f32; 4];
+        let mut cache = vec![];
+        self.predict_fill_cache(&c, b.fireball, &mut bounds, &mut cache);
         let mut ev = vec![];
         let mut fired = false;
         'steps: for _ in 0..4 {
+            c.update();
             ev.clear();
-            self.step_multi(&mut balls, &mut ev);
-            let c = &balls[0];
-            if c.gone || ((self.height + 20) as f32) < c.pos[1] { break; }
+            self.predict_step(&mut c, b.fireball, &mut bounds, &mut cache, &mut ev);
+            if ((self.height + 20) as f32) < c.pos[1] { break; }
             let r = (x(c.r) + 10.0).r();
             for &i in targets {
                 self.refresh_poly(i);
@@ -1355,6 +1410,7 @@ impl Board {
         for i in 0..self.objs.len() {
             if self.objs[i].fever {
                 self.objs[i].collidable = true; // FUN_004769f0(1): +0x24/+0x25
+                self.objs[i].visible = true;
                 self.run_to_half(i);
             } else if self.objs[i].bucketish {
                 self.objs[i].collidable = false;
@@ -1370,7 +1426,7 @@ impl Board {
                         self.objs[i].counter = 1;
                         self.run_to_half(i);
                     }
-                    _ => {}
+                    _ => { self.objs[i].visible = false; }
                 }
             }
         }
@@ -1418,7 +1474,17 @@ impl Board {
         self.next_ball_id = 1;
         self.spawned.clear();
         self.lucky_results.clear();
+        self.lucky_bticks.clear();
         self.lucky_steps.clear();
+        // FUN_0046ac70 (shot start) saves replay state, which syncs holes through Hole::SetSize
+        // (FUN_00475580) rebuilding each hole's bbox from pos ± size/2 (exact 1-ulp reset at every launch).
+        for o in self.objs.iter_mut() {
+            if let Geom::Hole { pos, w, h, .. } = o.geom {
+                let hw = (X::d(w as f64) * X::d(0.5)).r();
+                let hh = (X::d(h as f64) * X::d(0.5)).r();
+                o.bbox = [sub(pos[0], hw).r(), sub(pos[1], hh).r(), add(pos[0], hw).r(), add(pos[1], hh).r()];
+            }
+        }
         self.fever_hole = 0;
         self.contact_log.clear();
         self.pending_contacts.clear();
@@ -1443,8 +1509,7 @@ impl Board {
         if self.hit_list.is_empty() { return; }
         let i = self.hit_list.remove(0);
         self.shot_timer = self.shot_timer.min(SHOT_POP_CAP); // FUN_00466a00
-        // the peg also turns invisible (+0x25); not modelled: the only rule reading it (FUN_00409b40, slow-mo
-        // look-ahead) also skips hit pegs, which every popped peg is
+        self.objs[i].visible = false; // FUN_00466a00 hides (+0x25 = 0) immediately while remove_timer keeps collidable for 4 ticks
         if self.objs[i].collidable { self.objs[i].remove_timer = 4; self.add_ticking(i); }
         let rem = self.hit_list.len() as i32;
         if rem > 0 { self.pop_delay = (8 - rem / 10).clamp(1, 5); }
@@ -1483,6 +1548,9 @@ impl Board {
             if self.hit_list.is_empty() {
                 events.push(Event::Lost);
                 for b in balls.iter_mut() { b.gone = true; }
+                // FUN_00466df0 → FUN_00410120 removes the ball during LogicMgr::Update;
+                // Board::UpdatePhysics (tick_objects) still runs on this tick.
+                self.tick_objects();
                 return false;
             }
             self.pop_hit(balls);
@@ -1539,14 +1607,19 @@ impl Board {
     }
 
     /// Bucket lid "freeballcover" (FUN_00440700): on while a fireball (FUN_004612e0 case 12) or spooky ball is pending.
+    /// Guarded on `!self.fever_on || !on` (FUN_00440700: LogicMgr+0xf6 == 0).
     pub fn set_lid(&mut self, on: bool) {
-        for o in self.objs.iter_mut() { if o.cover { o.collidable = on; } }
+        if self.fever_on && on { return; }
+        for o in self.objs.iter_mut() { if o.cover { o.collidable = on; o.visible = on; } }
     }
 
     /// Pyramid state (power 4) from the turn counter LogicMgr+0x1f4: "bumperhole" subid 0 collidable while on.
+    /// Guarded on `!self.fever_on || !on` (FUN_00440580: LogicMgr+0xf6 == 0).
     pub fn set_pyramid(&mut self, on: bool) {
+        self.pyramid_on = on;
+        if self.fever_on && on { return; }
         for o in self.objs.iter_mut() {
-            if let Some(sub) = o.bumper { o.collidable = on && sub != 1; }
+            if let Some(sub) = o.bumper { o.collidable = on && sub != 1; o.visible = on; }
         }
     }
 
@@ -1561,13 +1634,17 @@ impl Board {
     /// or until y > height+20, counting distinct un-hit PegInfo objects touched (FUN_00451e10). The
     /// best strictly-greater count picks the velocity. RNG: keyed reseed (rng.rs SITE_SPOOKY).
     pub fn spooky_respawn(&mut self, b: &mut Ball) {
+        self.spooky_respawn_at(b, false);
+    }
+
+    fn spooky_respawn_at(&mut self, b: &mut Ball, from_fever: bool) {
         b.spooky_used = true;
         b.bucket_touch = 0; b.bucket_touches = 0; // Ball+0x178/+0x17c cleared (+0x180 kept)
         self.spooky_left -= 1;
         if self.spooky_left < 1 {
             self.spooky_left = 0;
             b.spooky = false;
-            for o in self.objs.iter_mut() { if o.cover { o.collidable = false; } } // FUN_00440700(0)
+            self.set_lid(false); // FUN_00440700(0)
         }
         let (vx, vy) = (b.vel[0], b.vel[1]);
         let ss = ((x(vx) * vx) + (x(vy) * vy)).r(); // stored to float before the sqrt (FSTP [-0x24])
@@ -1577,9 +1654,11 @@ impl Board {
             let (vx3, vy3) = ((x(vx) * 3.0).r(), (X::d(3.0) * vy).r());
             b.vel = [(x(vx3) / speed).r(), (x(vy3) / speed).r()];
         }
-        // Board+0x1c4 at the respawn is one less than our counter (we increment at tick start)
-        let mut rng = crate::rng::keyed(self.rng_seed, crate::rng::SITE_SPOOKY, self.btick - 1);
-        if std::env::var_os("SIM_DEBUG").is_some() { eprintln!("spooky respawn btick {} vel {:?}", self.btick, b.vel); }
+        // Board+0x1c4 at out-of-bounds respawn (FUN_0045f120) is btick - 1; at fever-hole respawn
+        // (FUN_00470230, during contact callbacks like BallHitPeg/SITE_LUCKY) it is btick - 2.
+        let key = self.btick - if from_fever { 2 } else { 1 };
+        let mut rng = crate::rng::keyed(self.rng_seed, crate::rng::SITE_SPOOKY, key);
+        if std::env::var_os("SIM_DEBUG").is_some() { eprintln!("spooky respawn btick {} key {} vel {:?}", self.btick, key, b.vel); }
         let start = [b.pos[0], 10.0];
         let mut best = 0usize;
         for t in 0..9 {
@@ -1588,7 +1667,7 @@ impl Board {
                 let d = (rng.rand() % 2000) as f64 / 1000.0;
                 v[0] = (1.0f64 * (1.0 - d) + v[0] as f64) as f32;
             }
-            let n = self.spooky_trial(start, v, b.r, if t == 0 { 400 } else { 350 });
+            let n = self.spooky_trial_ex(start, v, b.r, b.fireball, if t == 0 { 400 } else { 350 });
             if std::env::var_os("SIM_DEBUG").is_some() { eprintln!("  trial {t} v {v:?} count {n}"); }
             if best < n { best = n; b.vel = v; }
         }
@@ -1596,31 +1675,25 @@ impl Board {
     }
 
     pub fn spooky_trial(&self, start: [f32; 2], vel: [f32; 2], r: f32, n: i32) -> usize {
+        self.spooky_trial_ex(start, vel, r, false, n)
+    }
+
+    pub fn spooky_trial_ex(&self, start: [f32; 2], vel: [f32; 2], r: f32, fireball: bool, n: i32) -> usize {
         let mut bd = self.clone();
+        bd.ai = true;
+        bd.peek = true;
         let mut tb = Ball::new(start, vel);
         tb.r = r;
         tb.set_pos(start);
+        let mut bounds = [0.0f32; 4];
+        let mut cache = vec![];
+        bd.predict_fill_cache(&tb, fireball, &mut bounds, &mut cache);
         let mut counted: Vec<usize> = vec![];
         let mut ev = vec![];
         for _ in 0..n {
             tb.update();
-            // FUN_00454f90 case 1: a teleport hole the trial ball's centre is in moves it to the target
-            // at once (FUN_0047a350(target, 0): no freeze); capture holes do nothing here
-            for &hi in bd.sapx.holes.iter() {
-                let o = &bd.objs[hi as usize];
-                if !o.collidable || !bbox_overlap(&tb.bbox, &o.bbox) { continue; }
-                if let Geom::Hole { pos, w, h, ellipse, teleport: Some((uid, _)) } = o.geom {
-                    if hole_test(pos, w, h, ellipse, tb.pos) { if let Some(p) = bd.obj_pos(uid) { tb.set_pos_full(p); } }
-                }
-            }
-            let mut cands: Vec<usize> = (0..bd.objs.len()).filter(|&i| {
-                let o = &bd.objs[i];
-                o.collidable && !matches!(o.geom, Geom::Hole { .. }) && bbox_overlap(&tb.bbox, &o.bbox)
-            }).collect();
-            cands.sort_by_key(|&i| (match bd.objs[i].geom { Geom::Hole { .. } => 1, Geom::Peg { .. } => 3, Geom::Line(_) => 4, Geom::Poly { .. } => 5 }, i));
-            tb.moved = false;
-            if !cands.is_empty() { bd.ccd(&mut tb, &cands, &mut ev); }
-            if !tb.moved { let v = tb.vel; tb.move_by(v); }
+            ev.clear();
+            bd.predict_step(&mut tb, fireball, &mut bounds, &mut cache, &mut ev);
             for e in ev.drain(..) {
                 if let Event::Hit(i) = e {
                     if self.objs[i].has_peginfo && !self.objs[i].hit && !counted.contains(&i) { counted.push(i); }
@@ -1647,6 +1720,7 @@ impl Board {
             self.lucky_steps.push(steps);
             if std::env::var_os("SIM_DEBUG").is_some() { eprintln!("lucky spin btick {} rands {r1} {r2} -> {res} (ctr {:?} list {:?})", self.btick - 2, self.lucky_ctr, self.lucky_list); }
             self.lucky_results.push(res as u32);
+            self.lucky_bticks.push(self.btick);
             if res == 1 { balls[k].give_hat(); } // Magic Hat (on the ball that hit the green)
             if res == 0 {
                 let spin_no = self.lucky_results.len(); // after the push: LogicMgr+0x50 at the pick
@@ -1659,22 +1733,27 @@ impl Board {
             }
             return;
         }
-        let b = &mut balls[k];
         match self.power {
             3 => { // Multiball (FUN_0046ead0): a new ball at the green peg, vel (±0.5, ModVal -3); the peg
-                   // turns off (FUN_004769f0(0)). Direction: away from the hitting ball (tie: LogicMgr+0x2c parity, taken as even).
+                   // turns off (FUN_004769f0(0)). Direction: away from the hitting ball (tie: LogicMgr+0x2c parity).
                 let Some(pp) = self.obj_pos(self.objs[peg].uid) else { return };
-                let s = (pp[0] as f64 - b.pos[0] as f64) as f32;
-                let vx = if s > 0.0 { 0.5 } else { -0.5 };
+                let s = (pp[0] as f64 - balls[k].pos[0] as f64) as f32;
+                let odd = self.lucky_ctr.map_or(false, |c| (c[0] as i32) & 1 != 0);
+                let vx = if s > 0.0 || (s == 0.0 && odd) { 0.5 } else { -0.5 };
                 let mut nb = Ball { r: 6.0, ..Default::default() };
                 nb.set_pos(pp);
                 nb.prev = pp;
                 nb.vel = [vx, -3.0];
                 nb.id = self.next_ball_id;
-                nb.child = true;
+                // FUN_00421070: lowest unused slot in {0, 1} among live balls in board+0x1a0
+                let slot0_used = balls.iter().any(|x| !x.gone && x.slot == 0) || self.spawned.iter().any(|x| !x.gone && x.slot == 0);
+                nb.slot = if !slot0_used { 0 } else { 1 };
+                // FUN_0046ead0 lines 250-252: inherit Magic Hat from parent ball (FUN_00480f50(1, 1))
+                if balls[k].hat.is_some() { nb.give_hat(); }
                 self.next_ball_id += 1;
                 self.spawned.push(nb);
                 self.objs[peg].collidable = false;
+                self.objs[peg].visible = false;
                 // FUN_0046ead0: in Extreme Fever with two balls in play (board+0x1a4, the new one included) → style 5
                 // (25k; 4-3 real run: a Lucky Spin Multiball after the last orange)
                 if self.fever_on && balls.iter().filter(|b| !b.gone).count() + self.spawned.len() == 2 { self.styles.push((5, 25000)); }
@@ -1684,11 +1763,13 @@ impl Board {
                 let Some(gp) = self.obj_pos(self.objs[peg].uid) else { return };
                 for i in 0..self.objs.len() {
                     let o = &self.objs[i];
-                    if !o.has_peginfo || o.hit || !o.collidable || self.shot_hits.contains(&i) { continue; }
+                    if !o.has_peginfo || o.hit || !o.collidable || !o.visible || self.shot_hits.contains(&i) { continue; }
                     let Some(p) = self.obj_pos(o.uid) else { continue };
                     let dx = sub(p[0], gp[0]).r();
                     let dy = sub(p[1], gp[1]).r();
-                    if (x(dx) * dx) + (x(dy) * dy) <= 10000.0f32 {
+                    // FUN_0045e330 (0x45e462..0x45e476): MSVC spills dx*dx, dy*dy and their sum to f32 (fstps)
+                    let d2 = (x((x(dx) * dx).r()) + (x(dy) * dy).r()).r();
+                    if d2 <= 10000.0f32 {
                         self.cur_ball = k;
                         self.forced_contact = true;
                         self.peg_contact(i);
@@ -1702,11 +1783,12 @@ impl Board {
                 let mut c: Vec<(f32, usize)> = vec![];
                 for i in 0..self.objs.len() {
                     let o = &self.objs[i];
-                    if !o.has_peginfo || o.hit || !o.collidable || o.peg_type != crate::score::ORANGE || self.shot_hits.contains(&i) { continue; }
+                    if !o.has_peginfo || o.hit || !o.collidable || !o.visible || o.peg_type != crate::score::ORANGE || self.shot_hits.contains(&i) { continue; }
                     let Some(p) = self.obj_pos(o.uid) else { continue };
                     let dx = sub(p[0], gp[0]).r();
                     let dy = sub(p[1], gp[1]).r();
-                    c.push((((x(dx) * dx) + (x(dy) * dy)).r(), i));
+                    // FUN_0045e560 (0x45e663..0x45e669): dx*dx, dy*dy and their sum each spill to f32
+                    c.push(((x((x(dx) * dx).r()) + (x(dy) * dy).r()).r(), i));
                 }
                 c.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
                 // +0x360 is the live orange set: it shrinks as oranges are hit during the shot
@@ -1721,14 +1803,14 @@ impl Board {
                 }
             }
             6 => { // SpookyBall (case 5): arm the current ball, close the bucket (FUN_00440700(1))
-                b.spooky = true;
-                for o in self.objs.iter_mut() { if o.cover { o.collidable = true; } }
+                balls[k].spooky = true;
+                self.set_lid(true);
                 self.spooky_left += 1; // ModVal 1: game_check compares ctr6 at every ready point (107 spooky shots exact)
             }
             4 => { // Pyramid (FUN_004612e0 case 4 → FUN_00440580(1)): "bumperhole" objects switch on;
                    // subid 0 → collidable/invisible, subid 1 → visible/non-collidable (verified via BRD flags)
                 self.set_pyramid(true);
-                self.set_amp_target(false, true);
+                self.set_amp_target(self.flippers_on(), true);
             }
             2 => { // Flippers (FUN_004612e0 case 2): first time clears the bottom corners
                 self.flipper_applies += 1;
@@ -1736,7 +1818,7 @@ impl Board {
                 self.rng_n += 1;
                 if !self.flippers_init { self.flippers_init = true; self.flipper_clear(n); }
                 self.set_flippers(true);
-                self.set_amp_target(true, false);
+                self.set_amp_target(true, self.pyramid_on);
             }
             _ => {}
         }
@@ -1744,10 +1826,9 @@ impl Board {
 
     /// FUN_004582f0 (first flipper activation; `n` = the hook's colour-RNG call index): visible
     /// PegInfo objects inside the flipper corner regions (FUN_00437160) are hidden and leave the
-    /// colour sets; for each hidden orange a peg of the non-orange set +0x364 becomes orange: the set
-    /// (heap-pointer order in the game; taken as board order here) is shuffled (FUN_0043d430) and its
-    /// first k entries are turned orange. (The refill of hidden variable pegs when +0x364 is smaller
-    /// than k is not modelled.)
+    /// colour sets; if fewer non-orange pegs remain in +0x364 than hidden oranges, previously hidden
+    /// variable pegs outside the corners are resurrected as blue; then +0x364 (board order under the
+    /// hook) is shuffled (FUN_0043d430) and its first `moved` entries become orange.
     pub fn flipper_clear(&mut self, n: u32) {
         let lpoly: [[f32; 2]; 4] = [[0.0, 380.0], [110.0, 470.0], [110.0, 600.0], [0.0, 600.0]];
         let rpoly: [[f32; 2]; 4] = [[650.0, 380.0], [540.0, 470.0], [540.0, 600.0], [650.0, 600.0]];
@@ -1761,27 +1842,53 @@ impl Board {
             }
             c
         }
-        let mut moved = 0i32;
-        for i in 0..self.objs.len() {
-            let o = &self.objs[i];
-            if !o.has_peginfo || !o.collidable { continue; }
+        let in_corner = |o: &Obj| -> bool {
             let p = match &o.geom { Geom::Peg { pos, .. } | Geom::Hole { pos, .. } => *pos,
                                     Geom::Poly { center, .. } => *center, Geom::Line(l) => [l.x1, l.y1] };
-            let hit = match o.fflags {
+            match o.fflags {
                 1 => true,
                 2 => false,
                 _ => p[1] >= 400.0 && ((p[0] < 150.0 && (p[0] < 80.0 || inside(&lpoly, p[0], p[1])))
                     || (p[0] as f64 > 500.0 && (p[0] > 570.0 || inside(&rpoly, p[0], p[1])))),
-            };
-            if hit {
+            }
+        };
+        let mut moved = 0i32;
+        for i in 0..self.objs.len() {
+            let o = &self.objs[i];
+            if !o.has_peginfo || !o.visible || !o.collidable { continue; }
+            if in_corner(o) {
                 let o = &mut self.objs[i];
                 if o.peg_type == crate::score::ORANGE && !o.hit { moved += 1; }
-                o.collidable = false; // hidden: out of the colour sets (non-collidable)
+                o.collidable = false;
+                o.visible = false;
             }
         }
         if moved == 0 { return; }
-        let mut v: Vec<usize> = crate::colors::peg_order(self).into_iter().filter(|&i| {
-            let o = &self.objs[i]; !o.hit && o.collidable && o.peg_type != crate::score::ORANGE && !self.shot_hits.contains(&i) }).collect();
+        let order = crate::colors::peg_order(self);
+        // FUN_004582f0 lines 858-888: if +0x364 has fewer than `moved` pegs, resurrect hidden variable
+        // pegs outside the flipper corners as blue until +0x364 has `moved` entries
+        let mut cur_non_orange = order.iter().filter(|&&i| {
+            let o = &self.objs[i]; !o.hit && o.visible && o.collidable && o.peg_type != crate::score::ORANGE && !self.shot_hits.contains(&i)
+        }).count() as i32;
+        if cur_non_orange < moved {
+            for &i in &order {
+                if cur_non_orange >= moved { break; }
+                let o = &self.objs[i];
+                if !o.visible && o.variable && !in_corner(o) {
+                    let o = &mut self.objs[i];
+                    o.peg_type = crate::score::BLUE;
+                    o.hit = false;
+                    o.contacts = 0;
+                    o.since_hit = 0;
+                    o.remove_timer = 0;
+                    o.visible = true;
+                    o.collidable = true;
+                    cur_non_orange += 1;
+                }
+            }
+        }
+        let mut v: Vec<usize> = order.into_iter().filter(|&i| {
+            let o = &self.objs[i]; !o.hit && o.visible && o.collidable && o.peg_type != crate::score::ORANGE && !self.shot_hits.contains(&i) }).collect();
         let mut rng = crate::colors::hook_rng(self.rng_seed, n);
         crate::colors::shuffle(&mut v, &mut rng);
         let k = (moved as usize).min(v.len());
@@ -1825,6 +1932,7 @@ impl Board {
         }
         let ev0 = events.len();
         let mut teleports: Vec<(usize, u32, i32)> = vec![];
+        let mut fever_spooky: Vec<usize> = vec![];
         let captured = &mut sc.captured; captured.clear(); captured.resize(n, false);
         if sc.cands.len() < n { sc.cands.resize_with(n, Vec::new); }
         let cands = &mut sc.cands;
@@ -1922,17 +2030,23 @@ impl Board {
                             match teleport {
                                 Some((uid, delay)) => { teleports.push((k, uid, delay)); events.push(Event::Teleport(i)); }
                                 None => {
-                                    events.push(Event::Captured(i)); captured[k] = true;
-                                    if self.peek {}
-                                    else if self.objs[i].fever && self.objs[i].hole_value > 0 {
+                                    events.push(Event::Captured(i));
+                                    if self.peek {
+                                        captured[k] = true;
+                                    } else if self.objs[i].fever && self.objs[i].hole_value > 0 {
                                         // BallHitPeg: with every peg cleared (+0x360 == +0x36c == 0) all fever holes are worth 100000;
                                         // each ball in play (Multiball) adds the value of the hole it falls in
-                                        let left = self.objs.iter().filter(|o| o.has_peginfo && o.peg_type != 0 && !o.hit).count();
+                                        let left = self.objs.iter().filter(|o| o.has_peginfo && o.peg_type != 0 && !o.hit && o.visible && o.collidable).count();
                                         self.fever_hole += if left == 0 { 100000 } else { self.objs[i].hole_value };
-                                    }
-                                    else if self.objs[i].freeball {
+                                        // FUN_00470230 lines 148-154: a spooky ball falling into a fever hole respawns
+                                        // (FUN_0045eca0) instead of being removed
+                                        if balls[k].spooky { fever_spooky.push(k); } else { captured[k] = true; }
+                                    } else if self.objs[i].freeball {
+                                        captured[k] = true;
                                         if *COMBO_TRACE { eprintln!("CATCH btick {} ball {:?} bucket {:?}", self.btick, balls[k].pos, pos); }
                                         let b = balls[k].clone(); self.bucket_catch_styles(&b);
+                                    } else {
+                                        captured[k] = true;
                                     }
                                 }
                             }
@@ -1996,6 +2110,11 @@ impl Board {
         }
         if self.ai {
             // AIMgr step: no LogicMgr pass; teleports start at once (FUN_00463080 → FUN_0047a350)
+            if self.ai_movetoggle {
+                for e in ev0..events.len() {
+                    if let Event::Hit(i) = events[e] { self.movetoggle(i); }
+                }
+            }
             for (k, uid, delay) in teleports {
                 let b = &mut balls[k];
                 if delay > 0 { b.teleport = delay; b.teleport_uid = Some(uid); }
@@ -2057,6 +2176,8 @@ impl Board {
                 continue;
             }
             if let Some(b) = balls.get_mut(k) {
+                // FUN_0046f480: a live real fireball (not Magic Hat) immediately turns burned pegs off (FUN_004769f0(0))
+                if b.fireball { self.objs[i].collidable = false; self.objs[i].visible = false; }
                 if is_brick && b.frames == 0 && since < 20 {
                     if let Some(lb) = b.last_brick {
                         let sp = (b.vel[0] * b.vel[0] + b.vel[1] * b.vel[1]) as f64;
@@ -2077,8 +2198,8 @@ impl Board {
                 }
             }
             let pos = balls.get(k).map_or([0.0; 2], |b| b.pos);
-            // FUN_0046b910 (contact log + Long Shot) only for balls with Ball+0xe8 == 0 (not Multiball's)
-            if !balls.get(k).map_or(false, |b| b.child) {
+            // FUN_0046b910 (contact log + Long Shot) only for balls with Ball+0xe8 == 0
+            if balls.get(k).map_or(false, |b| b.slot == 0) {
                 self.contact_log.push((tick, t, pos));
                 if *COMBO_TRACE { eprintln!("CONTACT t{tick} n{} type{t} ball{k} pos {:?}", self.contact_log.len(), pos); }
                 self.long_shot_check(t);
@@ -2091,7 +2212,11 @@ impl Board {
         // BallHitPeg (FUN_0046f480) side effects of first hits: green → character power
         // (a Space Blast can hit further greens: keep going until no new first hits are queued)
         while !self.new_hits.is_empty() {
-            for (k, i) in std::mem::take(&mut self.new_hits) {
+            for (k, i, hat, forced) in std::mem::take(&mut self.new_hits) {
+                if forced {
+                    let pos = balls.get(k).map_or([0.0; 2], |b| b.pos);
+                    self.all_clear_check(pos);
+                }
                 if self.objs[i].peg_type == crate::score::ORANGE { self.orange_attack_check(i); }
                 if self.objs[i].peg_type == crate::score::GREEN {
                     // LogicMgr+0x50 (greens hit this shot) == 2 → style 10 (FUN_0046edf0)
@@ -2101,14 +2226,19 @@ impl Board {
                     }
                     self.activate_power(balls, k, i);
                 }
-                // FUN_0043d580: no oranges left (LogicMgr+0x360 == 0) and not yet in fever → FUN_00458ae0
-                if !self.fever_on && self.oranges_left() == 0 {
-                    // style 5 needs board+0x1a4 == 2 (not seen yet); else 11 if the ball touched the bucket
-                    // board+0x1a4 = balls in play (Multiball): exactly 2 → style 5 instead. The ball checked is the
-                    // ball wearing a Magic Hat counts as its hat ball, which never touches the bucket (fun 4-3 / 10-1;
-                    // 50/50 style-11 verify cases agree)
+                // FUN_0043d580: no oranges left (LogicMgr+0x360 == 0) and not yet in fever → FUN_00458ae0.
+                // Check against the hit that actually took remaining oranges to 0 (not an earlier hit
+                // queued on the same tick, e.g. main-ball blue + hat-ball last orange on fun 9-4 shot 3).
+                let last_orange_hit = self.oranges_left() == 0 && (
+                    self.shot_hits.iter().rposition(|&j| self.objs[j].peg_type == crate::score::ORANGE)
+                        .map_or(true, |rp| self.shot_hits[rp] == i)
+                );
+                if !self.fever_on && last_orange_hit {
+                    // style 5 when board+0x1a4 == 2 (Multiball); else style 11 when the hitting ball itself
+                    // touched the bucket (a Magic Hat ball +0x18c has its own +0x178 == 0, while the main
+                    // ball wearing a hat still has its own +0x178)
                     if balls.iter().filter(|b| !b.gone).count() == 2 { self.styles.push((5, 25000)); }
-                    else if balls.get(k).map_or(false, |b| b.hat.is_none() && b.bucket_touch > 0) { self.styles.push((11, 25000)); }
+                    else if !hat && balls.get(k).map_or(false, |b| b.bucket_touch > 0) { self.styles.push((11, 25000)); }
                     self.start_fever();
                 }
             }
@@ -2124,13 +2254,13 @@ impl Board {
             }
         }
         for &k in order.iter() {
-            // FUN_0045f120 (after the board update): a spooky ball whose top edge passed the board
-            // height respawns at the top
+            // FUN_00470230 (fever hole with spooky ball) and FUN_0045f120 (below board height)
             let b = &balls[k];
-            if b.spooky && (self.height as f32) < sub(b.pos[1], b.r).r() {
+            let from_fever = fever_spooky.contains(&k);
+            if from_fever || (b.spooky && (self.height as f32) < sub(b.pos[1], b.r).r()) {
                 lost[k] = false;
                 let mut b = std::mem::take(&mut balls[k]);
-                self.spooky_respawn(&mut b);
+                self.spooky_respawn_at(&mut b, from_fever);
                 balls[k] = b;
             }
             if lost[k] { events.push(Event::Lost); }
@@ -2173,20 +2303,20 @@ impl Board {
         if hit == need { self.styles.push((3, 50000)); }
     }
 
-    /// FUN_0046bbc0 (ball caught by the free-ball bucket): style chain. Ball+0xe8 is taken as 0;
-    /// the fireball-lid (7), +0x124 (17) and bumperhole (16) cases are not modelled.
+    /// FUN_0046bbc0 (ball caught by the free-ball bucket): style chain (including fireball-lid style 7
+    /// and bumperhole style 16; Duel-only +0x124 style 17 is omitted).
     fn bucket_catch_styles(&mut self, b: &Ball) {
         let pegs = self.shot_hits.len() as i32;
         let tick = self.btick;
         let l = &self.contact_log;
-        let quick = !b.child && (pegs == 1 || (l.len() == 2 && l[1].0 - l[0].0 < 20 && tick - l[1].0 < 50));
+        let quick = b.slot == 0 && (pegs == 1 || (l.len() == 2 && l[1].0 - l[0].0 < 20 && tick - l[1].0 < 50));
         let mut t = if b.bucket_touches < 1 { 150 } else { 50 };
         let miny = if b.bucket_miny == 0 { 10000 } else { b.bucket_miny };
         if 560 - miny > 125 { t = (0.4f32 as f64 * t as f64) as i32; }
         let mut b2 = false;
         let mut style: Option<(u8, i32)> = None;
         let mut chain = true;
-        if quick || (!b.child && pegs >= 1) {
+        if quick || (b.slot == 0 && pegs >= 1) {
             self.catch_streak = self.catch_streak.abs() + 1;
             if self.catch_streak % 10 != 0 { b2 = true; } else { style = Some((14, 100000)); chain = false; }
         }
@@ -2209,7 +2339,8 @@ impl Board {
     /// BallHitPeg: every peg cleared (+0x360 == 0 and +0x36c == 0) → style 4 (50000) when the log
     /// has > 2 entries, or 2 with the previous one not orange or > 120 px away.
     fn all_clear_check(&mut self, pos: [f32; 2]) {
-        let left = self.objs.iter().filter(|o| o.has_peginfo && o.peg_type != 0 && !o.hit).count();
+        if self.styles.iter().any(|s| s.0 == 4) { return; }
+        let left = self.objs.iter().filter(|o| o.has_peginfo && o.peg_type != 0 && !o.hit && o.visible && o.collidable).count();
         if left != 0 || self.oranges_left() != 0 { return; }
         let n = self.contact_log.len();
         if !(self.fever_on || n > 2) || n < 2 { return; }
@@ -2224,12 +2355,13 @@ impl Board {
         if !o.has_peginfo { return; }
         // PegInfo+0x14 (set at the first BallHitPeg, kept after the peg pops from the hit list mid-flight)
         let first = !o.hit && !self.shot_hits.contains(&i);
+        if !self.peek { o.hit = true; }
         if !self.forced_contact { self.pending_contacts.push((self.cur_ball, i, first, self.hat_contact)); }
         if first {
             self.hit_list.push(i);
             self.shot_hits.push(i);
             self.shot_hit_bticks.push(self.btick);
-            self.new_hits.push((self.cur_ball, i));
+            self.new_hits.push((self.cur_ball, i, self.hat_contact, self.forced_contact));
             self.shot_timer = self.shot_timer.min(SHOT_HIT_CAP); // BallHitPeg, first hit only
         }
         let o = &mut self.objs[i];
@@ -2275,11 +2407,11 @@ impl Board {
             let mut best: Option<usize> = None;
             for &ci in cands.iter() {
                 let o = &self.objs[ci];
-                // a fireball no longer collides with pegs it already burned this shot: real 11-1 (seed 5,
-                // shot 2) bounces off the wall while overlapping an already-hit brick, which the toi-0
-                // pass-through contact would otherwise block for the rest of the frame (5 real runs fixed,
-                // none of 382 changed otherwise)
-                if b.fireball && o.has_peginfo && self.shot_hits.contains(&ci) { continue; }
+                // a fireball no longer collides with pegs it already burned this shot (FUN_0046f480 → FUN_004769f0(0);
+                // in AI mode FUN_004428e0 checks the AIBall's own hit set `b.ai_hits`)
+                if b.fireball && o.has_peginfo && (if self.ai { b.ai_hits.contains(&ci) } else { self.shot_hits.contains(&ci) }) { continue; }
+                // FUN_004428e0: in AI mode with power 3 (Multiball), already-hit green pegs are skipped
+                if self.ai && self.power == 3 && o.has_peginfo && o.peg_type == crate::score::GREEN && b.ai_hits.contains(&ci) { continue; }
                 let mut hh = h;
                 let hit = match &o.geom {
                     Geom::Line(l) => {
@@ -2318,7 +2450,7 @@ impl Board {
                 events.push(Event::Hit(bi));
                 // PegInfo+0x14 stays set like on a bounce: a popped peg (off the hit list, still
                 // collidable for 4 updates) must not count as a first hit again
-                if !self.peek { self.objs[bi].hit = true; }
+                if !self.peek && !self.ai { self.objs[bi].hit = true; }
                 if let Some(k) = cands.iter().position(|&c| c == bi) { cands.remove(k); }
                 continue;
             }
@@ -2336,7 +2468,7 @@ impl Board {
             else if callback {
                 self.peg_contact(bi);
                 events.push(Event::Hit(bi));
-                self.objs[bi].hit = true;
+                if !self.ai { self.objs[bi].hit = true; }
                 // FUN_004704a0 compares the id with "freeball" exactly (std::string::compare(0, size, "freeball", 8)):
                 // the lid ("freeballcover", collidable for a fireball) is not a bucket touch (8-2 real run: no style 11)
                 if o.freeball && !o.cover && !o.has_peginfo && !matches!(o.geom, Geom::Hole { .. }) { self.pending_bucket.push(self.cur_ball); }
@@ -2517,6 +2649,46 @@ impl Default for Gun {
 }
 
 impl Gun {
+    /// Custom gun geometry (pivot, barrel offsets +0x16c/+0x170, launch speed +0x160).
+    pub fn new(pos: [f32; 2], off16c: f32, off170: f32, speed: f32) -> Gun {
+        Gun { pos, off16c, off170, speed }
+    }
+
+    /// FUN_00484120 (`Gun::Update` angle slew): step `cur` (+0x150) toward `target` (+0x154) by
+    /// ModVal Gun.cpp24 = 0.2 rad/tick (wrapping angles < 0 by +2π during comparison), clamping
+    /// both through `aim::norm` on arrival.
+    pub fn update_slew(cur: &mut f32, target: &mut f32) {
+        if *target == *cur { return; }
+        let mut t = *target;
+        let mut c = *cur;
+        let two_pi = TWO_PI_D as f32;
+        if t < 0.0 { t = add(t, two_pi).r(); }
+        if c < 0.0 { c = add(c, two_pi).r(); }
+        let step = 0.20000000298023224f32; // _DAT_005d81f4
+        if t <= c {
+            *cur = sub(*cur, step).r();
+            if sub(c, step).r() <= t {
+                let n = crate::aim::norm(*target);
+                *target = n;
+                *cur = n;
+            }
+        } else {
+            *cur = add(step, *cur).r();
+            if t <= add(step, c).r() {
+                let n = crate::aim::norm(*target);
+                *target = n;
+                *cur = n;
+            }
+        }
+    }
+
+    /// FUN_00484530 (`Gun::Fire` <10-frame old-angle fallback): when `use_old` is true and fewer
+    /// than 10 gun ticks elapsed since the last aim change (`gun_ticks - last_change_tick < 10`),
+    /// the shot launches at `old_angle` (+0x188) instead of `cur_angle` (+0x150).
+    pub fn fire_angle(cur_angle: f32, old_angle: f32, ticks_since_change: u32, use_old: bool) -> f32 {
+        if use_old && ticks_since_change < 10 { old_angle } else { cur_angle }
+    }
+
     /// Ball placement (FUN_00483da0 tail) and launch velocity (Gun::Fire FUN_00484530).
     pub fn launch(&self, angle: f32, ball_r: f32) -> Ball {
         let lx = (x(self.off170) + ball_r).r();

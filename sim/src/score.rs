@@ -15,7 +15,7 @@
 //! shot gets no tally balls (13/13 such real level totals; non-final shots are the same either way).
 //! Level end (Extreme Fever): the fever hole adds its value (Hole+0xf0) via FUN_0046e740, then
 //! FUN_0046ca60/FUN_0046c400 drain the Ball-o-Tron adding 10000 per ball left (5000 if +0x124).
-//! Style-shot bonuses are not modelled yet.
+//! Style-shot bonuses are tracked in `Board::styles` (`phys.rs`) and added to `ShotResult::score`.
 
 pub const BLUE: u8 = 1;
 pub const ORANGE: u8 = 2;
