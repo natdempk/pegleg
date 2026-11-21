@@ -11,8 +11,8 @@ points. The simulator draws the same numbers.
 
 ## Proof: the golden test
 
-`tests/golden/` holds 274 recorded real-game runs, taken from the TAS sets as they were built plus a set of
-closed-loop runs. For each one the test replays the inputs in the simulator and compares every peg, ball count,
+`tests/golden/` holds 297 recorded real-game runs, taken from the TAS sets as they were built, a set of
+closed-loop runs, and targeted mechanic/input regression captures. For each one the test replays the inputs in the simulator and compares every peg, ball count,
 score and power counter at every point where the game is ready for the next shot, and the final total.
 
 ```sh

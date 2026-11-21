@@ -44,7 +44,7 @@ fn golden_runs_match_the_real_game() {
     let mut runs: Vec<PathBuf> = std::fs::read_dir(root.join("tests/golden")).unwrap()
         .map(|e| e.unwrap().path()).filter(|p| p.to_string_lossy().ends_with(".run.gz") && p.to_string_lossy().contains(&filter)).collect();
     runs.sort();
-    if filter.is_empty() { assert!(runs.len() >= 274, "golden set incomplete: {} runs", runs.len()); }
+    if filter.is_empty() { assert!(runs.len() >= 297, "golden set incomplete: {} runs", runs.len()); }
     let level_file = |n: &str| std::fs::read(levels.join(format!("{n}.dat"))).ok();
     let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
     let chunk = runs.len().div_ceil(threads).max(1);

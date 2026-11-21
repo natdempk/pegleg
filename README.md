@@ -4,7 +4,7 @@ A bit-exact simulator of **Peggle Deluxe** (Steam), a search that finds tool-ass
 the glue to play those runs in the real game, check them, and record them.
 
 The simulator reproduces the game exactly: a simulated shot ends in the same place, to the last bit of every
-float, as the real one. That's checked against 274 recorded real-game runs on every build. A beam search then tries
+float, as the real one. That's checked against 297 recorded real-game runs on every build. A beam search then tries
 millions of shots per level and picks the plan that best fits a goal (fastest clear, highest score, fewest shots,
 or clearing every peg). A second search, `oneshot`, goes through the 2^32 RNG seeds for a first shot that wins
 the level. Plans are inputs a person could make: an aim at a window pixel and a click at a normal moment.

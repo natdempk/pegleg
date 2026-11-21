@@ -69,7 +69,7 @@ for f in game/levels/*[A-Z]*.dat; do [ -e "$f" ] || continue; l=$(echo "$f" | tr
 say "building the simulator and solver (release)"
 (cd sim && cargo build --release -q)
 (cd solver && cargo build --release -q)
-say "bit-exactness test: the simulator against 274 recorded real-game runs"
+say "bit-exactness test: the simulator against 297 recorded real-game runs"
 (cd sim && cargo test --release -q --test golden 2>&1 | grep -E "test result|FAIL") || die "golden test failed"
 
 # --- 4. playback DLL --------------------------------------------------------------------------------
